@@ -9,6 +9,8 @@ import { HistorySection } from './components/history/HistorySection';
 import { RankingSection } from './components/ranking/RankingSection';
 import { SettingsSection } from './components/settings/SettingsSection';
 import { PlayerSection } from './components/players/PlayerSection';
+import { RoomGate } from './components/room/RoomGate';
+import { RoomBadge } from './components/room/RoomBadge';
 
 const TABS: TabDef[] = [
   { id: 'input', name: '成績入力・精算', icon: Plus },
@@ -20,6 +22,14 @@ const TABS: TabDef[] = [
 ];
 
 function App() {
+  return (
+    <RoomGate>
+      <AppShell />
+    </RoomGate>
+  );
+}
+
+function AppShell() {
   const [activeTab, setActiveTab] = useState<string>('input');
 
   return (
@@ -28,6 +38,7 @@ function App() {
 
       <div className="max-w-md md:max-w-5xl mx-auto p-4 md:p-6 relative z-10">
         <Header />
+        <RoomBadge />
 
         <TabNav tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
 
