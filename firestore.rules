@@ -1,0 +1,18 @@
+rules_version = '2';
+
+// ROAD to RICH のデータモデル:
+//   rooms/{roomCode}/state/players    { list: Player[] }
+//   rooms/{roomCode}/state/settings   Settings
+//   rooms/{roomCode}/state/currentDay { games: Game[] }
+//   rooms/{roomCode}/history/{autoId} DayRecord
+//
+// ルームコードを知っている（かつ匿名認証済みの）クライアントは
+// そのルーム配下を自由に読み書きできます。ルームコードが合言葉の役割を果たすため、
+// 第三者に教えない前提の設計です。個人情報や実名を含む運用は避けてください。
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /rooms/{roomCode}/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

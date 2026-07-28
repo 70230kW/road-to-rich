@@ -1,92 +1,190 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { DayRecord, Game, Player, PlayerCount, Settings } from '../types';
-import { defaultRankPoints } from '../lib/calc';
+import { defaultSettings } from '../lib/defaults';
+import { ensureAnonymousAuth } from '../lib/firebase';
+import {
+  ensureRoomInitialized,
+  finalizeDay as finalizeDayRepo,
+  saveCurrentDay,
+  savePlayers,
+  saveSettings,
+  subscribeCurrentDay,
+  subscribeHistory,
+  subscribePlayers,
+  subscribeSettings,
+} from '../lib/roomRepo';
+
+export { defaultSettings };
+
+const ROOM_CODE_STORAGE_KEY = 'road-to-rich-room-code';
 
 function uid(): string {
   return crypto.randomUUID();
 }
 
-export const defaultSettings: Settings = {
-  playerCount: 4,
-  initialScore: 25000,
-  chipValue: 100,
-  divider: 10,
-  rankPoints4: defaultRankPoints(4) as [number, number, number, number],
-  rankPoints3: [...defaultRankPoints(3), 0].slice(0, 3) as [number, number, number],
-};
+export function getSavedRoomCode(): string | null {
+  return localStorage.getItem(ROOM_CODE_STORAGE_KEY);
+}
+
+export type ConnectionStatus = 'idle' | 'connecting' | 'synced' | 'error';
 
 interface AppState {
+  roomCode: string | null;
+  connectionStatus: ConnectionStatus;
+  connectionError: string | null;
+
   players: Player[];
   settings: Settings;
   currentDayGames: Game[];
   history: DayRecord[];
 
-  addPlayer: (name: string) => void;
-  updatePlayer: (id: string, name: string) => void;
-  removePlayer: (id: string) => void;
+  _unsubscribeAll: (() => void) | null;
 
-  updateSettings: (patch: Partial<Settings>) => void;
-  setPlayerCount: (count: PlayerCount) => void;
+  connectToRoom: (roomCode: string) => Promise<void>;
+  leaveRoom: () => void;
 
-  addGame: (game: Omit<Game, 'id'>) => void;
-  removeGame: (gameId: string) => void;
+  addPlayer: (name: string) => Promise<void>;
+  updatePlayer: (id: string, name: string) => Promise<void>;
+  removePlayer: (id: string) => Promise<void>;
 
-  finalizeDay: (day: Omit<DayRecord, 'id' | 'date'>) => void;
+  updateSettings: (patch: Partial<Settings>) => Promise<void>;
+  setPlayerCount: (count: PlayerCount) => Promise<void>;
+
+  addGame: (game: Omit<Game, 'id'>) => Promise<void>;
+  removeGame: (gameId: string) => Promise<void>;
+
+  finalizeDay: (day: Omit<DayRecord, 'id' | 'date'>) => Promise<void>;
 }
 
-export const useAppStore = create<AppState>()(
-  persist(
-    (set) => ({
+export const useAppStore = create<AppState>()((set, get) => ({
+  roomCode: null,
+  connectionStatus: 'idle',
+  connectionError: null,
+
+  players: [],
+  settings: defaultSettings,
+  currentDayGames: [],
+  history: [],
+
+  _unsubscribeAll: null,
+
+  connectToRoom: async (roomCode) => {
+    get()._unsubscribeAll?.();
+    set({
+      roomCode,
+      connectionStatus: 'connecting',
+      connectionError: null,
       players: [],
       settings: defaultSettings,
       currentDayGames: [],
       history: [],
+    });
 
-      addPlayer: (name) =>
-        set((state) => ({
-          players: [...state.players, { id: uid(), name: name.trim() }],
-        })),
+    try {
+      await ensureAnonymousAuth();
+      await ensureRoomInitialized(roomCode);
 
-      updatePlayer: (id, name) =>
-        set((state) => ({
-          players: state.players.map((p) => (p.id === id ? { ...p, name: name.trim() } : p)),
-        })),
+      // Only mark "synced" once every slice has delivered its first snapshot.
+      const pending = new Set(['players', 'settings', 'currentDay', 'history']);
+      const markReady = (slice: string) => {
+        pending.delete(slice);
+        if (pending.size === 0 && get().roomCode === roomCode) {
+          set({ connectionStatus: 'synced' });
+        }
+      };
 
-      removePlayer: (id) =>
-        set((state) => ({
-          players: state.players.filter((p) => p.id !== id),
-        })),
+      const unsubs = [
+        subscribePlayers(roomCode, (players) => {
+          set({ players });
+          markReady('players');
+        }),
+        subscribeSettings(roomCode, (settings) => {
+          set({ settings });
+          markReady('settings');
+        }),
+        subscribeCurrentDay(roomCode, (currentDayGames) => {
+          set({ currentDayGames });
+          markReady('currentDay');
+        }),
+        subscribeHistory(roomCode, (history) => {
+          set({ history });
+          markReady('history');
+        }),
+      ];
+      set({ _unsubscribeAll: () => unsubs.forEach((u) => u()) });
+      localStorage.setItem(ROOM_CODE_STORAGE_KEY, roomCode);
+    } catch (err) {
+      set({ connectionStatus: 'error', connectionError: err instanceof Error ? err.message : String(err) });
+    }
+  },
 
-      updateSettings: (patch) =>
-        set((state) => ({
-          settings: { ...state.settings, ...patch },
-        })),
+  leaveRoom: () => {
+    get()._unsubscribeAll?.();
+    localStorage.removeItem(ROOM_CODE_STORAGE_KEY);
+    set({
+      roomCode: null,
+      connectionStatus: 'idle',
+      connectionError: null,
+      players: [],
+      settings: defaultSettings,
+      currentDayGames: [],
+      history: [],
+      _unsubscribeAll: null,
+    });
+  },
 
-      setPlayerCount: (count) =>
-        set((state) => ({
-          settings: { ...state.settings, playerCount: count },
-        })),
+  addPlayer: async (name) => {
+    const { roomCode, players } = get();
+    if (!roomCode || !name.trim()) return;
+    await savePlayers(roomCode, [...players, { id: uid(), name: name.trim() }]);
+  },
 
-      addGame: (game) =>
-        set((state) => ({
-          currentDayGames: [...state.currentDayGames, { ...game, id: uid() }],
-        })),
+  updatePlayer: async (id, name) => {
+    const { roomCode, players } = get();
+    if (!roomCode || !name.trim()) return;
+    await savePlayers(
+      roomCode,
+      players.map((p) => (p.id === id ? { ...p, name: name.trim() } : p)),
+    );
+  },
 
-      removeGame: (gameId) =>
-        set((state) => ({
-          currentDayGames: state.currentDayGames.filter((g) => g.id !== gameId),
-        })),
+  removePlayer: async (id) => {
+    const { roomCode, players } = get();
+    if (!roomCode) return;
+    await savePlayers(
+      roomCode,
+      players.filter((p) => p.id !== id),
+    );
+  },
 
-      finalizeDay: (day) =>
-        set((state) => ({
-          history: [...state.history, { ...day, id: uid(), date: new Date().toISOString() }],
-          currentDayGames: [],
-        })),
-    }),
-    {
-      name: 'road-to-rich-store',
-      version: 1,
-    },
-  ),
-);
+  updateSettings: async (patch) => {
+    const { roomCode, settings } = get();
+    if (!roomCode) return;
+    await saveSettings(roomCode, { ...settings, ...patch });
+  },
+
+  setPlayerCount: async (count) => {
+    await get().updateSettings({ playerCount: count });
+  },
+
+  addGame: async (game) => {
+    const { roomCode, currentDayGames } = get();
+    if (!roomCode) return;
+    await saveCurrentDay(roomCode, [...currentDayGames, { ...game, id: uid() }]);
+  },
+
+  removeGame: async (gameId) => {
+    const { roomCode, currentDayGames } = get();
+    if (!roomCode) return;
+    await saveCurrentDay(
+      roomCode,
+      currentDayGames.filter((g) => g.id !== gameId),
+    );
+  },
+
+  finalizeDay: async (day) => {
+    const { roomCode } = get();
+    if (!roomCode) return;
+    await finalizeDayRepo(roomCode, { ...day, date: new Date().toISOString() });
+  },
+}));
