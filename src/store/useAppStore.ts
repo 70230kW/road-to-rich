@@ -82,7 +82,6 @@ export const useAppStore = create<AppState>()((set, get) => ({
 
     try {
       await ensureAnonymousAuth();
-      await ensureRoomInitialized(roomCode);
 
       // Only mark "synced" once every slice has delivered its first snapshot.
       const pending = new Set(['players', 'settings', 'currentDay', 'history']);
@@ -113,6 +112,13 @@ export const useAppStore = create<AppState>()((set, get) => ({
       ];
       set({ _unsubscribeAll: () => unsubs.forEach((u) => u()) });
       localStorage.setItem(ROOM_CODE_STORAGE_KEY, roomCode);
+
+      // Seeding defaults only matters for a brand-new room; the listeners
+      // above already stream real data for existing ones, so this runs
+      // in the background instead of blocking the first render on it.
+      ensureRoomInitialized(roomCode).catch((err) => {
+        console.error('Failed to seed default room state:', err);
+      });
     } catch (err) {
       set({ connectionStatus: 'error', connectionError: err instanceof Error ? err.message : String(err) });
     }
