@@ -77,7 +77,7 @@ export function SettingsSection() {
               onChange={(e) => updateSettings({ chipValue: Number(e.target.value) || 0 })}
               className="w-full bg-abyss border border-slate-700/80 rounded-xl pl-5 pr-12 py-4 text-cyan-100 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 font-mono text-lg shadow-inner transition-all"
             />
-            <span className="absolute right-5 top-1/2 -translate-y-1/2 font-bold text-slate-500">円</span>
+            <span className="absolute right-5 top-1/2 -translate-y-1/2 font-bold text-slate-500 pointer-events-none">円</span>
           </div>
         </div>
 

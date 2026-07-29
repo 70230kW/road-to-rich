@@ -33,10 +33,10 @@ export function StatCard({
     <div
       className={`p-5 rounded-3xl border flex flex-col justify-between relative overflow-hidden group transition-all duration-500 hover:scale-[1.02] ${colorMap[color]} backdrop-blur-sm`}
     >
-      <div className="absolute top-0 right-0 -mt-2 -mr-2 opacity-10 group-hover:opacity-20 transition-opacity duration-500 group-hover:scale-125 transform">
+      <div className="absolute top-0 right-0 -mt-2 -mr-2 opacity-10 group-hover:opacity-20 transition-opacity duration-500 group-hover:scale-125 transform pointer-events-none">
         {cloneElement(icon, { className: 'w-20 h-20' })}
       </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       <div className="text-xs font-black text-slate-400 mb-2 tracking-[0.15em] z-10 uppercase">{title}</div>
       <div className={`text-lg sm:text-2xl md:text-3xl font-black font-mono z-10 ${textMap[color]}`}>{value}</div>
       {sub && (
