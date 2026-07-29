@@ -84,7 +84,6 @@ export function SettlementForm({
             </label>
             <input
               type="number"
-              inputMode="numeric"
               value={tableFeeInput}
               onChange={(e) => setTableFeeInput(e.target.value)}
               className="w-full bg-abyss border border-slate-700 rounded-2xl px-5 py-4 text-slate-100 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 font-mono text-2xl shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] transition-all"
@@ -120,7 +119,6 @@ export function SettlementForm({
                   <div className="relative">
                     <input
                       type="number"
-                      inputMode="numeric"
                       value={chipInputs[pid] ?? ''}
                       onChange={(e) => setChipInputs({ ...chipInputs, [pid]: e.target.value })}
                       className={`w-28 bg-[#0a0f1d] border rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-1 font-mono text-right text-lg transition-all ${
