@@ -1,0 +1,19 @@
+# Only added/modified files are dangerous here — a staged deletion (e.g.
+# untracking a leaked file) must never be blocked by this check.
+staged=$(git diff --cached --name-status --diff-filter=AM | cut -f2)
+
+blocked=""
+if [ -n "$staged" ]; then
+  blocked=$(echo "$staged" | { grep -E '(^|/)\.env(\..*)?$|service-account.*\.json$|firebase-adminsdk.*\.json$' || true; } | { grep -v '\.env\.example$' || true; })
+fi
+
+if [ -n "$blocked" ]; then
+  echo "❌ コミットを中止しました。以下のファイルには秘密情報が含まれる可能性があります:"
+  echo "$blocked" | sed 's/^/   /'
+  echo ""
+  echo "   本当にコミットしたい場合は、まず git reset HEAD <file> で該当ファイルを"
+  echo "   ステージから外してください（意図的な例外は .husky/pre-commit を編集）。"
+  exit 1
+fi
+
+exit 0

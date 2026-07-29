@@ -12,7 +12,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepare": "husky"
   },
   "dependencies": {
     "firebase": "^12.16.0",
@@ -31,6 +32,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
     "firebase-admin": "^14.2.0",
+    "husky": "^9.1.7",
     "jsdom": "^30.0.0",
     "oxlint": "^1.71.0",
     "tailwindcss": "^4.3.3",
