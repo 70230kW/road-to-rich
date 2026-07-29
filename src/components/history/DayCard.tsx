@@ -35,7 +35,7 @@ export function DayCard({
         aria-expanded={isExpanded}
         className="w-full text-left p-5 md:p-6 bg-abyss/40 flex justify-between items-center cursor-pointer group relative overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
         <div className="relative z-10">
           <div className="font-mono text-cyan-300 font-black text-lg md:text-xl tracking-widest drop-shadow-md">
             {formatDate(day.date)}
@@ -76,7 +76,7 @@ export function DayCard({
                   key={pid}
                   className="bg-abyss p-4 rounded-2xl border border-slate-700/80 flex flex-col justify-center relative overflow-hidden group hover:border-cyan-800/80 transition-colors"
                 >
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                   <div className="text-xs font-bold text-slate-400 mb-2 tracking-wide pl-1">{name(pid)}</div>
                   <div
                     className={`font-mono font-black text-xl md:text-2xl pl-1 ${
