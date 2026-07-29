@@ -161,7 +161,6 @@ export function HanchanForm({
                     <div className="relative flex-1 md:w-48">
                       <input
                         type="number"
-                        inputMode="numeric"
                         value={displayValue}
                         onChange={(e) => handleScoreChange(i, e.target.value)}
                         disabled={isAuto}
