@@ -7,13 +7,27 @@
  * never written to) and writes generated history into a TARGET room. Refuses
  * to run if source === target, so it can never touch real data.
  *
+ * Uses firebase-admin (a service account) rather than the client SDK: the
+ * client SDK's API key goes through Google's HTTP-referrer restriction, which
+ * (correctly) has no allowance for a bare Node process with no browser
+ * referer, so anonymous sign-in fails outside a browser. Admin credentials
+ * bypass that entirely and also aren't subject to Firestore security rules.
+ *
+ * Setup (one-time): Firebase Console > プロジェクトの設定 > サービスアカウント >
+ * "新しい秘密鍵の生成" to download a JSON key. Save it outside the repo (or
+ * anywhere already gitignored) and never commit it — unlike the web
+ * firebaseConfig, this key grants full admin access to your project.
+ *
  * Usage:
- *   node --env-file=.env.local scripts/seed-sample-data.mjs \
+ *   GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json \
+ *     node scripts/seed-sample-data.mjs \
  *     [--source=funai] [--target=funai-sample] [--start=2025-01-06] [--end=2026-06-30]
+ *
+ * Local emulator (no service account needed): set FIRESTORE_EMULATOR_HOST
+ * (e.g. 127.0.0.1:8080) and FIREBASE_PROJECT_ID before running.
  */
-import { initializeApp } from 'firebase/app';
-import { connectAuthEmulator, getAuth, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
-import { addDoc, collection, connectFirestoreEmulator, doc, getDoc, getFirestore, setDoc } from 'firebase/firestore';
+import { cert, initializeApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 
 function parseArgs() {
   const parsed = Object.fromEntries(
@@ -29,15 +43,6 @@ function parseArgs() {
     end: parsed.end || '2026-06-30',
   };
 }
-
-const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY,
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.VITE_FIREBASE_APP_ID,
-};
 
 // ---- calculation helpers (kept in sync with src/lib/calc.ts by hand; this
 // script has no build step, so it can't import the TS source directly) ----
@@ -136,49 +141,43 @@ function generateChips(playerIds) {
   return Object.fromEntries(playerIds.map((id, i) => [id, values[i]]));
 }
 
-async function main() {
-  const { source, target, start, end } = parseArgs();
+function initFirestore() {
+  const emulatorHost = process.env.FIRESTORE_EMULATOR_HOST;
+  if (emulatorHost) {
+    const projectId = process.env.FIREBASE_PROJECT_ID || process.env.GCLOUD_PROJECT || 'demo-project';
+    initializeApp({ projectId });
+    console.log(`[emulator] ${emulatorHost} のローカル Firestore エミュレータに接続します (project: ${projectId})。`);
+    return getFirestore();
+  }
 
-  if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  const keyPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  if (!keyPath) {
     console.error(
-      'Firebase設定が見つかりません。.env.local を用意し、\n  node --env-file=.env.local scripts/seed-sample-data.mjs\nの形式で実行してください。',
+      'サービスアカウントの認証情報が見つかりません。\n' +
+        '  1. Firebase Console > プロジェクトの設定 > サービスアカウント > 「新しい秘密鍵の生成」でJSONキーをダウンロード\n' +
+        '  2. GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json node scripts/seed-sample-data.mjs\n' +
+        'の形式で実行してください（このJSONキーは強力な権限を持つため、絶対にリポジトリにコミットしないでください）。',
     );
     process.exit(1);
   }
+  initializeApp({ credential: cert(keyPath) });
+  return getFirestore();
+}
+
+async function main() {
+  const { source, target, start, end } = parseArgs();
 
   if (source === target) {
     console.error(`--source と --target が同じです（"${source}"）。実データを上書きしないよう処理を中止します。`);
     process.exit(1);
   }
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  if (process.env.VITE_USE_FIREBASE_EMULATOR === 'true') {
-    connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
-    connectFirestoreEmulator(db, '127.0.0.1', 8080);
-    console.log('[emulator] ローカルの Auth/Firestore エミュレータに接続します。');
-  }
-
-  await new Promise((resolve, reject) => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (user) => {
-        if (user) {
-          unsubscribe();
-          resolve();
-        }
-      },
-      reject,
-    );
-    signInAnonymously(auth).catch(reject);
-  });
+  const db = initFirestore();
 
   console.log(`[read] "${source}" の雀士・設定を読み込み中...`);
-  const playersSnap = await getDoc(doc(db, 'rooms', source, 'state', 'players'));
-  const settingsSnap = await getDoc(doc(db, 'rooms', source, 'state', 'settings'));
-  if (!playersSnap.exists() || !settingsSnap.exists()) {
+  const playersSnap = await db.doc(`rooms/${source}/state/players`).get();
+  const settingsSnap = await db.doc(`rooms/${source}/state/settings`).get();
+  if (!playersSnap.exists || !settingsSnap.exists) {
     throw new Error(`ルーム "${source}" が見つからないか、まだ何も保存されていません。`);
   }
   const players = playersSnap.data().list;
@@ -190,12 +189,12 @@ async function main() {
   console.log(`  設定: ${settings.playerCount}人麻雀 / 配給原点${settings.initialScore} / 割る数${settings.divider}`);
 
   console.log(`[write] "${target}" に players/settings をコピー中... (source "${source}" は変更しません)`);
-  await setDoc(doc(db, 'rooms', target, 'state', 'players'), { list: players });
-  await setDoc(doc(db, 'rooms', target, 'state', 'settings'), settings);
-  await setDoc(doc(db, 'rooms', target, 'state', 'currentDay'), { games: [] });
+  await db.doc(`rooms/${target}/state/players`).set({ list: players });
+  await db.doc(`rooms/${target}/state/settings`).set(settings);
+  await db.doc(`rooms/${target}/state/currentDay`).set({ games: [] });
 
   const playerIds = players.map((p) => p.id);
-  const historyCol = collection(db, 'rooms', target, 'history');
+  const historyCol = db.collection(`rooms/${target}/history`);
 
   const startDate = new Date(`${start}T12:00:00Z`);
   const endDate = new Date(`${end}T12:00:00Z`);
@@ -207,7 +206,7 @@ async function main() {
     const chips = generateChips(playerIds);
     const settlement = calcDaySettlement(games, chips, tableFee, settings);
 
-    await addDoc(historyCol, {
+    await historyCol.add({
       date: new Date(d).toISOString(),
       games,
       tableFee,
