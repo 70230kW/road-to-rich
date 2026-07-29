@@ -109,6 +109,11 @@ function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
+/** Picks settings.playerCount participants for one day's session out of the full registered pool. */
+function pickDayParticipants(playerIds, settings) {
+  return shuffle(playerIds).slice(0, settings.playerCount);
+}
+
 function generateHanchan(playerIds, settings) {
   const order = shuffle(playerIds);
   const lastIdx = order.length - 1;
@@ -164,6 +169,20 @@ function initFirestore() {
   return getFirestore();
 }
 
+/** Deletes every existing history doc in the target room so re-running the script doesn't pile up alongside old/incorrect data. */
+async function clearHistory(historyCol) {
+  const snap = await historyCol.get();
+  if (snap.empty) return 0;
+  const batchSize = 400; // stay under Firestore's 500-write batch limit
+  const docs = snap.docs;
+  for (let i = 0; i < docs.length; i += batchSize) {
+    const batch = historyCol.firestore.batch();
+    docs.slice(i, i + batchSize).forEach((d) => batch.delete(d.ref));
+    await batch.commit();
+  }
+  return docs.length;
+}
+
 async function main() {
   const { source, target, start, end } = parseArgs();
 
@@ -185,8 +204,11 @@ async function main() {
   if (players.length < settings.playerCount) {
     throw new Error(`"${source}" の登録雀士数(${players.length})が対局形式(${settings.playerCount}人)に足りません。`);
   }
-  console.log(`  雀士: ${players.map((p) => p.name).join(', ')}`);
-  console.log(`  設定: ${settings.playerCount}人麻雀 / 配給原点${settings.initialScore} / 割る数${settings.divider}`);
+  console.log(`  雀士: ${players.map((p) => p.name).join(', ')} (${players.length}名登録)`);
+  console.log(
+    `  設定: ${settings.playerCount}人麻雀 / 配給原点${settings.initialScore} / 割る数${settings.divider} ` +
+      `→ 1日あたり登録雀士の中から${settings.playerCount}名を選んで対局`,
+  );
 
   console.log(`[write] "${target}" に players/settings をコピー中... (source "${source}" は変更しません)`);
   await db.doc(`rooms/${target}/state/players`).set({ list: players });
@@ -196,14 +218,18 @@ async function main() {
   const playerIds = players.map((p) => p.id);
   const historyCol = db.collection(`rooms/${target}/history`);
 
+  const removed = await clearHistory(historyCol);
+  if (removed > 0) console.log(`[clear] "${target}" の既存サンプル履歴 ${removed} 件を削除しました。`);
+
   const startDate = new Date(`${start}T12:00:00Z`);
   const endDate = new Date(`${end}T12:00:00Z`);
   let count = 0;
   for (const d = new Date(startDate); d <= endDate; d.setUTCDate(d.getUTCDate() + 7)) {
+    const dayParticipants = pickDayParticipants(playerIds, settings);
     const gamesCount = randInt(2, 4);
-    const games = Array.from({ length: gamesCount }, () => generateHanchan(playerIds, settings));
+    const games = Array.from({ length: gamesCount }, () => generateHanchan(dayParticipants, settings));
     const tableFee = generateTableFee(gamesCount);
-    const chips = generateChips(playerIds);
+    const chips = generateChips(dayParticipants);
     const settlement = calcDaySettlement(games, chips, tableFee, settings);
 
     await historyCol.add({
