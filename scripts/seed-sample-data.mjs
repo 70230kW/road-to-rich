@@ -119,6 +119,16 @@ function generateHanchan(playerIds, settings) {
   return { id: crypto.randomUUID(), scores: calcGameSettlement(entries, settings) };
 }
 
+function generateTableFee(gamesCount) {
+  // 半荘1回あたり概ね1,000円（4人なら1人あたり約250円）を中心にばらつかせ、
+  // 遊んだ半荘数に応じて合計する。
+  let total = 0;
+  for (let i = 0; i < gamesCount; i++) {
+    total += randInt(800, 1200);
+  }
+  return Math.round(total / 100) * 100;
+}
+
 function generateChips(playerIds) {
   const values = playerIds.map(() => randInt(-3, 3));
   const sum = values.reduce((a, b) => a + b, 0);
@@ -193,7 +203,7 @@ async function main() {
   for (const d = new Date(startDate); d <= endDate; d.setUTCDate(d.getUTCDate() + 7)) {
     const gamesCount = randInt(2, 4);
     const games = Array.from({ length: gamesCount }, () => generateHanchan(playerIds, settings));
-    const tableFee = randInt(3, 6) * 1000;
+    const tableFee = generateTableFee(gamesCount);
     const chips = generateChips(playerIds);
     const settlement = calcDaySettlement(games, chips, tableFee, settings);
 
