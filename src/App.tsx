@@ -1,16 +1,37 @@
-import { useState } from 'react';
-import { BarChart3, Crown, History, Plus, Settings as SettingsIcon, Users } from 'lucide-react';
+import { lazy, Suspense, useState } from 'react';
+import { BarChart3, Crown, History, Loader2, Plus, Settings as SettingsIcon, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { Header } from './components/layout/Header';
 import { TabNav, type TabDef } from './components/layout/TabNav';
 import { InputSection } from './components/input/InputSection';
-import { DashboardSection } from './components/dashboard/DashboardSection';
-import { HistorySection } from './components/history/HistorySection';
-import { RankingSection } from './components/ranking/RankingSection';
-import { SettingsSection } from './components/settings/SettingsSection';
-import { PlayerSection } from './components/players/PlayerSection';
 import { RoomGate } from './components/room/RoomGate';
 import { RoomBadge } from './components/room/RoomBadge';
+
+// Only the default "input" tab loads eagerly; the rest are fetched on first
+// visit so the initial bundle (and time-to-interactive) stays small.
+const DashboardSection = lazy(() =>
+  import('./components/dashboard/DashboardSection').then((m) => ({ default: m.DashboardSection })),
+);
+const HistorySection = lazy(() =>
+  import('./components/history/HistorySection').then((m) => ({ default: m.HistorySection })),
+);
+const RankingSection = lazy(() =>
+  import('./components/ranking/RankingSection').then((m) => ({ default: m.RankingSection })),
+);
+const SettingsSection = lazy(() =>
+  import('./components/settings/SettingsSection').then((m) => ({ default: m.SettingsSection })),
+);
+const PlayerSection = lazy(() =>
+  import('./components/players/PlayerSection').then((m) => ({ default: m.PlayerSection })),
+);
+
+function TabLoading() {
+  return (
+    <div className="flex items-center justify-center py-24 text-slate-500">
+      <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
+    </div>
+  );
+}
 
 const TABS: TabDef[] = [
   { id: 'input', name: '成績入力・精算', icon: Plus },
@@ -50,11 +71,13 @@ function AppShell() {
 
           <div className="relative z-10">
             {activeTab === 'input' && <InputSection onNavigateToPlayers={() => setActiveTab('players')} />}
-            {activeTab === 'dashboard' && <DashboardSection />}
-            {activeTab === 'history' && <HistorySection />}
-            {activeTab === 'ranking' && <RankingSection />}
-            {activeTab === 'settings' && <SettingsSection />}
-            {activeTab === 'players' && <PlayerSection />}
+            <Suspense fallback={<TabLoading />}>
+              {activeTab === 'dashboard' && <DashboardSection />}
+              {activeTab === 'history' && <HistorySection />}
+              {activeTab === 'ranking' && <RankingSection />}
+              {activeTab === 'settings' && <SettingsSection />}
+              {activeTab === 'players' && <PlayerSection />}
+            </Suspense>
           </div>
         </div>
 
