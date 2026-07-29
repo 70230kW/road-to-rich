@@ -17,6 +17,10 @@ dist-ssr
 .env.*
 !.env.example
 
+# Firebase Admin SDK service account keys — full admin access, never commit
+*service-account*.json
+*firebase-adminsdk*.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
