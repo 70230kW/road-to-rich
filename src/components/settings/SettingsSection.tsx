@@ -68,21 +68,6 @@ export function SettingsSection() {
 
         <div className="bg-panel-2/60 p-6 rounded-[2rem] border border-slate-700/50 hover:border-cyan-800/80 transition-all duration-300 backdrop-blur-sm group">
           <label className="block text-xs font-black text-slate-400 mb-3 tracking-[0.15em] uppercase group-hover:text-cyan-400 transition-colors">
-            チップ1枚の金額（円）
-          </label>
-          <div className="relative">
-            <input
-              type="number"
-              value={settings.chipValue}
-              onChange={(e) => updateSettings({ chipValue: Number(e.target.value) || 0 })}
-              className="w-full bg-abyss border border-slate-700/80 rounded-xl pl-5 pr-12 py-4 text-cyan-100 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 font-mono text-lg shadow-inner transition-all"
-            />
-            <span className="absolute right-5 top-1/2 -translate-y-1/2 font-bold text-slate-500 pointer-events-none">円</span>
-          </div>
-        </div>
-
-        <div className="bg-panel-2/60 p-6 rounded-[2rem] border border-slate-700/50 hover:border-cyan-800/80 transition-all duration-300 backdrop-blur-sm group">
-          <label className="block text-xs font-black text-slate-400 mb-3 tracking-[0.15em] uppercase group-hover:text-cyan-400 transition-colors">
             割る数（レート相当）
           </label>
           <input

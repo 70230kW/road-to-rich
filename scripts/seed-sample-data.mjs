@@ -77,7 +77,7 @@ function calcTableFeeShare(totalFee, participantCount) {
   return Math.ceil(totalFee / participantCount);
 }
 
-function calcDaySettlement(games, chips, tableFee, settings) {
+function calcDaySettlement(games, chips, tableFee, chipRate) {
   const participantIds = Object.keys(chips);
   const tableFeeShare = calcTableFeeShare(tableFee, participantIds.length);
   const result = {};
@@ -87,7 +87,7 @@ function calcDaySettlement(games, chips, tableFee, settings) {
       return sum + (score ? score.point : 0);
     }, 0);
     const chipCount = chips[pid] ?? 0;
-    const chipValue = chipCount * settings.chipValue;
+    const chipValue = chipCount * chipRate;
     const totalWithoutFee = gamesTotal + chipValue;
     const totalWithFee = totalWithoutFee - tableFeeShare;
     result[pid] = { gamesTotal, chipCount, chipValue, tableFeeShare, totalWithoutFee, totalWithFee };
@@ -144,6 +144,12 @@ function generateChips(playerIds) {
   const sum = values.reduce((a, b) => a + b, 0);
   values[0] -= sum;
   return Object.fromEntries(playerIds.map((id, i) => [id, values[i]]));
+}
+
+/** チップ1枚のレートは日によって変わりうるので、日ごとにランダムに決める。 */
+function generateChipRate() {
+  const rates = [50, 100, 100, 100, 200, 300];
+  return rates[randInt(0, rates.length - 1)];
 }
 
 function initFirestore() {
@@ -230,13 +236,15 @@ async function main() {
     const games = Array.from({ length: gamesCount }, () => generateHanchan(dayParticipants, settings));
     const tableFee = generateTableFee(gamesCount);
     const chips = generateChips(dayParticipants);
-    const settlement = calcDaySettlement(games, chips, tableFee, settings);
+    const chipRate = generateChipRate();
+    const settlement = calcDaySettlement(games, chips, tableFee, chipRate);
 
     await historyCol.add({
       date: new Date(d).toISOString(),
       games,
       tableFee,
       chips,
+      chipRate,
       settlement,
     });
     count++;

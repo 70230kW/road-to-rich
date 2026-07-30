@@ -14,7 +14,6 @@ import type { Game, Settings } from '../types';
 const fourPlayerSettings: Settings = {
   playerCount: 4,
   initialScore: 25000,
-  chipValue: 100,
   divider: 10,
   rankPoints4: [30000, 10000, -10000, -30000],
   rankPoints3: [20000, 0, -20000],
@@ -227,7 +226,7 @@ describe('calcDaySettlement', () => {
   ];
 
   it('combines game totals, chips, and the fee share per the spec formula', () => {
-    const settlement = calcDaySettlement(games, { a: 1, b: -1, c: 0, d: 0 }, 4000, fourPlayerSettings);
+    const settlement = calcDaySettlement(games, { a: 1, b: -1, c: 0, d: 0 }, 4000, 100);
     // a: 6320 (games) + 100 (1 chip * 100) - 1000 (fee share) = 5420
     expect(settlement.a.totalWithoutFee).toBe(6420);
     expect(settlement.a.tableFeeShare).toBe(1000);
@@ -238,7 +237,13 @@ describe('calcDaySettlement', () => {
   });
 
   it('only includes participants supplied via the chips map', () => {
-    const settlement = calcDaySettlement(games, { a: 0, b: 0 }, 0, fourPlayerSettings);
+    const settlement = calcDaySettlement(games, { a: 0, b: 0 }, 0, 100);
     expect(Object.keys(settlement)).toEqual(['a', 'b']);
+  });
+
+  it('uses the day-specific chip rate rather than any fixed value', () => {
+    const settlement = calcDaySettlement(games, { a: 2, b: -2, c: 0, d: 0 }, 0, 500);
+    expect(settlement.a.chipValue).toBe(1000);
+    expect(settlement.b.chipValue).toBe(-1000);
   });
 });

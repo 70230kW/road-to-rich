@@ -48,6 +48,7 @@ export function DayCard({
               <DollarSign className="w-3 h-3 mr-0.5" />
               場代: {formatYen(day.tableFee)}円
             </span>
+            <span>チップ: {formatYen(day.chipRate)}円/枚</span>
             <span>{participantIds.length}人参加</span>
           </div>
         </div>
