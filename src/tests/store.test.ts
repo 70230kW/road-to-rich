@@ -7,6 +7,8 @@ const mocks = vi.hoisted(() => ({
   saveSettings: vi.fn(),
   saveCurrentDay: vi.fn(),
   finalizeDay: vi.fn(),
+  updateDay: vi.fn(),
+  deleteDay: vi.fn(),
   playersCb: null as ((players: unknown[]) => void) | null,
   settingsCb: null as ((settings: unknown) => void) | null,
   currentDayCb: null as ((games: unknown[]) => void) | null,
@@ -49,6 +51,8 @@ vi.mock('../lib/roomRepo', () => ({
   saveSettings: mocks.saveSettings,
   saveCurrentDay: mocks.saveCurrentDay,
   finalizeDay: mocks.finalizeDay,
+  updateDay: mocks.updateDay,
+  deleteDay: mocks.deleteDay,
 }));
 
 const { useAppStore, defaultSettings, getSavedRoomCode } = await import('../store/useAppStore');
@@ -68,6 +72,8 @@ beforeEach(() => {
   mocks.saveSettings.mockResolvedValue(undefined);
   mocks.saveCurrentDay.mockResolvedValue(undefined);
   mocks.finalizeDay.mockResolvedValue(undefined);
+  mocks.updateDay.mockResolvedValue(undefined);
+  mocks.deleteDay.mockResolvedValue(undefined);
   mocks.playersCb = null;
   mocks.settingsCb = null;
   mocks.currentDayCb = null;
@@ -214,6 +220,17 @@ describe('game actions', () => {
     const day = { games: [{ id: 'g1', scores }], tableFee: 4000, chips: { a: 0 }, chipRate: 100, settlement: {} };
     await useAppStore.getState().finalizeDay(day);
     expect(mocks.finalizeDay).toHaveBeenCalledWith('room-g', expect.objectContaining({ ...day, date: expect.any(String) }));
+  });
+
+  it('updateDay delegates the patch to the repo without touching the date', async () => {
+    const patch = { games: [{ id: 'g1', scores }], tableFee: 5000, chips: { a: 1 }, chipRate: 200, settlement: {} };
+    await useAppStore.getState().updateDay('day-1', patch);
+    expect(mocks.updateDay).toHaveBeenCalledWith('room-g', 'day-1', patch);
+  });
+
+  it('deleteDay delegates to the repo', async () => {
+    await useAppStore.getState().deleteDay('day-1');
+    expect(mocks.deleteDay).toHaveBeenCalledWith('room-g', 'day-1');
   });
 });
 

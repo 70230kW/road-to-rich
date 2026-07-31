@@ -1,20 +1,30 @@
-import { useMemo } from 'react';
-import { ChevronDown, DollarSign } from 'lucide-react';
-import type { DayRecord, Player } from '../../types';
+import { useMemo, useState } from 'react';
+import { ChevronDown, DollarSign, Pencil, Trash2 } from 'lucide-react';
+import type { DayRecord, Player, Settings } from '../../types';
 import { formatDate, formatSignedYen, formatYen } from '../../lib/format';
+import { ConfirmDialog } from '../common/ConfirmDialog';
+import { DayEditor } from './DayEditor';
 import { MatrixTable } from './MatrixTable';
 
 export function DayCard({
   day,
   players,
+  settings,
   isExpanded,
   onToggle,
+  onUpdateDay,
+  onDeleteDay,
 }: {
   day: DayRecord;
   players: Player[];
+  settings: Settings;
   isExpanded: boolean;
   onToggle: () => void;
+  onUpdateDay: (dayId: string, patch: Omit<DayRecord, 'id' | 'date'>) => void;
+  onDeleteDay: (dayId: string) => void;
 }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const participantIds = useMemo(() => {
     const seen = new Set<string>();
     day.games.forEach((g) => g.scores.forEach((s) => seen.add(s.playerId)));
@@ -22,6 +32,21 @@ export function DayCard({
   }, [day, players]);
 
   const name = (id: string) => players.find((p) => p.id === id)?.name ?? '不明';
+
+  if (isEditing) {
+    return (
+      <DayEditor
+        day={day}
+        players={players}
+        settings={settings}
+        onCancel={() => setIsEditing(false)}
+        onSave={(patch) => {
+          onUpdateDay(day.id, patch);
+          setIsEditing(false);
+        }}
+      />
+    );
+  }
 
   return (
     <div
@@ -65,6 +90,23 @@ export function DayCard({
 
       {isExpanded && (
         <div className="p-5 md:p-8 border-t border-slate-700/50 bg-panel-3/80 relative animate-fade-in">
+          <div className="flex justify-end gap-2 mb-6 relative z-10">
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/30 transition-all"
+            >
+              <Pencil className="w-3.5 h-3.5" /> 編集
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 transition-all"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> 削除
+            </button>
+          </div>
+
           <h4 className="text-xs font-black text-cyan-400 mb-4 tracking-[0.2em] uppercase flex items-center relative z-10">
             <span className="w-2 h-2 rounded-full bg-cyan-400 mr-2 shadow-[0_0_8px_rgba(34,211,238,1)]" />
             この日の精算結果
@@ -99,6 +141,18 @@ export function DayCard({
           <MatrixTable day={day} participantIds={participantIds} players={players} />
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmingDelete}
+        title="対戦履歴を削除"
+        message={`${formatDate(day.date)}の対戦履歴を削除します。この操作は取り消せません。よろしいですか？`}
+        confirmLabel="削除する"
+        onCancel={() => setConfirmingDelete(false)}
+        onConfirm={() => {
+          onDeleteDay(day.id);
+          setConfirmingDelete(false);
+        }}
+      />
     </div>
   );
 }

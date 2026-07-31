@@ -1,12 +1,14 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
   orderBy,
   query,
   setDoc,
+  updateDoc,
   type Unsubscribe,
 } from 'firebase/firestore';
 import { getFirebaseDb } from './firebase';
@@ -23,6 +25,10 @@ function roomDoc(roomCode: string, segments: readonly string[]) {
 
 function historyCollection(roomCode: string) {
   return collection(getFirebaseDb(), 'rooms', roomCode, 'history');
+}
+
+function historyDoc(roomCode: string, dayId: string) {
+  return doc(getFirebaseDb(), 'rooms', roomCode, 'history', dayId);
 }
 
 /** Seeds a room's state docs with defaults the first time it's ever entered. */
@@ -80,4 +86,12 @@ export async function saveCurrentDay(roomCode: string, games: Game[]): Promise<v
 export async function finalizeDay(roomCode: string, day: Omit<DayRecord, 'id'>): Promise<void> {
   await addDoc(historyCollection(roomCode), day);
   await saveCurrentDay(roomCode, []);
+}
+
+export async function updateDay(roomCode: string, dayId: string, patch: Omit<DayRecord, 'id' | 'date'>): Promise<void> {
+  await updateDoc(historyDoc(roomCode, dayId), patch);
+}
+
+export async function deleteDay(roomCode: string, dayId: string): Promise<void> {
+  await deleteDoc(historyDoc(roomCode, dayId));
 }

@@ -9,11 +9,19 @@ import { NeonButton } from '../common/NeonButton';
 export function SettlementForm({
   players,
   currentDayGames,
+  initialTableFee,
+  initialChipRate,
+  initialChips,
+  saveLabel = '結果を保存する',
   onCancel,
   onSave,
 }: {
   players: Player[];
   currentDayGames: Game[];
+  initialTableFee?: number;
+  initialChipRate?: number;
+  initialChips?: Record<string, number>;
+  saveLabel?: string;
   onCancel: () => void;
   onSave: (day: Omit<DayRecord, 'id' | 'date'>) => void;
 }) {
@@ -23,10 +31,10 @@ export function SettlementForm({
     return players.filter((p) => seen.has(p.id)).map((p) => p.id);
   }, [currentDayGames, players]);
 
-  const [tableFeeInput, setTableFeeInput] = useState('');
-  const [chipRateInput, setChipRateInput] = useState('');
+  const [tableFeeInput, setTableFeeInput] = useState(initialTableFee !== undefined ? String(initialTableFee) : '');
+  const [chipRateInput, setChipRateInput] = useState(initialChipRate !== undefined ? String(initialChipRate) : '');
   const [chipInputs, setChipInputs] = useState<Record<string, string>>(() =>
-    Object.fromEntries(participantIds.map((id) => [id, ''])),
+    Object.fromEntries(participantIds.map((id) => [id, initialChips?.[id] !== undefined ? String(initialChips[id]) : ''])),
   );
   const [attemptedSave, setAttemptedSave] = useState(false);
 
@@ -234,7 +242,7 @@ export function SettlementForm({
         </NeonButton>
         <NeonButton variant="success" onClick={handleSave} className="flex-1">
           <Save className="w-6 h-6 mr-3" />
-          結果を保存する
+          {saveLabel}
         </NeonButton>
       </div>
     </div>
