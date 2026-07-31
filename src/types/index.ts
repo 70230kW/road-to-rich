@@ -10,8 +10,6 @@ export interface Settings {
   playerCount: PlayerCount;
   /** 配給原点 */
   initialScore: number;
-  /** チップ1枚の金額（円） */
-  chipValue: number;
   /** 割る数（レート相当） */
   divider: number;
   /** 四麻の順位点 (1〜4着), ウマ・オカ込み。length 4 */
@@ -57,5 +55,7 @@ export interface DayRecord {
   games: Game[];
   tableFee: number;
   chips: Record<string, number>;
+  /** チップ1枚の金額（円）。日によって変わりうるため、設定ではなく精算時に入力する。 */
+  chipRate: number;
   settlement: Record<string, DaySettlementEntry>;
 }

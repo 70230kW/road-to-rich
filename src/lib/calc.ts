@@ -127,13 +127,16 @@ export function isChipTotalBalanced(chips: Record<string, number | null | undefi
 
 /**
  * Aggregates a day's recorded hanchans + chips + table fee into a per-player settlement.
- * 最終結果 = ゲーム精算合計 + チップ枚数×単価 − 場代合計÷参加人数
+ * 最終結果 = ゲーム精算合計 + チップ枚数×その日のチップ単価 − 場代合計÷参加人数
+ *
+ * chipRate is the day's チップ1枚の金額（円）, entered at settlement time (not a
+ * global setting) since it can vary from one session to the next.
  */
 export function calcDaySettlement(
   games: Game[],
   chips: Record<string, number>,
   tableFee: number,
-  settings: Settings,
+  chipRate: number,
 ): Record<string, DaySettlementEntry> {
   const participantIds = Object.keys(chips);
   const tableFeeShare = calcTableFeeShare(tableFee, participantIds.length);
@@ -145,7 +148,7 @@ export function calcDaySettlement(
       return sum + (score ? score.point : 0);
     }, 0);
     const chipCount = chips[pid] ?? 0;
-    const chipValue = chipCount * settings.chipValue;
+    const chipValue = chipCount * chipRate;
     const totalWithoutFee = gamesTotal + chipValue;
     const totalWithFee = totalWithoutFee - tableFeeShare;
 

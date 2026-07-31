@@ -17,7 +17,6 @@ export function InputSection({ onNavigateToPlayers }: { onNavigateToPlayers: () 
     return (
       <SettlementForm
         players={players}
-        settings={settings}
         currentDayGames={currentDayGames}
         onCancel={() => setIsSettling(false)}
         onSave={(day) => {

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Activity, ChevronsRight, DollarSign, Save } from 'lucide-react';
-import type { DaySettlementEntry, DayRecord, Game, Player, Settings } from '../../types';
+import type { DaySettlementEntry, DayRecord, Game, Player } from '../../types';
 import { calcDaySettlement, isChipTotalBalanced } from '../../lib/calc';
 import { formatSignedYen, formatYen } from '../../lib/format';
 import { ErrorBanner } from '../common/ErrorBanner';
@@ -8,13 +8,11 @@ import { NeonButton } from '../common/NeonButton';
 
 export function SettlementForm({
   players,
-  settings,
   currentDayGames,
   onCancel,
   onSave,
 }: {
   players: Player[];
-  settings: Settings;
   currentDayGames: Game[];
   onCancel: () => void;
   onSave: (day: Omit<DayRecord, 'id' | 'date'>) => void;
@@ -26,12 +24,14 @@ export function SettlementForm({
   }, [currentDayGames, players]);
 
   const [tableFeeInput, setTableFeeInput] = useState('');
+  const [chipRateInput, setChipRateInput] = useState('');
   const [chipInputs, setChipInputs] = useState<Record<string, string>>(() =>
     Object.fromEntries(participantIds.map((id) => [id, ''])),
   );
   const [attemptedSave, setAttemptedSave] = useState(false);
 
   const tableFee = Number(tableFeeInput) || 0;
+  const chipRate = Number(chipRateInput) || 0;
   const chips = useMemo(
     () => Object.fromEntries(participantIds.map((id) => [id, Number(chipInputs[id]) || 0])),
     [participantIds, chipInputs],
@@ -39,25 +39,30 @@ export function SettlementForm({
 
   const chipsBalanced = isChipTotalBalanced(chips);
   const chipTotal = Object.values(chips).reduce((a, b) => a + b, 0);
+  const chipRateMissing = chipTotal !== 0 && chipRate === 0;
 
   const settlement = useMemo(
-    () => calcDaySettlement(currentDayGames, chips, tableFee, settings),
-    [currentDayGames, chips, tableFee, settings],
+    () => calcDaySettlement(currentDayGames, chips, tableFee, chipRate),
+    [currentDayGames, chips, tableFee, chipRate],
   );
 
   const name = (id: string) => players.find((p) => p.id === id)?.name ?? '不明';
 
-  const errorMessage = attemptedSave && !chipsBalanced
-    ? `チップの合計が 0 になっていません（現在: ${chipTotal > 0 ? '+' : ''}${chipTotal}枚）。プラスマイナスゼロに調整してください。`
-    : null;
+  const errorMessage =
+    attemptedSave && !chipsBalanced
+      ? `チップの合計が 0 になっていません（現在: ${chipTotal > 0 ? '+' : ''}${chipTotal}枚）。プラスマイナスゼロに調整してください。`
+      : attemptedSave && chipRateMissing
+        ? 'チップの枚数が入力されていますが、チップレート（1枚あたりの金額）が未入力です。'
+        : null;
 
   const handleSave = () => {
     setAttemptedSave(true);
-    if (!chipsBalanced) return;
+    if (!chipsBalanced || chipRateMissing) return;
     onSave({
       games: currentDayGames,
       tableFee,
       chips,
+      chipRate,
       settlement,
     });
   };
@@ -109,6 +114,27 @@ export function SettlementForm({
                 {chipTotal}枚
               </span>
             </label>
+
+            <div className="flex items-center justify-between gap-3 mb-4 bg-abyss/80 p-3.5 rounded-2xl border border-slate-800/80">
+              <span className="text-xs font-bold text-slate-400 tracking-wide pl-2">チップ1枚のレート</span>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={chipRateInput}
+                  onChange={(e) => setChipRateInput(e.target.value)}
+                  className={`w-28 bg-[#0a0f1d] border rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-1 font-mono text-right text-lg transition-all ${
+                    chipRateMissing && attemptedSave
+                      ? 'border-rose-500/70 focus:border-rose-400 focus:ring-rose-400/50'
+                      : 'border-slate-700 focus:border-fuchsia-400 focus:ring-fuchsia-400/50'
+                  }`}
+                  placeholder="100"
+                />
+                <span className="absolute right-[-24px] top-1/2 -translate-y-1/2 text-xs text-slate-500 font-bold pointer-events-none">
+                  円
+                </span>
+              </div>
+            </div>
+
             <div className="space-y-3">
               {participantIds.map((pid) => (
                 <div

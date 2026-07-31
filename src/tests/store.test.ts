@@ -179,8 +179,8 @@ describe('settings actions', () => {
   });
 
   it('updateSettings merges the patch and writes the full settings doc', async () => {
-    await useAppStore.getState().updateSettings({ chipValue: 200 });
-    expect(mocks.saveSettings).toHaveBeenCalledWith('room-f', { ...defaultSettings, chipValue: 200 });
+    await useAppStore.getState().updateSettings({ divider: 20 });
+    expect(mocks.saveSettings).toHaveBeenCalledWith('room-f', { ...defaultSettings, divider: 20 });
   });
 
   it('setPlayerCount updates just the playerCount field', async () => {
@@ -211,7 +211,7 @@ describe('game actions', () => {
   });
 
   it('finalizeDay stamps a date and delegates to the repo', async () => {
-    const day = { games: [{ id: 'g1', scores }], tableFee: 4000, chips: { a: 0 }, settlement: {} };
+    const day = { games: [{ id: 'g1', scores }], tableFee: 4000, chips: { a: 0 }, chipRate: 100, settlement: {} };
     await useAppStore.getState().finalizeDay(day);
     expect(mocks.finalizeDay).toHaveBeenCalledWith('room-g', expect.objectContaining({ ...day, date: expect.any(String) }));
   });
@@ -220,7 +220,7 @@ describe('game actions', () => {
 describe('actions are no-ops without a connected room', () => {
   it('does not call Firestore writers when roomCode is null', async () => {
     await useAppStore.getState().addPlayer('Alice');
-    await useAppStore.getState().updateSettings({ chipValue: 1 });
+    await useAppStore.getState().updateSettings({ divider: 1 });
     await useAppStore.getState().addGame({ scores: [] });
     expect(mocks.savePlayers).not.toHaveBeenCalled();
     expect(mocks.saveSettings).not.toHaveBeenCalled();
