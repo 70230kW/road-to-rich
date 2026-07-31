@@ -33,10 +33,10 @@ export function CumulativeProfitChart({ series }: { series: CumulativeSeries }) 
   const yZero = getY(0);
 
   return (
-    <div className="overflow-x-auto overflow-y-hidden pb-4 scrollbar-hide">
+    <div className="pb-4">
       <svg
         viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-        className="w-full min-w-[600px] h-auto drop-shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+        className="w-full h-auto drop-shadow-[0_0_20px_rgba(6,182,212,0.15)]"
         role="img"
         aria-label="累計収支推移グラフ"
       >
