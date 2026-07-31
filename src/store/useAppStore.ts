@@ -3,6 +3,7 @@ import type { DayRecord, Game, Player, PlayerCount, Settings } from '../types';
 import { defaultSettings } from '../lib/defaults';
 import { ensureAnonymousAuth } from '../lib/firebase';
 import {
+  deleteDay as deleteDayRepo,
   ensureRoomInitialized,
   finalizeDay as finalizeDayRepo,
   saveCurrentDay,
@@ -12,6 +13,7 @@ import {
   subscribeHistory,
   subscribePlayers,
   subscribeSettings,
+  updateDay as updateDayRepo,
 } from '../lib/roomRepo';
 
 export { defaultSettings };
@@ -54,6 +56,8 @@ interface AppState {
   removeGame: (gameId: string) => Promise<void>;
 
   finalizeDay: (day: Omit<DayRecord, 'id' | 'date'>) => Promise<void>;
+  updateDay: (dayId: string, patch: Omit<DayRecord, 'id' | 'date'>) => Promise<void>;
+  deleteDay: (dayId: string) => Promise<void>;
 }
 
 export const useAppStore = create<AppState>()((set, get) => ({
@@ -192,5 +196,17 @@ export const useAppStore = create<AppState>()((set, get) => ({
     const { roomCode } = get();
     if (!roomCode) return;
     await finalizeDayRepo(roomCode, { ...day, date: new Date().toISOString() });
+  },
+
+  updateDay: async (dayId, patch) => {
+    const { roomCode } = get();
+    if (!roomCode) return;
+    await updateDayRepo(roomCode, dayId, patch);
+  },
+
+  deleteDay: async (dayId) => {
+    const { roomCode } = get();
+    if (!roomCode) return;
+    await deleteDayRepo(roomCode, dayId);
   },
 }));

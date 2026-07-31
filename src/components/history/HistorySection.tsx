@@ -8,6 +8,9 @@ import { DayCard } from './DayCard';
 export function HistorySection() {
   const history = useAppStore((s) => s.history);
   const players = useAppStore((s) => s.players);
+  const settings = useAppStore((s) => s.settings);
+  const updateDay = useAppStore((s) => s.updateDay);
+  const deleteDay = useAppStore((s) => s.deleteDay);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (history.length === 0) {
@@ -30,8 +33,11 @@ export function HistorySection() {
             key={day.id}
             day={day}
             players={players}
+            settings={settings}
             isExpanded={expandedId === day.id}
             onToggle={() => setExpandedId(expandedId === day.id ? null : day.id)}
+            onUpdateDay={updateDay}
+            onDeleteDay={deleteDay}
           />
         ))}
       </div>
