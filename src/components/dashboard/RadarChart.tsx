@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { RadarRow } from '../../lib/stats';
 import { formatSignedYen } from '../../lib/format';
 
@@ -35,6 +35,17 @@ function pointAt(index: number, radius: number): { x: number; y: number } {
 }
 
 export function RadarChart({ rows }: { rows: RadarRow[] }) {
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+
+  const toggle = (id: string) => {
+    setHiddenIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   const ranges = useMemo(
     () =>
       AXES.map((axis) => {
@@ -97,6 +108,7 @@ export function RadarChart({ rows }: { rows: RadarRow[] }) {
         })}
 
         {rows.map((row, rIdx) => {
+          if (hiddenIds.has(row.playerId)) return null;
           const color = COLORS[rIdx % COLORS.length];
           const points = AXES.map((axis, i) => {
             const p = pointAt(i, radiusFor(i, row[axis.key] as number));
@@ -118,19 +130,30 @@ export function RadarChart({ rows }: { rows: RadarRow[] }) {
         })}
       </svg>
 
-      <div className="flex flex-wrap justify-center gap-x-6 md:gap-x-8 gap-y-3 mt-6 pt-6 border-t border-slate-700/50">
-        {rows.map((row, rIdx) => (
-          <div
-            key={row.playerId}
-            className="flex items-center text-xs font-bold font-mono tracking-wider bg-abyss/50 px-4 py-2 rounded-full border border-slate-800"
-          >
-            <span
-              className="w-3 h-3 rounded-full mr-2.5"
-              style={{ backgroundColor: COLORS[rIdx % COLORS.length], boxShadow: `0 0 10px ${COLORS[rIdx % COLORS.length]}` }}
-            />
-            <span className="text-slate-200">{row.name}</span>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mt-6 pt-6 border-t border-slate-700/50">
+        {rows.map((row, rIdx) => {
+          const isHidden = hiddenIds.has(row.playerId);
+          const color = COLORS[rIdx % COLORS.length];
+          return (
+            <button
+              key={row.playerId}
+              type="button"
+              onClick={() => toggle(row.playerId)}
+              aria-pressed={!isHidden}
+              className={`flex items-center justify-center text-xs font-bold font-mono tracking-wider px-3 py-2 rounded-full border transition-all ${
+                isHidden
+                  ? 'bg-abyss/20 border-slate-800/60 opacity-40 grayscale'
+                  : 'bg-abyss/50 border-slate-800 hover:border-slate-600'
+              }`}
+            >
+              <span
+                className="w-3 h-3 rounded-full mr-2.5 shrink-0"
+                style={{ backgroundColor: color, boxShadow: isHidden ? 'none' : `0 0 10px ${color}` }}
+              />
+              <span className="text-slate-200 truncate">{row.name}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

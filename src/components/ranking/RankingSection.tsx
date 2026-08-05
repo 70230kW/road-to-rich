@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Crown, Gamepad2, TrendingUp, Zap } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import { computeRanking } from '../../lib/stats';
+import { computeRadarStats, computeRanking } from '../../lib/stats';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { EmptyState } from '../common/EmptyState';
+import { PlayerDetailModal } from './PlayerDetailModal';
 
 const RANK_STYLES = [
   {
@@ -31,6 +32,8 @@ export function RankingSection() {
   const history = useAppStore((s) => s.history);
   const players = useAppStore((s) => s.players);
   const rows = useMemo(() => computeRanking(history, players), [history, players]);
+  const radarRows = useMemo(() => computeRadarStats(history, players), [history, players]);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   if (rows.length === 0) {
     return (
@@ -41,17 +44,35 @@ export function RankingSection() {
     );
   }
 
+  const selectedIdx = rows.findIndex((r) => r.playerId === selectedPlayerId);
+  const selectedRow = selectedIdx >= 0 ? rows[selectedIdx] : null;
+  const selectedRadarRow = radarRows.find((r) => r.playerId === selectedPlayerId) ?? null;
+
   return (
     <div className="space-y-8 animate-fade-in">
       <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" />
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] sm:text-xs text-slate-500 font-mono font-bold px-1">
+        <span className="flex items-center">
+          <Gamepad2 className="w-3 h-3 mr-1.5 text-cyan-500" /> 半荘数
+        </span>
+        <span className="flex items-center">
+          <TrendingUp className="w-3 h-3 mr-1.5 text-fuchsia-500" /> 平均着順
+        </span>
+        <span className="flex items-center">
+          <Zap className="w-3 h-3 mr-1.5 text-yellow-500" /> 平均チップ（1日あたり）
+        </span>
+      </div>
 
       <div className="space-y-3 sm:space-y-5">
         {rows.map((row, idx) => {
           const style = RANK_STYLES[idx] ?? { text: 'text-slate-600', border: 'border-slate-800/80', glow: '', bar: 'bg-slate-800' };
           return (
-            <div
+            <button
+              type="button"
               key={row.playerId}
-              className={`bg-panel-2/70 p-3 sm:p-5 rounded-2xl sm:rounded-[2rem] border ${style.border} ${style.glow} flex items-center gap-2 sm:gap-4 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300 backdrop-blur-md`}
+              onClick={() => setSelectedPlayerId(row.playerId)}
+              className={`w-full text-left bg-panel-2/70 p-3 sm:p-5 rounded-2xl sm:rounded-[2rem] border ${style.border} ${style.glow} flex items-center gap-2 sm:gap-4 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300 backdrop-blur-md cursor-pointer`}
             >
               <div className={`absolute left-0 top-0 bottom-0 w-1.5 sm:w-2 transition-colors ${style.bar}`} />
 
@@ -98,10 +119,19 @@ export function RankingSection() {
                   場代込み {formatSignedYen(row.totalProfitWithFee)}
                 </div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
+
+      {selectedRow && (
+        <PlayerDetailModal
+          row={selectedRow}
+          radarRow={selectedRadarRow}
+          rank={selectedIdx + 1}
+          onClose={() => setSelectedPlayerId(null)}
+        />
+      )}
     </div>
   );
 }

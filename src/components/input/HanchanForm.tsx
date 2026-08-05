@@ -158,17 +158,17 @@ export function HanchanForm({
               return (
                 <div
                   key={i}
-                  className={`flex flex-col md:flex-row md:items-center gap-4 p-4 md:p-5 rounded-2xl border transition-all duration-300 ${
+                  className={`flex items-center gap-2 sm:gap-4 p-2.5 sm:p-4 md:p-5 rounded-2xl border transition-all duration-300 ${
                     isAuto
                       ? 'bg-cyan-950/20 border-cyan-800/50 shadow-[0_0_15px_rgba(6,182,212,0.05)]'
                       : 'bg-panel-2/60 border-slate-700/50 hover:border-slate-500/50'
                   }`}
                 >
-                  <div className="relative flex-1">
+                  <div className="relative flex-1 min-w-0">
                     <select
                       value={selectedIds[i] ?? ''}
                       onChange={(e) => handleSelectChange(i, e.target.value)}
-                      className={`w-full bg-abyss border rounded-xl px-4 py-3.5 text-slate-100 focus:outline-none focus:ring-1 font-bold appearance-none transition-all cursor-pointer tracking-wider shadow-inner ${
+                      className={`w-full bg-abyss border rounded-xl pl-2.5 sm:pl-4 pr-7 sm:pr-10 py-2.5 sm:py-3.5 text-slate-100 focus:outline-none focus:ring-1 font-bold appearance-none transition-all cursor-pointer tracking-wide sm:tracking-wider shadow-inner text-xs sm:text-base ${
                         selectInvalid
                           ? 'border-rose-500/80 focus:border-rose-400 focus:ring-rose-400/50'
                           : 'border-slate-700/80 focus:border-cyan-400 focus:ring-cyan-400/50'
@@ -185,11 +185,11 @@ export function HanchanForm({
                         );
                       })}
                     </select>
-                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-500/70 pointer-events-none" />
+                    <ChevronDown className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-cyan-500/70 pointer-events-none" />
                   </div>
 
-                  <div className="flex items-center gap-3 w-full md:w-auto">
-                    <div className="relative flex-1 md:w-48">
+                  <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                    <div className="relative w-20 sm:w-32 md:w-48">
                       <input
                         type="number"
                         value={displayValue}
@@ -197,7 +197,7 @@ export function HanchanForm({
                         disabled={isAuto}
                         placeholder="0"
                         aria-label={isAuto ? '自動計算される素点' : `素点 (百点単位)`}
-                        className={`w-full bg-abyss border rounded-xl px-4 py-3.5 focus:outline-none font-mono text-xl md:text-2xl text-right transition-all shadow-inner ${
+                        className={`w-full bg-abyss border rounded-xl px-2 sm:px-4 py-2.5 sm:py-3.5 focus:outline-none font-mono text-base sm:text-xl md:text-2xl text-right transition-all shadow-inner ${
                           isAuto
                             ? 'border-cyan-800/80 text-cyan-300 bg-cyan-950/30'
                             : scoreInvalid
@@ -207,7 +207,7 @@ export function HanchanForm({
                       />
                     </div>
                     <span
-                      className={`font-mono font-black text-xl md:text-2xl w-9 md:w-12 ${
+                      className={`font-mono font-black text-base sm:text-xl md:text-2xl w-6 sm:w-9 md:w-12 ${
                         isAuto ? 'text-cyan-500/80 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]' : 'text-slate-500'
                       }`}
                     >

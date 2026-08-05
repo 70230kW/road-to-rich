@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { CumulativeSeries } from '../../lib/stats';
 
 const COLORS = ['#06b6d4', '#e879f9', '#34d399', '#fbbf24', '#f87171', '#818cf8', '#a3e635'];
@@ -12,6 +12,16 @@ const CHART_H = SVG_HEIGHT - PAD_Y * 2;
 
 export function CumulativeProfitChart({ series }: { series: CumulativeSeries }) {
   const { points, activePlayers } = series;
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+
+  const toggle = (id: string) => {
+    setHiddenIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const { minY, maxY } = useMemo(() => {
     let min = 0;
@@ -99,6 +109,7 @@ export function CumulativeProfitChart({ series }: { series: CumulativeSeries }) 
         })}
 
         {activePlayers.map((p, pIdx) => {
+          if (hiddenIds.has(p.id)) return null;
           const color = COLORS[pIdx % COLORS.length];
           const pointsStr = points.map((pt, i) => `${getX(i)},${getY(pt.values[p.id] ?? 0)}`).join(' ');
           return (
@@ -114,19 +125,30 @@ export function CumulativeProfitChart({ series }: { series: CumulativeSeries }) 
         })}
       </svg>
 
-      <div className="flex flex-wrap justify-center gap-x-6 md:gap-x-8 gap-y-3 mt-8 pt-6 border-t border-slate-700/50">
-        {activePlayers.map((p, pIdx) => (
-          <div
-            key={p.id}
-            className="flex items-center text-xs font-bold font-mono tracking-wider bg-abyss/50 px-4 py-2 rounded-full border border-slate-800"
-          >
-            <span
-              className="w-3 h-3 rounded-full mr-2.5"
-              style={{ backgroundColor: COLORS[pIdx % COLORS.length], boxShadow: `0 0 10px ${COLORS[pIdx % COLORS.length]}` }}
-            />
-            <span className="text-slate-200">{p.name}</span>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mt-8 pt-6 border-t border-slate-700/50">
+        {activePlayers.map((p, pIdx) => {
+          const isHidden = hiddenIds.has(p.id);
+          const color = COLORS[pIdx % COLORS.length];
+          return (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => toggle(p.id)}
+              aria-pressed={!isHidden}
+              className={`flex items-center justify-center text-xs font-bold font-mono tracking-wider px-3 py-2 rounded-full border transition-all ${
+                isHidden
+                  ? 'bg-abyss/20 border-slate-800/60 opacity-40 grayscale'
+                  : 'bg-abyss/50 border-slate-800 hover:border-slate-600'
+              }`}
+            >
+              <span
+                className="w-3 h-3 rounded-full mr-2.5 shrink-0"
+                style={{ backgroundColor: color, boxShadow: isHidden ? 'none' : `0 0 10px ${color}` }}
+              />
+              <span className="text-slate-200 truncate">{p.name}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
