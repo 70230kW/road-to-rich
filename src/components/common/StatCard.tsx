@@ -35,20 +35,20 @@ export function StatCard({
 }) {
   return (
     <div
-      className={`p-2 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl border flex flex-col justify-between relative overflow-hidden group transition-all duration-500 hover:scale-[1.02] ${colorMap[color]} backdrop-blur-sm min-w-0`}
+      className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl border flex flex-col justify-between relative overflow-hidden group transition-all duration-500 hover:scale-[1.02] ${colorMap[color]} backdrop-blur-sm min-w-0`}
     >
       <div className="absolute top-0 right-0 -mt-2 -mr-2 opacity-10 group-hover:opacity-20 transition-opacity duration-500 group-hover:scale-125 transform pointer-events-none hidden sm:block">
         {cloneElement(icon, { className: 'w-20 h-20' })}
       </div>
       <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-      <div className="text-[8px] sm:text-[10px] md:text-[11px] font-black text-slate-400 mb-1 sm:mb-2 tracking-[0.05em] sm:tracking-[0.1em] z-10 uppercase leading-[1.15]">
+      <div className="text-[9px] sm:text-[11px] md:text-xs font-black text-slate-400 mb-1 sm:mb-2 tracking-[0.05em] sm:tracking-[0.15em] z-10 uppercase truncate">
         {title}
       </div>
-      <div className={`text-[11px] sm:text-base md:text-2xl font-black font-mono z-10 leading-tight break-words ${textMap[color]}`}>
+      <div className={`text-base sm:text-xl md:text-3xl font-black font-mono z-10 leading-tight break-words ${textMap[color]}`}>
         {value}
       </div>
       {sub && (
-        <div className="text-[7px] sm:text-[9px] md:text-[11px] text-slate-400 font-bold mt-1 sm:mt-2 z-10 uppercase tracking-wide flex items-center">
+        <div className="text-[8px] sm:text-[10px] md:text-xs text-slate-400 font-bold mt-1 sm:mt-2 z-10 uppercase tracking-wide truncate flex items-center">
           <span className="w-1 h-1 rounded-full bg-current mr-1 sm:mr-1.5 opacity-50 shrink-0" />
           <span className="truncate">BY {sub}</span>
         </div>

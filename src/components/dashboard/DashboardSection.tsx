@@ -30,7 +30,7 @@ export function DashboardSection() {
     <div className="space-y-8 animate-fade-in">
       <SectionHeader icon={BarChart3} title="ダッシュボード" accent="cyan" />
 
-      <div className="grid grid-cols-6 gap-1.5 sm:gap-4 md:gap-6">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
         <StatCard title="総稼働日数" value={`${stats.totalDays} DAYS`} icon={<Zap />} color="cyan" />
         <StatCard title="総半荘数" value={`${stats.totalGames} GAMES`} icon={<Gamepad2 />} color="fuchsia" />
         <StatCard
