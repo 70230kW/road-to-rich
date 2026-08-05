@@ -109,6 +109,33 @@ describe('calcGameSettlement', () => {
     expect(result.map((r) => r.rank)).toEqual([1, 2, 3]);
   });
 
+  it('breaks ties using tieBreakOrder when given (起家 basis)', () => {
+    const result = calcGameSettlement(
+      [
+        { playerId: 'a', rawScore: 25000 },
+        { playerId: 'b', rawScore: 25000 },
+        { playerId: 'c', rawScore: 25000 },
+      ],
+      threePlayerSettings,
+      ['c', 'a', 'b'],
+    );
+    expect(result.map((r) => r.playerId)).toEqual(['c', 'a', 'b']);
+    expect(result.map((r) => r.rank)).toEqual([1, 2, 3]);
+  });
+
+  it('falls back to stable order for ids tieBreakOrder does not mention', () => {
+    const result = calcGameSettlement(
+      [
+        { playerId: 'a', rawScore: 25000 },
+        { playerId: 'b', rawScore: 25000 },
+        { playerId: 'c', rawScore: 10000 },
+      ],
+      threePlayerSettings,
+      [], // no overrides supplied
+    );
+    expect(result.map((r) => r.playerId)).toEqual(['a', 'b', 'c']);
+  });
+
   it('supports three-player tables with their own rank points', () => {
     const result = calcGameSettlement(
       [

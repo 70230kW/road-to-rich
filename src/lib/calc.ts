@@ -97,14 +97,25 @@ export function validateHanchanInput(
 /**
  * Converts one hanchan's raw scores into ranked, settled results.
  * 精算金額 = (自身の素点 + 順位点 − 配給原点) ÷ 割る数
- * Ties keep the entrants' original relative order (stable sort).
+ *
+ * Ties are normally broken by the entrants' original relative order (stable
+ * sort), which only matches the 起家 basis rule if the caller happened to
+ * enter players starting from the dealer. `tieBreakOrder`, when given, lists
+ * the tied playerIds in the priority order the caller wants instead (earlier
+ * = better rank); ids it doesn't mention fall back to the stable order.
  */
 export function calcGameSettlement(
   entries: { playerId: string; rawScore: number }[],
   settings: Settings,
+  tieBreakOrder?: string[],
 ): GameScore[] {
   const rankPoints = getRankPoints(settings);
-  const sorted = [...entries].sort((a, b) => b.rawScore - a.rawScore);
+  const priority = tieBreakOrder ? new Map(tieBreakOrder.map((id, i) => [id, i])) : null;
+  const sorted = [...entries].sort((a, b) => {
+    if (b.rawScore !== a.rawScore) return b.rawScore - a.rawScore;
+    if (!priority) return 0;
+    return (priority.get(a.playerId) ?? 0) - (priority.get(b.playerId) ?? 0);
+  });
   return sorted.map((entry, idx) => ({
     playerId: entry.playerId,
     rawScore: entry.rawScore,

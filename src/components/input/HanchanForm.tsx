@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, Gamepad2, Plus, Target, UserPlus } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronUp, Gamepad2, Plus, Target, UserPlus } from 'lucide-react';
 import type { Game, Player, Settings } from '../../types';
 import { calcGameSettlement, computeAutoLastScore, parseHundredsInput, validateHanchanInput } from '../../lib/calc';
 import { ErrorBanner } from '../common/ErrorBanner';
@@ -30,11 +30,13 @@ export function HanchanForm({
   const [selectedIds, setSelectedIds] = useState<(string | null)[]>(Array(playerCount).fill(null));
   const [manualInputs, setManualInputs] = useState<string[]>(Array(lastIndex).fill(''));
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const [tieOrderOverrides, setTieOrderOverrides] = useState<Record<number, string[]>>({});
 
   useEffect(() => {
     setSelectedIds(Array(playerCount).fill(null));
     setManualInputs(Array(playerCount - 1).fill(''));
     setAttemptedSubmit(false);
+    setTieOrderOverrides({});
   }, [playerCount]);
 
   const otherRaw = useMemo(() => manualInputs.map(parseHundredsInput), [manualInputs]);
@@ -45,6 +47,34 @@ export function HanchanForm({
     () => validateHanchanInput(selectedIds, rawScores, settings),
     [selectedIds, rawScores, settings],
   );
+
+  // 素点が同じ雀士は本来「起家を基準」に着順が決まるが、入力欄の並び順が
+  // 必ずしも起家順とは限らないため、同点が出たときだけ手動で並べ替えられるようにする。
+  const tieGroups = useMemo(() => {
+    const byScore = new Map<number, string[]>();
+    selectedIds.forEach((id, i) => {
+      const score = rawScores[i];
+      if (id === null || score === null) return;
+      if (!byScore.has(score)) byScore.set(score, []);
+      byScore.get(score)!.push(id);
+    });
+    return Array.from(byScore.entries())
+      .filter(([, ids]) => ids.length > 1)
+      .map(([score, playerIds]) => ({ score, playerIds }));
+  }, [selectedIds, rawScores]);
+
+  const tieBreakOrder = useMemo(() => {
+    if (tieGroups.length === 0) return undefined;
+    return tieGroups.flatMap((g) => tieOrderOverrides[g.score] ?? g.playerIds);
+  }, [tieGroups, tieOrderOverrides]);
+
+  const movePlayer = (score: number, order: string[], from: number, to: number) => {
+    if (to < 0 || to >= order.length) return;
+    const next = [...order];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    setTieOrderOverrides((prev) => ({ ...prev, [score]: next }));
+  };
 
   const notEnoughPlayers = players.length < playerCount;
 
@@ -65,11 +95,12 @@ export function HanchanForm({
     if (!validation.isValid) return;
 
     const entries = selectedIds.map((id, i) => ({ playerId: id as string, rawScore: rawScores[i] as number }));
-    const settled = calcGameSettlement(entries, settings);
+    const settled = calcGameSettlement(entries, settings, tieBreakOrder);
     onAddGame({ scores: settled });
 
     setManualInputs(Array(lastIndex).fill(''));
     setAttemptedSubmit(false);
+    setTieOrderOverrides({});
     // selectedIds intentionally preserved for the next hanchan
   };
 
@@ -187,6 +218,55 @@ export function HanchanForm({
               );
             })}
           </div>
+
+          {tieGroups.length > 0 && (
+            <div className="bg-amber-950/20 border border-amber-500/30 rounded-2xl p-5 space-y-5">
+              <p className="text-xs font-black text-amber-400 tracking-wide flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                素点が同じ雀士がいます。起家を基準に、上が上位になるよう並べ替えてください。
+              </p>
+              {tieGroups.map((group) => {
+                const order = tieOrderOverrides[group.score] ?? group.playerIds;
+                return (
+                  <div key={group.score} className="space-y-2">
+                    <div className="text-[11px] text-slate-400 font-mono">
+                      素点 {(group.score / 100).toLocaleString()}00点 が同点
+                    </div>
+                    {order.map((id, i) => (
+                      <div
+                        key={id}
+                        className="flex items-center justify-between bg-abyss/80 border border-slate-700/60 rounded-xl px-4 py-2.5"
+                      >
+                        <span className="font-bold text-slate-200 text-sm">
+                          {i + 1}位 {players.find((p) => p.id === id)?.name ?? '不明'}
+                        </span>
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            disabled={i === 0}
+                            onClick={() => movePlayer(group.score, order, i, i - 1)}
+                            aria-label="上位に移動"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-amber-500/10 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                          >
+                            <ChevronUp className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={i === order.length - 1}
+                            onClick={() => movePlayer(group.score, order, i, i + 1)}
+                            aria-label="下位に移動"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-amber-500/10 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                          >
+                            <ChevronDown className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           <NeonButton variant="primary" onClick={handleRecord} className="w-full mt-6">
             <Plus className="w-6 h-6 mr-2" /> この半荘を記録する
