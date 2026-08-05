@@ -45,49 +45,57 @@ export function RankingSection() {
     <div className="space-y-8 animate-fade-in">
       <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" />
 
-      <div className="space-y-5">
+      <div className="space-y-3 sm:space-y-5">
         {rows.map((row, idx) => {
           const style = RANK_STYLES[idx] ?? { text: 'text-slate-600', border: 'border-slate-800/80', glow: '', bar: 'bg-slate-800' };
           return (
             <div
               key={row.playerId}
-              className={`bg-panel-2/70 p-5 rounded-[2rem] border ${style.border} ${style.glow} flex flex-col md:flex-row md:items-center relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300 backdrop-blur-md`}
+              className={`bg-panel-2/70 p-3 sm:p-5 rounded-2xl sm:rounded-[2rem] border ${style.border} ${style.glow} flex items-center gap-2 sm:gap-4 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300 backdrop-blur-md`}
             >
-              <div className={`absolute left-0 top-0 bottom-0 w-2 transition-colors ${style.bar}`} />
+              <div className={`absolute left-0 top-0 bottom-0 w-1.5 sm:w-2 transition-colors ${style.bar}`} />
 
-              <div className={`w-16 md:w-20 text-center font-black text-3xl md:text-4xl italic md:mr-6 mb-4 md:mb-0 ${style.text} font-mono tracking-tighter`}>
+              <div
+                className={`shrink-0 w-7 sm:w-16 md:w-20 text-center font-black text-base sm:text-3xl md:text-4xl italic ${style.text} font-mono tracking-tighter`}
+              >
                 #{idx + 1}
               </div>
 
-              <div className="flex-1 space-y-2">
-                <div className="font-black text-xl md:text-2xl text-slate-100 tracking-wider">{row.name}</div>
-                <div className="flex flex-wrap gap-2 md:gap-3 text-xs text-slate-400 font-mono font-bold">
-                  <span className="flex items-center bg-abyss px-3 py-1.5 rounded-lg border border-slate-800">
-                    <Gamepad2 className="w-3 h-3 mr-1.5 text-cyan-500" />
-                    半荘: <span className="text-slate-200 ml-1.5">{row.hanchanCount}</span>
+              <div className="flex-1 min-w-0">
+                <div className="font-black text-xs sm:text-xl md:text-2xl text-slate-100 tracking-wide truncate">{row.name}</div>
+                <div className="flex items-center gap-1 sm:gap-2 md:gap-3 text-[9px] sm:text-xs text-slate-400 font-mono font-bold mt-1 sm:mt-2">
+                  <span className="flex items-center bg-abyss px-1.5 sm:px-3 py-0.5 sm:py-1.5 rounded-md sm:rounded-lg border border-slate-800 shrink-0">
+                    <Gamepad2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5 text-cyan-500" />
+                    <span className="text-slate-200">{row.hanchanCount}</span>
                   </span>
-                  <span className="flex items-center bg-abyss px-3 py-1.5 rounded-lg border border-slate-800">
-                    <TrendingUp className="w-3 h-3 mr-1.5 text-fuchsia-500" />
-                    平均着順: <span className="text-slate-200 ml-1.5">{row.avgRank !== null ? row.avgRank.toFixed(2) : '-'}</span>
+                  <span className="flex items-center bg-abyss px-1.5 sm:px-3 py-0.5 sm:py-1.5 rounded-md sm:rounded-lg border border-slate-800 shrink-0">
+                    <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5 text-fuchsia-500" />
+                    <span className="text-slate-200">{row.avgRank !== null ? row.avgRank.toFixed(2) : '-'}</span>
                   </span>
-                  <span className="flex items-center bg-abyss px-3 py-1.5 rounded-lg border border-slate-800">
-                    <Zap className="w-3 h-3 mr-1.5 text-yellow-500" />
-                    平均チップ:
-                    <span className={`ml-1.5 ${(row.avgChips ?? 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  <span className="flex items-center bg-abyss px-1.5 sm:px-3 py-0.5 sm:py-1.5 rounded-md sm:rounded-lg border border-slate-800 shrink-0">
+                    <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5 text-yellow-500" />
+                    <span className={(row.avgChips ?? 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
                       {row.avgChips !== null ? `${row.avgChips > 0 ? '+' : ''}${row.avgChips.toFixed(2)}` : '-'}
                     </span>
                   </span>
                 </div>
               </div>
 
-              <div className="mt-4 md:mt-0 text-right md:pl-6">
-                <div className="text-[10px] font-black text-slate-500 mb-1 tracking-[0.2em] uppercase">Total Profit</div>
+              <div className="text-right shrink-0">
+                <div className="text-[7px] sm:text-[10px] font-black text-slate-500 tracking-[0.15em] sm:tracking-[0.2em] uppercase">
+                  Total Profit
+                </div>
                 <div
-                  className={`font-mono text-2xl md:text-4xl font-black ${
-                    row.totalProfit >= 0 ? 'text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.6)]' : 'text-rose-500 drop-shadow-[0_0_12px_rgba(244,63,94,0.6)]'
+                  className={`font-mono text-sm sm:text-2xl md:text-4xl font-black ${
+                    row.totalProfitWithoutFee >= 0
+                      ? 'text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.6)]'
+                      : 'text-rose-500 drop-shadow-[0_0_12px_rgba(244,63,94,0.6)]'
                   }`}
                 >
-                  {formatSignedYen(row.totalProfit)}
+                  {formatSignedYen(row.totalProfitWithoutFee)}
+                </div>
+                <div className="text-[7px] sm:text-[10px] text-slate-500 font-mono mt-0.5">
+                  場代込み {formatSignedYen(row.totalProfitWithFee)}
                 </div>
               </div>
             </div>
