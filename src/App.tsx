@@ -1,11 +1,12 @@
 import { lazy, Suspense, useState } from 'react';
-import { BarChart3, Crown, History, Loader2, Plus, Settings as SettingsIcon, Users } from 'lucide-react';
+import { BarChart3, Crown, History, Plus, Settings as SettingsIcon, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { Header } from './components/layout/Header';
 import { TabNav, type TabDef } from './components/layout/TabNav';
 import { InputSection } from './components/input/InputSection';
 import { RoomGate } from './components/room/RoomGate';
 import { RoomBadge } from './components/room/RoomBadge';
+import { LoadingScreen } from './components/common/LoadingScreen';
 
 // Only the default "input" tab loads eagerly; the rest are fetched on first
 // visit so the initial bundle (and time-to-interactive) stays small.
@@ -26,11 +27,7 @@ const PlayerSection = lazy(() =>
 );
 
 function TabLoading() {
-  return (
-    <div className="flex items-center justify-center py-24 text-slate-500">
-      <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
-    </div>
-  );
+  return <LoadingScreen label="読み込み中" />;
 }
 
 const TABS: TabDef[] = [

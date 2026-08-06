@@ -11,6 +11,9 @@
   --color-panel-3: #0a0f1d;
 
   --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-logo-pulse: logo-pulse 2.2s ease-in-out infinite;
+  --animate-dot-fade: dot-fade 1.4s ease-in-out infinite;
+  --animate-scan-bar: scan-bar 1.6s ease-in-out infinite;
 }
 
 @keyframes fade-in {
@@ -21,6 +24,38 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes logo-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.6));
+  }
+  50% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.9));
+  }
+}
+
+@keyframes dot-fade {
+  0%,
+  80%,
+  100% {
+    opacity: 0.2;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+@keyframes scan-bar {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
   }
 }
 
