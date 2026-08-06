@@ -31,8 +31,20 @@ export function DashboardSection() {
       <SectionHeader icon={BarChart3} title="ダッシュボード" accent="cyan" />
 
       <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
-        <StatCard title="総稼働日数" value={`${stats.totalDays} DAYS`} icon={<Zap />} color="cyan" />
-        <StatCard title="総半荘数" value={`${stats.totalGames} GAMES`} icon={<Gamepad2 />} color="fuchsia" />
+        <StatCard
+          title="参加半荘数1位"
+          value={stats.mostHanchansPlayed ? `${stats.mostHanchansPlayed.value} GAMES` : '-'}
+          sub={stats.mostHanchansPlayed?.playerName}
+          icon={<Gamepad2 />}
+          color="cyan"
+        />
+        <StatCard
+          title="参加日数1位"
+          value={stats.mostDaysPlayed ? `${stats.mostDaysPlayed.value} DAYS` : '-'}
+          sub={stats.mostDaysPlayed?.playerName}
+          icon={<Zap />}
+          color="fuchsia"
+        />
         <StatCard
           title="最高素点"
           value={stats.highestScore ? stats.highestScore.value.toLocaleString() : '-'}

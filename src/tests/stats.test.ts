@@ -84,6 +84,12 @@ describe('computeRanking', () => {
     expect(alice.avgChips).toBe(0.5);
     expect(bob.avgChips).toBe(2);
   });
+
+  it('exposes dayCount (days participated), same for both players in this fixture', () => {
+    const rows = computeRanking(history, players);
+    expect(rows.find((r) => r.playerId === 'a')!.dayCount).toBe(2);
+    expect(rows.find((r) => r.playerId === 'b')!.dayCount).toBe(2);
+  });
 });
 
 describe('computeDashboardStats', () => {
@@ -99,16 +105,41 @@ describe('computeDashboardStats', () => {
 
   it('still computes the pre-existing stats', () => {
     const stats = computeDashboardStats(history, players);
-    expect(stats.totalDays).toBe(2);
-    expect(stats.totalGames).toBe(2);
     expect(stats.highestScore).toEqual({ value: 30000, playerName: 'Alice' });
     expect(stats.bestDailyWin).toEqual({ value: 500, playerName: 'Alice' });
+  });
+
+  it('finds who has played the most hanchan and the most days', () => {
+    // Bob sits out day2's second game so he clearly trails on hanchanCount, then
+    // plays an extra day3 alone so he clearly leads on dayCount.
+    const extra: DayRecord[] = [
+      ...history,
+      {
+        id: 'day3',
+        date: '2026-01-15T00:00:00.000Z',
+        tableFee: 0,
+        chipRate: 100,
+        chips: { b: 0 },
+        games: [
+          { id: 'g3', scores: [{ playerId: 'b', rawScore: 30000, rank: 1, point: 500 }] },
+          { id: 'g4', scores: [{ playerId: 'b', rawScore: 30000, rank: 1, point: 500 }] },
+        ],
+        settlement: {
+          b: { gamesTotal: 1000, chipCount: 0, chipValue: 0, tableFeeShare: 0, totalWithoutFee: 1000, totalWithFee: 1000 },
+        },
+      },
+    ];
+    const stats = computeDashboardStats(extra, players);
+    expect(stats.mostHanchansPlayed).toEqual({ value: 4, playerName: 'Bob' });
+    expect(stats.mostDaysPlayed).toEqual({ value: 3, playerName: 'Bob' });
   });
 
   it('returns nulls when history is empty', () => {
     const stats = computeDashboardStats([], players);
     expect(stats.bestAvgRank).toBeNull();
     expect(stats.bestDailyChips).toBeNull();
+    expect(stats.mostHanchansPlayed).toBeNull();
+    expect(stats.mostDaysPlayed).toBeNull();
   });
 });
 
