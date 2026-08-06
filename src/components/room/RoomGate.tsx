@@ -1,9 +1,10 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
-import { AlertTriangle, DoorOpen, Loader2, Radio, Shuffle } from 'lucide-react';
+import { AlertTriangle, DoorOpen, Radio, Shuffle } from 'lucide-react';
 import { isFirebaseConfigured } from '../../lib/firebase';
 import { generateRoomCode, normalizeRoomCode } from '../../lib/roomCode';
 import { getSavedRoomCode, useAppStore } from '../../store/useAppStore';
 import { ErrorBanner } from '../common/ErrorBanner';
+import { LoadingScreen } from '../common/LoadingScreen';
 import { NeonButton } from '../common/NeonButton';
 import { Background } from '../layout/Background';
 import { Header } from '../layout/Header';
@@ -41,12 +42,13 @@ function ConfigMissingScreen() {
 function ConnectingScreen({ roomCode }: { roomCode: string }) {
   return (
     <Shell>
-      <div className="flex flex-col items-center gap-4 py-12 text-slate-400">
-        <Loader2 className="w-10 h-10 animate-spin text-cyan-400" />
-        <p className="font-mono text-sm tracking-widest">
-          ルーム <span className="text-cyan-300 font-bold">{roomCode}</span> に接続中...
-        </p>
-      </div>
+      <LoadingScreen
+        label={
+          <>
+            ルーム <span className="text-cyan-100">{roomCode}</span> に接続中
+          </>
+        }
+      />
     </Shell>
   );
 }
