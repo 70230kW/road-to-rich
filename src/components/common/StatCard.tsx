@@ -48,10 +48,7 @@ export function StatCard({
         {value}
       </div>
       {sub && (
-        <div className="text-[8px] sm:text-[10px] md:text-xs text-slate-400 font-bold mt-1 sm:mt-2 z-10 uppercase tracking-wide truncate flex items-center">
-          <span className="w-1 h-1 rounded-full bg-current mr-1 sm:mr-1.5 opacity-50 shrink-0" />
-          <span className="truncate">BY {sub}</span>
-        </div>
+        <div className={`text-xs sm:text-base md:text-lg font-black mt-1 sm:mt-1.5 z-10 truncate ${textMap[color]}`}>{sub}</div>
       )}
     </div>
   );

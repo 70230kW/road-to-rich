@@ -1,8 +1,8 @@
 import type { DayRecord, Player } from '../types';
 
 export interface DashboardStats {
-  totalDays: number;
-  totalGames: number;
+  mostHanchansPlayed: { value: number; playerName: string } | null;
+  mostDaysPlayed: { value: number; playerName: string } | null;
   highestScore: { value: number; playerName: string } | null;
   bestDailyWin: { value: number; playerName: string } | null;
   bestAvgRank: { value: number; playerName: string } | null;
@@ -14,7 +14,6 @@ function playerName(players: Player[], id: string): string {
 }
 
 export function computeDashboardStats(history: DayRecord[], players: Player[]): DashboardStats {
-  let totalGames = 0;
   let highestScore = -Infinity;
   let highestScorePlayerId: string | null = null;
   let bestDailyWin = -Infinity;
@@ -23,7 +22,6 @@ export function computeDashboardStats(history: DayRecord[], players: Player[]): 
   let bestDailyChipsPlayerId: string | null = null;
 
   for (const day of history) {
-    totalGames += day.games.length;
     for (const game of day.games) {
       for (const score of game.scores) {
         if (score.rawScore > highestScore) {
@@ -44,13 +42,22 @@ export function computeDashboardStats(history: DayRecord[], players: Player[]): 
     }
   }
 
-  const bestAvgRankRow = computeRanking(history, players)
+  const rankingRows = computeRanking(history, players);
+  const bestAvgRankRow = rankingRows
     .filter((r) => r.avgRank !== null)
     .reduce<RankingRow | null>((best, r) => (best === null || r.avgRank! < best.avgRank! ? r : best), null);
+  const mostHanchansRow = rankingRows.reduce<RankingRow | null>(
+    (best, r) => (best === null || r.hanchanCount > best.hanchanCount ? r : best),
+    null,
+  );
+  const mostDaysRow = rankingRows.reduce<RankingRow | null>(
+    (best, r) => (best === null || r.dayCount > best.dayCount ? r : best),
+    null,
+  );
 
   return {
-    totalDays: history.length,
-    totalGames,
+    mostHanchansPlayed: mostHanchansRow ? { value: mostHanchansRow.hanchanCount, playerName: mostHanchansRow.name } : null,
+    mostDaysPlayed: mostDaysRow ? { value: mostDaysRow.dayCount, playerName: mostDaysRow.name } : null,
     highestScore:
       highestScorePlayerId !== null
         ? { value: highestScore, playerName: playerName(players, highestScorePlayerId) }
@@ -114,6 +121,8 @@ export interface RankingRow {
   /** 場代込みの累計損益（参考値として小さく表示する）。 */
   totalProfitWithFee: number;
   hanchanCount: number;
+  /** その雀士が精算に参加した日数。 */
+  dayCount: number;
   avgRank: number | null;
   avgChips: number | null;
 }
@@ -165,6 +174,7 @@ export function computeRanking(history: DayRecord[], players: Player[]): Ranking
       totalProfitWithoutFee: r.totalProfitWithoutFee,
       totalProfitWithFee: r.totalProfitWithFee,
       hanchanCount: r.hanchanCount,
+      dayCount: r.dayCount,
       avgRank: r.hanchanCount > 0 ? r.rankSum / r.hanchanCount : null,
       avgChips: r.dayCount > 0 ? r.chipSum / r.dayCount : null,
     }))
