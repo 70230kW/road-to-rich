@@ -2,7 +2,7 @@ import type { DayRecord, Player } from '../types';
 
 export interface DashboardStats {
   mostHanchansPlayed: { value: number; playerName: string } | null;
-  mostDaysPlayed: { value: number; playerName: string } | null;
+  bestAvgDailyWin: { value: number; playerName: string } | null;
   highestScore: { value: number; playerName: string } | null;
   bestDailyWin: { value: number; playerName: string } | null;
   bestAvgRank: { value: number; playerName: string } | null;
@@ -50,14 +50,18 @@ export function computeDashboardStats(history: DayRecord[], players: Player[]): 
     (best, r) => (best === null || r.hanchanCount > best.hanchanCount ? r : best),
     null,
   );
-  const mostDaysRow = rankingRows.reduce<RankingRow | null>(
-    (best, r) => (best === null || r.dayCount > best.dayCount ? r : best),
-    null,
-  );
+  const bestAvgDailyWinRow = rankingRows
+    .filter((r) => r.dayCount > 0)
+    .reduce<{ row: RankingRow; avg: number } | null>((best, r) => {
+      const avg = r.totalProfitWithFee / r.dayCount;
+      return best === null || avg > best.avg ? { row: r, avg } : best;
+    }, null);
 
   return {
     mostHanchansPlayed: mostHanchansRow ? { value: mostHanchansRow.hanchanCount, playerName: mostHanchansRow.name } : null,
-    mostDaysPlayed: mostDaysRow ? { value: mostDaysRow.dayCount, playerName: mostDaysRow.name } : null,
+    bestAvgDailyWin: bestAvgDailyWinRow
+      ? { value: bestAvgDailyWinRow.avg, playerName: bestAvgDailyWinRow.row.name }
+      : null,
     highestScore:
       highestScorePlayerId !== null
         ? { value: highestScore, playerName: playerName(players, highestScorePlayerId) }

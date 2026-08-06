@@ -109,9 +109,8 @@ describe('computeDashboardStats', () => {
     expect(stats.bestDailyWin).toEqual({ value: 500, playerName: 'Alice' });
   });
 
-  it('finds who has played the most hanchan and the most days', () => {
-    // Bob sits out day2's second game so he clearly trails on hanchanCount, then
-    // plays an extra day3 alone so he clearly leads on dayCount.
+  it('finds who has played the most hanchan', () => {
+    // Bob plays an extra day3 with two more hanchan, clearly leading hanchanCount.
     const extra: DayRecord[] = [
       ...history,
       {
@@ -131,7 +130,12 @@ describe('computeDashboardStats', () => {
     ];
     const stats = computeDashboardStats(extra, players);
     expect(stats.mostHanchansPlayed).toEqual({ value: 4, playerName: 'Bob' });
-    expect(stats.mostDaysPlayed).toEqual({ value: 3, playerName: 'Bob' });
+  });
+
+  it('finds who has the best average 場代込み profit per day played', () => {
+    const stats = computeDashboardStats(history, players);
+    // Alice: (500 + 200) / 2 days = 350. Bob: (-700 + -400) / 2 days = -550.
+    expect(stats.bestAvgDailyWin).toEqual({ value: 350, playerName: 'Alice' });
   });
 
   it('returns nulls when history is empty', () => {
@@ -139,7 +143,7 @@ describe('computeDashboardStats', () => {
     expect(stats.bestAvgRank).toBeNull();
     expect(stats.bestDailyChips).toBeNull();
     expect(stats.mostHanchansPlayed).toBeNull();
-    expect(stats.mostDaysPlayed).toBeNull();
+    expect(stats.bestAvgDailyWin).toBeNull();
   });
 });
 

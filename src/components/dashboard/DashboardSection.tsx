@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Award, BarChart3, Coins, Crown, Gamepad2, Medal, Radar, TrendingUp, Zap } from 'lucide-react';
+import { Award, BarChart3, Coins, Crown, Gamepad2, Medal, Radar, TrendingUp } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { computeCumulativeSeries, computeDashboardStats, computeRadarStats } from '../../lib/stats';
 import { formatSignedYen } from '../../lib/format';
@@ -39,18 +39,18 @@ export function DashboardSection() {
           color="cyan"
         />
         <StatCard
-          title="参加日数1位"
-          value={stats.mostDaysPlayed ? `${stats.mostDaysPlayed.value} DAYS` : '-'}
-          sub={stats.mostDaysPlayed?.playerName}
-          icon={<Zap />}
+          title="1日平均勝ち額"
+          value={stats.bestAvgDailyWin ? formatSignedYen(Math.round(stats.bestAvgDailyWin.value)) : '-'}
+          sub={stats.bestAvgDailyWin?.playerName}
+          icon={<TrendingUp />}
           color="fuchsia"
         />
         <StatCard
-          title="最高素点"
-          value={stats.highestScore ? stats.highestScore.value.toLocaleString() : '-'}
-          sub={stats.highestScore?.playerName}
-          icon={<Award />}
-          color="yellow"
+          title="平均着順1位"
+          value={stats.bestAvgRank ? `${stats.bestAvgRank.value.toFixed(2)}位` : '-'}
+          sub={stats.bestAvgRank?.playerName}
+          icon={<Medal />}
+          color="indigo"
         />
         <StatCard
           title="1日最高勝利"
@@ -60,11 +60,11 @@ export function DashboardSection() {
           color="emerald"
         />
         <StatCard
-          title="平均着順1位"
-          value={stats.bestAvgRank ? `${stats.bestAvgRank.value.toFixed(2)}位` : '-'}
-          sub={stats.bestAvgRank?.playerName}
-          icon={<Medal />}
-          color="indigo"
+          title="1半荘最高素点"
+          value={stats.highestScore ? stats.highestScore.value.toLocaleString() : '-'}
+          sub={stats.highestScore?.playerName}
+          icon={<Award />}
+          color="yellow"
         />
         <StatCard
           title="1日最高チップ"
