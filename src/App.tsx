@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from 'react';
-import { BarChart3, Crown, History, Plus, Settings as SettingsIcon, Users } from 'lucide-react';
+import { BarChart3, BookOpen, Crown, History, Plus, Settings as SettingsIcon, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { Header } from './components/layout/Header';
 import { TabNav, type TabDef } from './components/layout/TabNav';
@@ -25,6 +25,9 @@ const SettingsSection = lazy(() =>
 const PlayerSection = lazy(() =>
   import('./components/players/PlayerSection').then((m) => ({ default: m.PlayerSection })),
 );
+const RulesSection = lazy(() =>
+  import('./components/rules/RulesSection').then((m) => ({ default: m.RulesSection })),
+);
 
 function TabLoading() {
   return <LoadingScreen label="読み込み中" />;
@@ -37,6 +40,7 @@ const TABS: TabDef[] = [
   { id: 'ranking', name: 'ランキング', icon: Crown },
   { id: 'settings', name: '計算設定', icon: SettingsIcon },
   { id: 'players', name: '雀士登録', icon: Users },
+  { id: 'rules', name: 'ルール', icon: BookOpen },
 ];
 
 function App() {
@@ -74,6 +78,7 @@ function AppShell() {
               {activeTab === 'ranking' && <RankingSection />}
               {activeTab === 'settings' && <SettingsSection />}
               {activeTab === 'players' && <PlayerSection />}
+              {activeTab === 'rules' && <RulesSection />}
             </Suspense>
           </div>
         </div>

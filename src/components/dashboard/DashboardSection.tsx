@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
 import { Award, BarChart3, Coins, Crown, Gamepad2, Medal, Radar, TrendingUp } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import { computeCumulativeSeries, computeDashboardStats, computeRadarStats } from '../../lib/stats';
+import { computeCumulativeSeries, computeDashboardStats, computeRadarStats, computeYakumanAchievements } from '../../lib/stats';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { StatCard } from '../common/StatCard';
 import { EmptyState } from '../common/EmptyState';
 import { CumulativeProfitChart } from './CumulativeProfitChart';
 import { RadarChart } from './RadarChart';
+import { YakumanBoard } from './YakumanBoard';
 
 export function DashboardSection() {
   const history = useAppStore((s) => s.history);
@@ -16,6 +17,7 @@ export function DashboardSection() {
   const stats = useMemo(() => computeDashboardStats(history, players), [history, players]);
   const series = useMemo(() => computeCumulativeSeries(history, players), [history, players]);
   const radarRows = useMemo(() => computeRadarStats(history, players), [history, players]);
+  const yakumanAchievements = useMemo(() => computeYakumanAchievements(history, players), [history, players]);
 
   if (history.length === 0) {
     return (
@@ -53,18 +55,18 @@ export function DashboardSection() {
           color="indigo"
         />
         <StatCard
-          title="1日最高勝利"
-          value={stats.bestDailyWin ? formatSignedYen(stats.bestDailyWin.value) : '-'}
-          sub={stats.bestDailyWin?.playerName}
-          icon={<Crown />}
-          color="emerald"
-        />
-        <StatCard
           title="1半荘最高素点"
           value={stats.highestScore ? stats.highestScore.value.toLocaleString() : '-'}
           sub={stats.highestScore?.playerName}
           icon={<Award />}
           color="yellow"
+        />
+        <StatCard
+          title="1日最高勝利"
+          value={stats.bestDailyWin ? formatSignedYen(stats.bestDailyWin.value) : '-'}
+          sub={stats.bestDailyWin?.playerName}
+          icon={<Crown />}
+          color="emerald"
         />
         <StatCard
           title="1日最高チップ"
@@ -92,6 +94,8 @@ export function DashboardSection() {
           <RadarChart rows={radarRows} />
         </div>
       )}
+
+      <YakumanBoard achievements={yakumanAchievements} />
     </div>
   );
 }

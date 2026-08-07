@@ -53,7 +53,7 @@ export function computeDashboardStats(history: DayRecord[], players: Player[]): 
   const bestAvgDailyWinRow = rankingRows
     .filter((r) => r.dayCount > 0)
     .reduce<{ row: RankingRow; avg: number } | null>((best, r) => {
-      const avg = r.totalProfitWithFee / r.dayCount;
+      const avg = r.totalProfitWithoutFee / r.dayCount;
       return best === null || avg > best.avg ? { row: r, avg } : best;
     }, null);
 
@@ -192,10 +192,8 @@ export interface RadarRow {
   chipTotal: number;
   /** 最高素点 */
   highestScore: number;
-  /** 平均着順（実際の値。小さいほど優秀） */
+  /** 平均着順（小さいほど優秀。1.00〜4.00の固定スケールで描画する） */
   avgRank: number;
-  /** 平均着順を「大きいほど優秀」になるよう反転した値（レーダーチャート描画用） */
-  avgRankInverted: number;
   /** 1日最高勝ち額 */
   bestDailyWin: number;
   /** 平均素点 */
@@ -219,8 +217,6 @@ export function computeRadarStats(history: DayRecord[], players: Player[]): Rada
     }),
   );
 
-  let maxRankSeen = 1;
-
   for (const day of history) {
     for (const [pid, entry] of Object.entries(day.settlement)) {
       const row = perPlayer.get(pid);
@@ -236,7 +232,6 @@ export function computeRadarStats(history: DayRecord[], players: Player[]): Rada
         row.rankSum += score.rank;
         row.rawScoreSum += score.rawScore;
         if (score.rawScore > row.highestScore) row.highestScore = score.rawScore;
-        if (score.rank > maxRankSeen) maxRankSeen = score.rank;
       }
     }
   }
@@ -251,10 +246,35 @@ export function computeRadarStats(history: DayRecord[], players: Player[]): Rada
       chipTotal: v.chipTotal,
       highestScore: v.highestScore,
       avgRank,
-      avgRankInverted: maxRankSeen + 1 - avgRank,
       bestDailyWin: v.bestDailyWin === -Infinity ? 0 : v.bestDailyWin,
       avgRawScore: v.rawScoreSum / v.hanchanCount,
     });
   });
   return rows;
+}
+
+export interface YakumanAchievement {
+  playerId: string;
+  playerName: string;
+  date: string;
+}
+
+/** Maps each achieved yakumanId to every occurrence (player + day) across all history. */
+export function computeYakumanAchievements(history: DayRecord[], players: Player[]): Record<string, YakumanAchievement[]> {
+  const result: Record<string, YakumanAchievement[]> = {};
+  for (const day of history) {
+    for (const game of day.games) {
+      for (const event of game.yakumanEvents ?? []) {
+        for (const yakumanId of event.yakumanIds) {
+          if (!result[yakumanId]) result[yakumanId] = [];
+          result[yakumanId].push({
+            playerId: event.playerId,
+            playerName: playerName(players, event.playerId),
+            date: day.date,
+          });
+        }
+      }
+    }
+  }
+  return result;
 }

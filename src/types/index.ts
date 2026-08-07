@@ -28,10 +28,23 @@ export interface GameScore {
   point: number;
 }
 
+/**
+ * One occurrence of a yakuman (役満) within a hanchan. `yakumanIds` holds
+ * more than one id when multiple yakuman compound on the same win (複合).
+ * A single hanchan can have multiple `YakumanEvent`s (achieved across
+ * different hands within that hanchan).
+ */
+export interface YakumanEvent {
+  id: string;
+  playerId: string;
+  yakumanIds: string[];
+}
+
 /** One recorded hanchan. */
 export interface Game {
   id: string;
   scores: GameScore[];
+  yakumanEvents?: YakumanEvent[];
 }
 
 /** Per-player result for a finalized day. */

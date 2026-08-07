@@ -32,7 +32,7 @@ export function SettlementForm({
   }, [currentDayGames, players]);
 
   const [tableFeeInput, setTableFeeInput] = useState(initialTableFee !== undefined ? String(initialTableFee) : '');
-  const [chipRateInput, setChipRateInput] = useState(initialChipRate !== undefined ? String(initialChipRate) : '');
+  const [chipRateInput, setChipRateInput] = useState(initialChipRate !== undefined ? String(initialChipRate) : '200');
   const [chipInputs, setChipInputs] = useState<Record<string, string>>(() =>
     Object.fromEntries(participantIds.map((id) => [id, initialChips?.[id] !== undefined ? String(initialChips[id]) : ''])),
   );

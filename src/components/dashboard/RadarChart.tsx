@@ -12,17 +12,21 @@ const LABEL_R = MAX_R + 34;
 const RINGS = 4;
 
 interface Axis {
-  key: 'chipTotal' | 'highestScore' | 'avgRankInverted' | 'bestDailyWin' | 'avgRawScore';
+  key: 'chipTotal' | 'highestScore' | 'avgRank' | 'bestDailyWin' | 'avgRawScore';
   label: string;
   format: (row: RadarRow) => string;
+  /** 固定スケール [min, max]。省略時は現在のプレイヤー間の実データから動的に決める。 */
+  domain?: [number, number];
+  /** false の場合、値が小さいほど外側（優秀）として描画する（平均着順など）。 */
+  higherIsBetter?: boolean;
 }
 
 const AXES: Axis[] = [
   { key: 'chipTotal', label: 'チップ獲得枚数', format: (r) => `${r.chipTotal > 0 ? '+' : ''}${r.chipTotal}枚` },
-  { key: 'highestScore', label: '最高素点', format: (r) => `${r.highestScore.toLocaleString()}点` },
-  { key: 'avgRankInverted', label: '平均着順', format: (r) => `${r.avgRank.toFixed(2)}位` },
+  { key: 'highestScore', label: '最高素点', format: (r) => `${r.highestScore.toLocaleString()}点`, domain: [0, 100000] },
+  { key: 'avgRank', label: '平均着順', format: (r) => `${r.avgRank.toFixed(2)}位`, domain: [1, 4], higherIsBetter: false },
   { key: 'bestDailyWin', label: '1日最高勝ち額', format: (r) => formatSignedYen(r.bestDailyWin) },
-  { key: 'avgRawScore', label: '平均素点', format: (r) => `${Math.round(r.avgRawScore).toLocaleString()}点` },
+  { key: 'avgRawScore', label: '平均素点', format: (r) => `${Math.round(r.avgRawScore).toLocaleString()}点`, domain: [0, 50000] },
 ];
 
 function angleFor(index: number): number {
@@ -49,6 +53,7 @@ export function RadarChart({ rows }: { rows: RadarRow[] }) {
   const ranges = useMemo(
     () =>
       AXES.map((axis) => {
+        if (axis.domain) return { min: axis.domain[0], max: axis.domain[1] };
         const values = rows.map((r) => r[axis.key] as number);
         const min = Math.min(...values);
         const max = Math.max(...values);
@@ -60,7 +65,9 @@ export function RadarChart({ rows }: { rows: RadarRow[] }) {
   const normalize = (axisIdx: number, value: number): number => {
     const { min, max } = ranges[axisIdx];
     if (max === min) return 0.5;
-    return (value - min) / (max - min);
+    const t = (value - min) / (max - min);
+    const clamped = Math.min(1, Math.max(0, t));
+    return AXES[axisIdx].higherIsBetter === false ? 1 - clamped : clamped;
   };
 
   const radiusFor = (axisIdx: number, value: number): number => MIN_R + normalize(axisIdx, value) * (MAX_R - MIN_R);
