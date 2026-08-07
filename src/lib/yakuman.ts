@@ -76,3 +76,116 @@ export const YAKUMAN_LIST: YakumanDef[] = [
 export function findYakuman(id: string): YakumanDef | undefined {
   return YAKUMAN_LIST.find((y) => y.id === id);
 }
+
+/**
+ * Which yakuman genuinely cannot occur on the same win as which others (compound/複合).
+ * Based on hand-shape and tile-composition constraints:
+ *   - 国士無双 has no sets at all, so it can never share a hand with anything that
+ *     requires triplets/sequences/kans (only 天和/地和 are timing-based, not shape-based,
+ *     so they're compatible with it).
+ *   - 九蓮宝燈 requires one suit's full 1-9 run, so it excludes honor-only, terminal-only,
+ *     green-only, and wind/dragon-triplet yakuman, plus 国士無双.
+ *   - 大三元 (3 dragon sets) and 小四喜/大四喜 (3-4 wind sets) can't coexist — a hand only
+ *     has 4 sets total.
+ *   - Tile-type-exclusive yakuman (字一色/緑一色/清老頭) are mutually exclusive with each
+ *     other, since their required tiles don't overlap.
+ *   - Each yakuman's "regular" and its own double-yakuman upgrade (四暗刻/四暗刻単騎,
+ *     国士無双/国士無双十三面待ち, 九蓮宝燈/純正九蓮宝燈) describe alternate wait shapes for
+ *     the same win, so only one of each pair applies at a time.
+ *   - 小四喜/大四喜 are likewise alternate forms (3 triplets+pair vs 4 triplets) — never both.
+ *   - 天和/地和 depend on being dealer vs non-dealer, so never both.
+ */
+const INCOMPATIBLE: Record<string, string[]> = {
+  tenho: ['chiho'],
+  chiho: ['tenho'],
+  daisangen: ['kokushi', 'kokushi-13', 'chuuren', 'junsei-chuuren', 'ryuuiisou', 'chinroutou', 'shousuushii', 'daisuushii'],
+  suuankou: ['suuankou-tanki', 'kokushi', 'kokushi-13', 'chuuren', 'junsei-chuuren'],
+  'suuankou-tanki': ['suuankou', 'kokushi', 'kokushi-13', 'chuuren', 'junsei-chuuren'],
+  tsuiisou: ['kokushi', 'kokushi-13', 'chuuren', 'junsei-chuuren', 'ryuuiisou', 'chinroutou'],
+  ryuuiisou: [
+    'kokushi',
+    'kokushi-13',
+    'chuuren',
+    'junsei-chuuren',
+    'tsuiisou',
+    'chinroutou',
+    'daisangen',
+    'shousuushii',
+    'daisuushii',
+  ],
+  chinroutou: [
+    'kokushi',
+    'kokushi-13',
+    'chuuren',
+    'junsei-chuuren',
+    'tsuiisou',
+    'ryuuiisou',
+    'daisangen',
+    'shousuushii',
+    'daisuushii',
+  ],
+  kokushi: [
+    'kokushi-13',
+    'daisangen',
+    'suuankou',
+    'suuankou-tanki',
+    'tsuiisou',
+    'ryuuiisou',
+    'chinroutou',
+    'shousuushii',
+    'daisuushii',
+    'suukantsu',
+    'chuuren',
+    'junsei-chuuren',
+  ],
+  'kokushi-13': [
+    'kokushi',
+    'daisangen',
+    'suuankou',
+    'suuankou-tanki',
+    'tsuiisou',
+    'ryuuiisou',
+    'chinroutou',
+    'shousuushii',
+    'daisuushii',
+    'suukantsu',
+    'chuuren',
+    'junsei-chuuren',
+  ],
+  shousuushii: ['daisuushii', 'kokushi', 'kokushi-13', 'chuuren', 'junsei-chuuren', 'ryuuiisou', 'chinroutou', 'daisangen'],
+  daisuushii: ['shousuushii', 'kokushi', 'kokushi-13', 'chuuren', 'junsei-chuuren', 'ryuuiisou', 'chinroutou', 'daisangen'],
+  suukantsu: ['kokushi', 'kokushi-13', 'chuuren', 'junsei-chuuren'],
+  chuuren: [
+    'junsei-chuuren',
+    'kokushi',
+    'kokushi-13',
+    'daisangen',
+    'suuankou',
+    'suuankou-tanki',
+    'tsuiisou',
+    'ryuuiisou',
+    'chinroutou',
+    'shousuushii',
+    'daisuushii',
+    'suukantsu',
+  ],
+  'junsei-chuuren': [
+    'chuuren',
+    'kokushi',
+    'kokushi-13',
+    'daisangen',
+    'suuankou',
+    'suuankou-tanki',
+    'tsuiisou',
+    'ryuuiisou',
+    'chinroutou',
+    'shousuushii',
+    'daisuushii',
+    'suukantsu',
+  ],
+};
+
+export function areYakumanCompatible(idA: string, idB: string): boolean {
+  if (idA === idB) return true;
+  return !(INCOMPATIBLE[idA]?.includes(idB) || INCOMPATIBLE[idB]?.includes(idA));
+}

@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Plus, Sparkles, Trash2, X } from 'lucide-react';
 import type { Player, YakumanEvent } from '../../types';
-import { YAKUMAN_LIST } from '../../lib/yakuman';
+import { areYakumanCompatible, YAKUMAN_LIST } from '../../lib/yakuman';
 import { NeonButton } from '../common/NeonButton';
 
 function uid(): string {
@@ -34,6 +34,18 @@ export function YakumanInput({
   const toggleDraftYakuman = (id: string) => {
     setDraftYakumanIds((prev) => (prev.includes(id) ? prev.filter((y) => y !== id) : [...prev, id]));
   };
+
+  // 選択中の役満と複合しえない役満は、選び直しを防ぐためグレーアウトして選択不可にする。
+  const incompatibleIds = useMemo(() => {
+    const blocked = new Set<string>();
+    for (const y of YAKUMAN_LIST) {
+      if (draftYakumanIds.includes(y.id)) continue;
+      if (draftYakumanIds.some((selectedId) => !areYakumanCompatible(selectedId, y.id))) {
+        blocked.add(y.id);
+      }
+    }
+    return blocked;
+  }, [draftYakumanIds]);
 
   const confirmAdd = () => {
     if (!draftPlayerId || draftYakumanIds.length === 0) return;
@@ -115,25 +127,33 @@ export function YakumanInput({
               役満（複合する場合は複数選択可）
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-64 overflow-y-auto pr-1">
-              {YAKUMAN_LIST.map((y) => (
-                <label
-                  key={y.id}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold cursor-pointer border transition-colors ${
-                    draftYakumanIds.includes(y.id)
-                      ? 'bg-purple-500/20 border-purple-400/60 text-purple-100'
-                      : 'bg-panel-2/40 border-slate-700/60 text-slate-300 hover:border-slate-500'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={draftYakumanIds.includes(y.id)}
-                    onChange={() => toggleDraftYakuman(y.id)}
-                    className="accent-purple-500"
-                  />
-                  {y.name}
-                  {y.isDouble && <span className="text-[9px] text-purple-400 font-mono">W</span>}
-                </label>
-              ))}
+              {YAKUMAN_LIST.map((y) => {
+                const isSelected = draftYakumanIds.includes(y.id);
+                const isBlocked = incompatibleIds.has(y.id);
+                return (
+                  <label
+                    key={y.id}
+                    title={isBlocked ? '選択中の役満とは複合できません' : undefined}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold border transition-colors ${
+                      isBlocked
+                        ? 'bg-panel-2/20 border-slate-800/60 text-slate-600 opacity-40 grayscale cursor-not-allowed'
+                        : isSelected
+                          ? 'bg-purple-500/20 border-purple-400/60 text-purple-100 cursor-pointer'
+                          : 'bg-panel-2/40 border-slate-700/60 text-slate-300 hover:border-slate-500 cursor-pointer'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      disabled={isBlocked}
+                      onChange={() => toggleDraftYakuman(y.id)}
+                      className="accent-purple-500"
+                    />
+                    {y.name}
+                    {y.isDouble && <span className="text-[9px] text-purple-400 font-mono">W</span>}
+                  </label>
+                );
+              })}
             </div>
           </div>
 
