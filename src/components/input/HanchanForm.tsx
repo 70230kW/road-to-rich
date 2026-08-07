@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, ChevronDown, ChevronUp, Gamepad2, Plus, Target, UserPlus } from 'lucide-react';
-import type { Game, Player, Settings } from '../../types';
+import type { Game, Player, Settings, YakumanEvent } from '../../types';
 import { calcGameSettlement, computeAutoLastScore, parseHundredsInput, validateHanchanInput } from '../../lib/calc';
 import { ErrorBanner } from '../common/ErrorBanner';
 import { NeonButton } from '../common/NeonButton';
 import { CurrentProfitsBar } from './CurrentProfitsBar';
 import { RecordedGamesList } from './RecordedGamesList';
+import { YakumanInput } from './YakumanInput';
 
 export function HanchanForm({
   players,
@@ -31,12 +32,14 @@ export function HanchanForm({
   const [manualInputs, setManualInputs] = useState<string[]>(Array(lastIndex).fill(''));
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [tieOrderOverrides, setTieOrderOverrides] = useState<Record<number, string[]>>({});
+  const [yakumanEvents, setYakumanEvents] = useState<YakumanEvent[]>([]);
 
   useEffect(() => {
     setSelectedIds(Array(playerCount).fill(null));
     setManualInputs(Array(playerCount - 1).fill(''));
     setAttemptedSubmit(false);
     setTieOrderOverrides({});
+    setYakumanEvents([]);
   }, [playerCount]);
 
   const otherRaw = useMemo(() => manualInputs.map(parseHundredsInput), [manualInputs]);
@@ -96,13 +99,16 @@ export function HanchanForm({
 
     const entries = selectedIds.map((id, i) => ({ playerId: id as string, rawScore: rawScores[i] as number }));
     const settled = calcGameSettlement(entries, settings, tieBreakOrder);
-    onAddGame({ scores: settled });
+    onAddGame({ scores: settled, ...(yakumanEvents.length > 0 ? { yakumanEvents } : {}) });
 
     setManualInputs(Array(lastIndex).fill(''));
     setAttemptedSubmit(false);
     setTieOrderOverrides({});
+    setYakumanEvents([]);
     // selectedIds intentionally preserved for the next hanchan
   };
+
+  const participantIds = useMemo(() => selectedIds.filter((id): id is string => id !== null), [selectedIds]);
 
   const showBanner = attemptedSubmit && !validation.isValid ? validation.message : validation.totalMismatch ? validation.message : null;
 
@@ -266,6 +272,15 @@ export function HanchanForm({
                 );
               })}
             </div>
+          )}
+
+          {participantIds.length > 0 && (
+            <YakumanInput
+              players={players}
+              participantIds={participantIds}
+              events={yakumanEvents}
+              onChange={setYakumanEvents}
+            />
           )}
 
           <NeonButton variant="primary" onClick={handleRecord} className="w-full mt-6">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeDashboardStats, computeRadarStats, computeRanking } from '../lib/stats';
+import { computeDashboardStats, computeRadarStats, computeRanking, computeYakumanAchievements } from '../lib/stats';
 import type { DayRecord, Player } from '../types';
 
 const players: Player[] = [
@@ -132,10 +132,10 @@ describe('computeDashboardStats', () => {
     expect(stats.mostHanchansPlayed).toEqual({ value: 4, playerName: 'Bob' });
   });
 
-  it('finds who has the best average 場代込み profit per day played', () => {
+  it('finds who has the best average 場代抜き profit per day played', () => {
     const stats = computeDashboardStats(history, players);
-    // Alice: (500 + 200) / 2 days = 350. Bob: (-700 + -400) / 2 days = -550.
-    expect(stats.bestAvgDailyWin).toEqual({ value: 350, playerName: 'Alice' });
+    // Alice: (600 + 300) / 2 days = 450. Bob: (-600 + -300) / 2 days = -450.
+    expect(stats.bestAvgDailyWin).toEqual({ value: 450, playerName: 'Alice' });
   });
 
   it('returns nulls when history is empty', () => {
@@ -148,7 +148,7 @@ describe('computeDashboardStats', () => {
 });
 
 describe('computeRadarStats', () => {
-  it('aggregates per-player axes and inverts avgRank so better is larger', () => {
+  it('aggregates per-player axes', () => {
     const rows = computeRadarStats(history, players);
     const alice = rows.find((r) => r.playerId === 'a')!;
     const bob = rows.find((r) => r.playerId === 'b')!;
@@ -161,15 +161,45 @@ describe('computeRadarStats', () => {
 
     expect(bob.chipTotal).toBe(4);
     expect(bob.avgRank).toBe(2);
-
-    // 2-player games: ranks are 1..2, so inverted = 3 - avgRank.
-    expect(alice.avgRankInverted).toBe(2);
-    expect(bob.avgRankInverted).toBe(1);
-    expect(alice.avgRankInverted).toBeGreaterThan(bob.avgRankInverted);
   });
 
   it('omits players with no recorded games', () => {
     const rows = computeRadarStats(history, [...players, { id: 'c', name: 'Carol' }]);
     expect(rows.some((r) => r.playerId === 'c')).toBe(false);
+  });
+});
+
+describe('computeYakumanAchievements', () => {
+  it('groups occurrences by yakumanId, including compound and repeated events', () => {
+    const withYakuman: DayRecord[] = [
+      {
+        ...history[0],
+        games: [
+          {
+            ...history[0].games[0],
+            yakumanEvents: [
+              { id: 'e1', playerId: 'a', yakumanIds: ['daisangen', 'suuankou'] },
+              { id: 'e2', playerId: 'b', yakumanIds: ['kokushi'] },
+            ],
+          },
+        ],
+      },
+      {
+        ...history[1],
+        games: [{ ...history[1].games[0], yakumanEvents: [{ id: 'e3', playerId: 'a', yakumanIds: ['daisangen'] }] }],
+      },
+    ];
+    const result = computeYakumanAchievements(withYakuman, players);
+    expect(result.daisangen).toEqual([
+      { playerId: 'a', playerName: 'Alice', date: history[0].date },
+      { playerId: 'a', playerName: 'Alice', date: history[1].date },
+    ]);
+    expect(result.suuankou).toEqual([{ playerId: 'a', playerName: 'Alice', date: history[0].date }]);
+    expect(result.kokushi).toEqual([{ playerId: 'b', playerName: 'Bob', date: history[0].date }]);
+    expect(result.tenho).toBeUndefined();
+  });
+
+  it('returns an empty object when no games have yakumanEvents', () => {
+    expect(computeYakumanAchievements(history, players)).toEqual({});
   });
 });
