@@ -253,6 +253,35 @@ export function computeRadarStats(history: DayRecord[], players: Player[]): Rada
   return rows;
 }
 
+/**
+ * Per-player counts of how many times each finishing rank (1着, 2着, …) was
+ * taken. `counts[i]` is the number of times rank `i + 1` was taken. All
+ * players' arrays share the same length (the highest rank seen across all
+ * history), so callers can render them on a common axis without extra padding.
+ */
+export function computeRankCounts(history: DayRecord[], players: Player[]): Record<string, number[]> {
+  const result: Record<string, number[]> = {};
+  players.forEach((p) => (result[p.id] = []));
+
+  let maxRank = 0;
+  for (const day of history) {
+    for (const game of day.games) {
+      for (const score of game.scores) {
+        const arr = result[score.playerId];
+        if (!arr) continue;
+        while (arr.length < score.rank) arr.push(0);
+        arr[score.rank - 1] += 1;
+        if (score.rank > maxRank) maxRank = score.rank;
+      }
+    }
+  }
+
+  Object.values(result).forEach((arr) => {
+    while (arr.length < maxRank) arr.push(0);
+  });
+  return result;
+}
+
 export interface YakumanAchievement {
   playerId: string;
   playerName: string;

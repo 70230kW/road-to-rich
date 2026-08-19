@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Crown, Gamepad2, TrendingUp, Zap } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import { computeRadarStats, computeRanking } from '../../lib/stats';
+import { computeRadarStats, computeRankCounts, computeRanking } from '../../lib/stats';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { EmptyState } from '../common/EmptyState';
@@ -33,6 +33,7 @@ export function RankingSection() {
   const players = useAppStore((s) => s.players);
   const rows = useMemo(() => computeRanking(history, players), [history, players]);
   const radarRows = useMemo(() => computeRadarStats(history, players), [history, players]);
+  const rankCounts = useMemo(() => computeRankCounts(history, players), [history, players]);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   if (rows.length === 0) {
@@ -128,6 +129,7 @@ export function RankingSection() {
         <PlayerDetailModal
           row={selectedRow}
           radarRow={selectedRadarRow}
+          rankCounts={selectedPlayerId ? (rankCounts[selectedPlayerId] ?? []) : []}
           rank={selectedIdx + 1}
           onClose={() => setSelectedPlayerId(null)}
         />

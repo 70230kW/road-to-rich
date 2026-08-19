@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { computeDashboardStats, computeRadarStats, computeRanking, computeYakumanAchievements } from '../lib/stats';
+import {
+  computeDashboardStats,
+  computeRadarStats,
+  computeRankCounts,
+  computeRanking,
+  computeYakumanAchievements,
+} from '../lib/stats';
 import type { DayRecord, Player } from '../types';
 
 const players: Player[] = [
@@ -89,6 +95,26 @@ describe('computeRanking', () => {
     const rows = computeRanking(history, players);
     expect(rows.find((r) => r.playerId === 'a')!.dayCount).toBe(2);
     expect(rows.find((r) => r.playerId === 'b')!.dayCount).toBe(2);
+  });
+});
+
+describe('computeRankCounts', () => {
+  it('counts how many times each player took each finishing rank', () => {
+    const counts = computeRankCounts(history, players);
+    // Alice took 1着 both hanchan, Bob took 2着 both hanchan.
+    expect(counts.a).toEqual([2, 0]);
+    expect(counts.b).toEqual([0, 2]);
+  });
+
+  it('pads every player array to the highest rank seen, even players with no games', () => {
+    const counts = computeRankCounts(history, [...players, { id: 'c', name: 'Carol' }]);
+    expect(counts.c).toEqual([0, 0]);
+  });
+
+  it('returns empty arrays for every player when history is empty', () => {
+    const counts = computeRankCounts([], players);
+    expect(counts.a).toEqual([]);
+    expect(counts.b).toEqual([]);
   });
 });
 

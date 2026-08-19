@@ -1,15 +1,18 @@
-import { Award, Coins, Crown, Gamepad2, TrendingUp, X, Zap } from 'lucide-react';
+import { Award, BarChart3, Coins, Crown, Gamepad2, TrendingUp, X, Zap } from 'lucide-react';
 import type { RadarRow, RankingRow } from '../../lib/stats';
 import { formatSignedYen } from '../../lib/format';
+import { RankCountBars } from './RankCountBars';
 
 export function PlayerDetailModal({
   row,
   radarRow,
+  rankCounts,
   rank,
   onClose,
 }: {
   row: RankingRow;
   radarRow: RadarRow | null;
+  rankCounts: number[];
   rank: number;
   onClose: () => void;
 }) {
@@ -103,6 +106,15 @@ export function PlayerDetailModal({
             </div>
           </div>
         </div>
+
+        {rankCounts.some((c) => c > 0) && (
+          <div className="relative z-10 bg-abyss/60 p-5 rounded-2xl border border-slate-800/80 mt-3">
+            <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-3">
+              <BarChart3 className="w-3.5 h-3.5 mr-1.5 text-cyan-500" /> 着順分布
+            </div>
+            <RankCountBars counts={rankCounts} />
+          </div>
+        )}
       </div>
     </div>
   );
