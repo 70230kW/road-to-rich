@@ -185,6 +185,52 @@ export function computeRanking(history: DayRecord[], players: Player[]): Ranking
     .sort((a, b) => b.totalProfitWithoutFee - a.totalProfitWithoutFee);
 }
 
+export interface RateStats {
+  /** 1着になった対局の割合（トップ率） */
+  topRate: number | null;
+  /** 1着または2着になった対局の割合（連対率） */
+  rentaiRate: number | null;
+  /** 最下位になった対局の割合（ラス率） */
+  lastRate: number | null;
+  /** 素点がマイナスで終えた対局の割合（トビ率） */
+  tobiRate: number | null;
+}
+
+/** Per-player トップ率/連対率/ラス率/トビ率, derived purely from recorded hanchan results. */
+export function computePlayerRateStats(history: DayRecord[], players: Player[]): Record<string, RateStats> {
+  const counts = new Map<
+    string,
+    { hanchanCount: number; topCount: number; rentaiCount: number; lastCount: number; tobiCount: number }
+  >();
+  players.forEach((p) => counts.set(p.id, { hanchanCount: 0, topCount: 0, rentaiCount: 0, lastCount: 0, tobiCount: 0 }));
+
+  for (const day of history) {
+    for (const game of day.games) {
+      const lastRank = game.scores.length;
+      for (const score of game.scores) {
+        const c = counts.get(score.playerId);
+        if (!c) continue;
+        c.hanchanCount += 1;
+        if (score.rank === 1) c.topCount += 1;
+        if (score.rank <= 2) c.rentaiCount += 1;
+        if (score.rank === lastRank) c.lastCount += 1;
+        if (score.rawScore < 0) c.tobiCount += 1;
+      }
+    }
+  }
+
+  const result: Record<string, RateStats> = {};
+  counts.forEach((c, pid) => {
+    result[pid] = {
+      topRate: c.hanchanCount > 0 ? c.topCount / c.hanchanCount : null,
+      rentaiRate: c.hanchanCount > 0 ? c.rentaiCount / c.hanchanCount : null,
+      lastRate: c.hanchanCount > 0 ? c.lastCount / c.hanchanCount : null,
+      tobiRate: c.hanchanCount > 0 ? c.tobiCount / c.hanchanCount : null,
+    };
+  });
+  return result;
+}
+
 export interface RadarRow {
   playerId: string;
   name: string;

@@ -1,7 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Crown, Gamepad2, TrendingUp, Zap } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import { computePlayerYakumanAchievements, computeRadarStats, computeRankCounts, computeRanking } from '../../lib/stats';
+import {
+  computePlayerRateStats,
+  computePlayerYakumanAchievements,
+  computeRadarStats,
+  computeRankCounts,
+  computeRanking,
+} from '../../lib/stats';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { EmptyState } from '../common/EmptyState';
@@ -35,6 +41,7 @@ export function RankingSection() {
   const radarRows = useMemo(() => computeRadarStats(history, players), [history, players]);
   const rankCounts = useMemo(() => computeRankCounts(history, players), [history, players]);
   const yakumanAchievements = useMemo(() => computePlayerYakumanAchievements(history, players), [history, players]);
+  const rateStats = useMemo(() => computePlayerRateStats(history, players), [history, players]);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   if (rows.length === 0) {
@@ -132,6 +139,14 @@ export function RankingSection() {
           radarRow={selectedRadarRow}
           rankCounts={selectedPlayerId ? (rankCounts[selectedPlayerId] ?? []) : []}
           yakumanAchievements={selectedPlayerId ? (yakumanAchievements[selectedPlayerId] ?? []) : []}
+          rateStats={
+            (selectedPlayerId ? rateStats[selectedPlayerId] : undefined) ?? {
+              topRate: null,
+              rentaiRate: null,
+              lastRate: null,
+              tobiRate: null,
+            }
+          }
           rank={selectedIdx + 1}
           onClose={() => setSelectedPlayerId(null)}
         />
