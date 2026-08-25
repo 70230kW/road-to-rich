@@ -8,7 +8,7 @@ export function Header() {
       <div className="flex items-center justify-center gap-3 relative z-10">
         <span className="w-8 md:w-12 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-cyan-500" />
         <p className="text-cyan-300 text-[9px] sm:text-[10px] md:text-xs tracking-[0.1em] md:tracking-[0.2em] font-mono font-bold drop-shadow-[0_0_5px_rgba(6,182,212,0.8)] uppercase">
-          Mahjong Settlement System
+          Provided by K.Waga
         </p>
         <span className="w-8 md:w-12 h-[2px] bg-gradient-to-l from-transparent via-cyan-400 to-cyan-500" />
       </div>
