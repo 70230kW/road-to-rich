@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { CumulativeSeries } from '../../lib/stats';
 
-const COLORS = ['#06b6d4', '#e879f9', '#34d399', '#fbbf24', '#f87171', '#818cf8', '#a3e635'];
-
 const SVG_WIDTH = 800;
 const SVG_HEIGHT = 400;
 const PAD_X = 60;
@@ -108,9 +106,9 @@ export function CumulativeProfitChart({ series }: { series: CumulativeSeries }) 
           return null;
         })}
 
-        {activePlayers.map((p, pIdx) => {
+        {activePlayers.map((p) => {
           if (hiddenIds.has(p.id)) return null;
-          const color = COLORS[pIdx % COLORS.length];
+          const color = p.color;
           const pointsStr = points.map((pt, i) => `${getX(i)},${getY(pt.values[p.id] ?? 0)}`).join(' ');
           return (
             <g key={p.id}>
@@ -126,9 +124,9 @@ export function CumulativeProfitChart({ series }: { series: CumulativeSeries }) 
       </svg>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mt-8 pt-6 border-t border-slate-700/50">
-        {activePlayers.map((p, pIdx) => {
+        {activePlayers.map((p) => {
           const isHidden = hiddenIds.has(p.id);
-          const color = COLORS[pIdx % COLORS.length];
+          const color = p.color;
           return (
             <button
               key={p.id}

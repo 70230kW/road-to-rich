@@ -10,8 +10,8 @@ import {
 import type { DayRecord, Player } from '../types';
 
 const players: Player[] = [
-  { id: 'a', name: 'Alice' },
-  { id: 'b', name: 'Bob' },
+  { id: 'a', name: 'Alice', color: '#06b6d4' },
+  { id: 'b', name: 'Bob', color: '#e879f9' },
 ];
 
 const history: DayRecord[] = [
@@ -108,7 +108,7 @@ describe('computeRankCounts', () => {
   });
 
   it('pads every player array to the highest rank seen, even players with no games', () => {
-    const counts = computeRankCounts(history, [...players, { id: 'c', name: 'Carol' }]);
+    const counts = computeRankCounts(history, [...players, { id: 'c', name: 'Carol', color: '#34d399' }]);
     expect(counts.c).toEqual([0, 0]);
   });
 
@@ -191,7 +191,7 @@ describe('computeRadarStats', () => {
   });
 
   it('omits players with no recorded games', () => {
-    const rows = computeRadarStats(history, [...players, { id: 'c', name: 'Carol' }]);
+    const rows = computeRadarStats(history, [...players, { id: 'c', name: 'Carol', color: '#34d399' }]);
     expect(rows.some((r) => r.playerId === 'c')).toBe(false);
   });
 });

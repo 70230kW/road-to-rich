@@ -3,10 +3,10 @@ import { computePlayerTrophies, TROPHY_LIST } from '../lib/trophies';
 import type { DayRecord, Game, GameScore, Player, Settings } from '../types';
 
 const players: Player[] = [
-  { id: 'a', name: 'Alice' },
-  { id: 'b', name: 'Bob' },
-  { id: 'c', name: 'Carolina' },
-  { id: 'd', name: 'Daisuke' },
+  { id: 'a', name: 'Alice', color: '#06b6d4' },
+  { id: 'b', name: 'Bob', color: '#e879f9' },
+  { id: 'c', name: 'Carolina', color: '#34d399' },
+  { id: 'd', name: 'Daisuke', color: '#fbbf24' },
 ];
 
 const settings: Settings = {

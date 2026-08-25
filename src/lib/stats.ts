@@ -188,6 +188,7 @@ export function computeRanking(history: DayRecord[], players: Player[]): Ranking
 export interface RadarRow {
   playerId: string;
   name: string;
+  color: string;
   /** チップ獲得枚数の累計 */
   chipTotal: number;
   /** 最高素点 */
@@ -243,6 +244,7 @@ export function computeRadarStats(history: DayRecord[], players: Player[]): Rada
     rows.push({
       playerId: pid,
       name: playerName(players, pid),
+      color: players.find((p) => p.id === pid)?.color ?? '#94a3b8',
       chipTotal: v.chipTotal,
       highestScore: v.highestScore,
       avgRank,
