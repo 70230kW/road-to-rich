@@ -282,6 +282,35 @@ export function computeRankCounts(history: DayRecord[], players: Player[]): Reco
   return result;
 }
 
+export interface PlayerYakumanAchievement {
+  yakumanId: string;
+  date: string;
+}
+
+/** Per-player chronological list (most recent first) of yakumanId + date achieved. */
+export function computePlayerYakumanAchievements(
+  history: DayRecord[],
+  players: Player[],
+): Record<string, PlayerYakumanAchievement[]> {
+  const result: Record<string, PlayerYakumanAchievement[]> = {};
+  players.forEach((p) => (result[p.id] = []));
+
+  for (const day of history) {
+    for (const game of day.games) {
+      for (const event of game.yakumanEvents ?? []) {
+        const arr = result[event.playerId];
+        if (!arr) continue;
+        for (const yakumanId of event.yakumanIds) {
+          arr.push({ yakumanId, date: day.date });
+        }
+      }
+    }
+  }
+
+  Object.values(result).forEach((arr) => arr.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+  return result;
+}
+
 export interface YakumanAchievement {
   playerId: string;
   playerName: string;

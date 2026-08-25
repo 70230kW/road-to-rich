@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   computeDashboardStats,
+  computePlayerYakumanAchievements,
   computeRadarStats,
   computeRankCounts,
   computeRanking,
@@ -227,5 +228,43 @@ describe('computeYakumanAchievements', () => {
 
   it('returns an empty object when no games have yakumanEvents', () => {
     expect(computeYakumanAchievements(history, players)).toEqual({});
+  });
+});
+
+describe('computePlayerYakumanAchievements', () => {
+  const withYakuman: DayRecord[] = [
+    {
+      ...history[0],
+      games: [
+        {
+          ...history[0].games[0],
+          yakumanEvents: [{ id: 'e1', playerId: 'a', yakumanIds: ['daisangen', 'suuankou'] }],
+        },
+      ],
+    },
+    {
+      ...history[1],
+      games: [{ ...history[1].games[0], yakumanEvents: [{ id: 'e2', playerId: 'a', yakumanIds: ['kokushi'] }] }],
+    },
+  ];
+
+  it('lists each achieved yakuman (including compound events) per player, most recent first', () => {
+    const result = computePlayerYakumanAchievements(withYakuman, players);
+    expect(result.a).toEqual([
+      { yakumanId: 'kokushi', date: history[1].date },
+      { yakumanId: 'daisangen', date: history[0].date },
+      { yakumanId: 'suuankou', date: history[0].date },
+    ]);
+  });
+
+  it('returns an empty array for players with no yakumanEvents', () => {
+    const result = computePlayerYakumanAchievements(withYakuman, players);
+    expect(result.b).toEqual([]);
+  });
+
+  it('returns empty arrays for every player when no games have yakumanEvents', () => {
+    const result = computePlayerYakumanAchievements(history, players);
+    expect(result.a).toEqual([]);
+    expect(result.b).toEqual([]);
   });
 });
