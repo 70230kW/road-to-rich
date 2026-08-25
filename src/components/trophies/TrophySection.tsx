@@ -177,15 +177,15 @@ export function TrophySection() {
                           >
                             <div className="flex items-start justify-between gap-2">
                               <div
-                                className={`font-black text-sm tracking-wide ${isEarned ? theme.earnedText : 'text-slate-400'}`}
+                                className={`font-black text-sm tracking-wide ${isEarned ? theme.earnedText : 'text-slate-500'}`}
                               >
-                                {trophy.name}
+                                {isEarned ? trophy.name : '？？？'}
                               </div>
                               {!isEarned && <Lock className="w-3.5 h-3.5 text-slate-600 shrink-0 mt-0.5" />}
                               {isEarned && <Trophy className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${theme.earnedText}`} />}
                             </div>
                             <div className={`text-[11px] leading-relaxed mt-1 ${isEarned ? 'text-slate-300' : 'text-slate-600'}`}>
-                              {trophy.description}
+                              {isEarned ? trophy.description : '？？？？？？？？？？？？？？？？？？？？'}
                             </div>
                           </div>
                         );
