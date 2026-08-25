@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { DayRecord, Game, Player, PlayerCount, Settings } from '../types';
 import { defaultSettings } from '../lib/defaults';
 import { ensureAnonymousAuth } from '../lib/firebase';
+import { ensurePlayerColors, pickPlayerColor } from '../lib/playerColors';
 import {
   deleteDay as deleteDayRepo,
   ensureRoomInitialized,
@@ -47,6 +48,7 @@ interface AppState {
 
   addPlayer: (name: string) => Promise<void>;
   updatePlayer: (id: string, name: string) => Promise<void>;
+  setPlayerColor: (id: string, color: string) => Promise<void>;
   removePlayer: (id: string) => Promise<void>;
 
   updateSettings: (patch: Partial<Settings>) => Promise<void>;
@@ -98,8 +100,16 @@ export const useAppStore = create<AppState>()((set, get) => ({
 
       const unsubs = [
         subscribePlayers(roomCode, (players) => {
-          set({ players });
+          const healed = ensurePlayerColors(players);
+          set({ players: healed });
           markReady('players');
+          // Pre-existing rooms may have players saved before `color` existed;
+          // persist the backfilled colors so every client converges on them.
+          if (healed.some((p, i) => p.color !== players[i]?.color)) {
+            savePlayers(roomCode, healed).catch((err) => {
+              console.error('Failed to backfill missing player colors:', err);
+            });
+          }
         }),
         subscribeSettings(roomCode, (settings) => {
           set({ settings });
@@ -146,7 +156,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
   addPlayer: async (name) => {
     const { roomCode, players } = get();
     if (!roomCode || !name.trim()) return;
-    await savePlayers(roomCode, [...players, { id: uid(), name: name.trim() }]);
+    const color = pickPlayerColor(players.map((p) => p.color));
+    await savePlayers(roomCode, [...players, { id: uid(), name: name.trim(), color }]);
   },
 
   updatePlayer: async (id, name) => {
@@ -155,6 +166,15 @@ export const useAppStore = create<AppState>()((set, get) => ({
     await savePlayers(
       roomCode,
       players.map((p) => (p.id === id ? { ...p, name: name.trim() } : p)),
+    );
+  },
+
+  setPlayerColor: async (id, color) => {
+    const { roomCode, players } = get();
+    if (!roomCode) return;
+    await savePlayers(
+      roomCode,
+      players.map((p) => (p.id === id ? { ...p, color } : p)),
     );
   },
 

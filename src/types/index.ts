@@ -3,6 +3,8 @@ export type PlayerCount = 3 | 4;
 export interface Player {
   id: string;
   name: string;
+  /** グラフ上でこの雀士を表す色（hex/hsl）。他の雀士とは重複しない。 */
+  color: string;
 }
 
 /** All persisted calculation settings. */

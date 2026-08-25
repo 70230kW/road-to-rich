@@ -2,8 +2,6 @@ import { useMemo, useState } from 'react';
 import type { RadarRow } from '../../lib/stats';
 import { formatSignedYen } from '../../lib/format';
 
-const COLORS = ['#06b6d4', '#e879f9', '#34d399', '#fbbf24', '#f87171', '#818cf8', '#a3e635'];
-
 const SIZE = 400;
 const CENTER = SIZE / 2;
 const MAX_R = 140;
@@ -114,9 +112,9 @@ export function RadarChart({ rows }: { rows: RadarRow[] }) {
           );
         })}
 
-        {rows.map((row, rIdx) => {
+        {rows.map((row) => {
           if (hiddenIds.has(row.playerId)) return null;
-          const color = COLORS[rIdx % COLORS.length];
+          const color = row.color;
           const points = AXES.map((axis, i) => {
             const p = pointAt(i, radiusFor(i, row[axis.key] as number));
             return `${p.x},${p.y}`;
@@ -138,9 +136,9 @@ export function RadarChart({ rows }: { rows: RadarRow[] }) {
       </svg>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mt-6 pt-6 border-t border-slate-700/50">
-        {rows.map((row, rIdx) => {
+        {rows.map((row) => {
           const isHidden = hiddenIds.has(row.playerId);
-          const color = COLORS[rIdx % COLORS.length];
+          const color = row.color;
           return (
             <button
               key={row.playerId}

@@ -109,7 +109,7 @@ describe('connectToRoom', () => {
     expect(useAppStore.getState().connectionStatus).toBe('connecting');
     mocks.historyCb?.([]);
     expect(useAppStore.getState().connectionStatus).toBe('synced');
-    expect(useAppStore.getState().players).toEqual([{ id: 'p1', name: 'Alice' }]);
+    expect(useAppStore.getState().players).toEqual([{ id: 'p1', name: 'Alice', color: '#06b6d4' }]);
   });
 
   it('persists the room code to localStorage so a reload can auto-rejoin', async () => {
@@ -158,7 +158,7 @@ describe('player actions', () => {
   it('updatePlayer writes the renamed list', async () => {
     flushInitialSnapshots({ players: [{ id: 'p1', name: 'Alice' }] });
     await useAppStore.getState().updatePlayer('p1', 'Alicia');
-    expect(mocks.savePlayers).toHaveBeenCalledWith('room-e', [{ id: 'p1', name: 'Alicia' }]);
+    expect(mocks.savePlayers).toHaveBeenCalledWith('room-e', [{ id: 'p1', name: 'Alicia', color: '#06b6d4' }]);
   });
 
   it('removePlayer writes the filtered list', async () => {
@@ -169,12 +169,27 @@ describe('player actions', () => {
       ],
     });
     await useAppStore.getState().removePlayer('p1');
-    expect(mocks.savePlayers).toHaveBeenCalledWith('room-e', [{ id: 'p2', name: 'Bob' }]);
+    expect(mocks.savePlayers).toHaveBeenCalledWith('room-e', [{ id: 'p2', name: 'Bob', color: '#e879f9' }]);
   });
 
   it('reflects a simulated remote snapshot reactively', () => {
     flushInitialSnapshots({ players: [{ id: 'p9', name: 'RemoteAdd' }] });
-    expect(useAppStore.getState().players).toEqual([{ id: 'p9', name: 'RemoteAdd' }]);
+    expect(useAppStore.getState().players).toEqual([{ id: 'p9', name: 'RemoteAdd', color: '#06b6d4' }]);
+  });
+
+  it('addPlayer auto-assigns a color that does not collide with existing players', async () => {
+    flushInitialSnapshots({ players: [{ id: 'p1', name: 'Alice', color: '#06b6d4' }] });
+    await useAppStore.getState().addPlayer('Bob');
+    expect(mocks.savePlayers).toHaveBeenCalledWith('room-e', [
+      { id: 'p1', name: 'Alice', color: '#06b6d4' },
+      expect.objectContaining({ name: 'Bob', color: '#e879f9' }),
+    ]);
+  });
+
+  it('setPlayerColor writes the updated list', async () => {
+    flushInitialSnapshots({ players: [{ id: 'p1', name: 'Alice', color: '#06b6d4' }] });
+    await useAppStore.getState().setPlayerColor('p1', '#f472b6');
+    expect(mocks.savePlayers).toHaveBeenCalledWith('room-e', [{ id: 'p1', name: 'Alice', color: '#f472b6' }]);
   });
 });
 
