@@ -1,15 +1,21 @@
-import { Award, Coins, Crown, Gamepad2, TrendingUp, X, Zap } from 'lucide-react';
-import type { RadarRow, RankingRow } from '../../lib/stats';
-import { formatSignedYen } from '../../lib/format';
+import { Award, BarChart3, Coins, Crown, Gamepad2, Sparkles, TrendingUp, X, Zap } from 'lucide-react';
+import type { PlayerYakumanAchievement, RadarRow, RankingRow } from '../../lib/stats';
+import { formatDate, formatSignedYen } from '../../lib/format';
+import { findYakuman } from '../../lib/yakuman';
+import { RankCountBars } from './RankCountBars';
 
 export function PlayerDetailModal({
   row,
   radarRow,
+  rankCounts,
+  yakumanAchievements,
   rank,
   onClose,
 }: {
   row: RankingRow;
   radarRow: RadarRow | null;
+  rankCounts: number[];
+  yakumanAchievements: PlayerYakumanAchievement[];
   rank: number;
   onClose: () => void;
 }) {
@@ -103,6 +109,40 @@ export function PlayerDetailModal({
             </div>
           </div>
         </div>
+
+        {rankCounts.some((c) => c > 0) && (
+          <div className="relative z-10 bg-abyss/60 p-5 rounded-2xl border border-slate-800/80 mt-3">
+            <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-3">
+              <BarChart3 className="w-3.5 h-3.5 mr-1.5 text-cyan-500" /> 着順分布
+            </div>
+            <RankCountBars counts={rankCounts} />
+          </div>
+        )}
+
+        {yakumanAchievements.length > 0 && (
+          <div className="relative z-10 bg-abyss/60 p-5 rounded-2xl border border-slate-800/80 mt-3">
+            <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-3">
+              <Sparkles className="w-3.5 h-3.5 mr-1.5 text-purple-400" /> 達成役満
+            </div>
+            <div className="space-y-2">
+              {yakumanAchievements.map((a, i) => {
+                const def = findYakuman(a.yakumanId);
+                return (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between bg-panel-2/60 border border-purple-800/30 rounded-xl px-4 py-2.5"
+                  >
+                    <span className="font-bold text-purple-100 text-sm flex items-center">
+                      {def?.name ?? a.yakumanId}
+                      {def?.isDouble && <span className="ml-1.5 text-[8px] font-black text-purple-400 font-mono">W</span>}
+                    </span>
+                    <span className="text-xs text-slate-500 font-mono">{formatDate(a.date)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
