@@ -71,6 +71,18 @@ export const YAKUMAN_LIST: YakumanDef[] = [
     description: '東南西北の4種を刻子・槓子にして和了した場合に成立する。',
     isDouble: true,
   },
+  {
+    id: 'renhou',
+    name: '人和',
+    description: '子が第1巡目、自分のツモ番が来る前に他家の捨て牌でロン和了した場合に成立する（ローカル役満）。',
+    isDouble: false,
+  },
+  {
+    id: 'kazoe',
+    name: '数え役満',
+    description: '通常役の合計が13翻以上になった場合に役満として扱う。',
+    isDouble: false,
+  },
 ];
 
 export function findYakuman(id: string): YakumanDef | undefined {
@@ -96,8 +108,9 @@ export function findYakuman(id: string): YakumanDef | undefined {
  *   - 天和/地和 depend on being dealer vs non-dealer, so never both.
  */
 const INCOMPATIBLE: Record<string, string[]> = {
-  tenho: ['chiho'],
-  chiho: ['tenho'],
+  tenho: ['chiho', 'renhou'],
+  chiho: ['tenho', 'renhou'],
+  renhou: ['tenho', 'chiho'],
   daisangen: ['kokushi', 'kokushi-13', 'chuuren', 'junsei-chuuren', 'ryuuiisou', 'chinroutou', 'shousuushii', 'daisuushii'],
   suuankou: ['suuankou-tanki', 'kokushi', 'kokushi-13', 'chuuren', 'junsei-chuuren'],
   'suuankou-tanki': ['suuankou', 'kokushi', 'kokushi-13', 'chuuren', 'junsei-chuuren'],
