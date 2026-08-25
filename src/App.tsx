@@ -89,7 +89,7 @@ function AppShell() {
         </div>
 
         <footer className="text-center py-8 text-[10px] text-slate-700 font-mono tracking-[0.2em] uppercase">
-          ROAD to RICH — Mahjong Settlement System
+          ROAD to RICH — Provided by K.Waga
         </footer>
       </div>
     </div>
