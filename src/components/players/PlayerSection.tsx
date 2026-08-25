@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Check, Edit2, Palette, Plus, Trash2, Users } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import { PLAYER_COLOR_PALETTE } from '../../lib/playerColors';
 import { SectionHeader } from '../common/SectionHeader';
 import { EmptyState } from '../common/EmptyState';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { NeonButton } from '../common/NeonButton';
+
+const HEX_COLOR_RE = /^#[0-9a-f]{6}$/i;
 
 export function PlayerSection() {
   const players = useAppStore((s) => s.players);
@@ -21,6 +22,8 @@ export function PlayerSection() {
   const [editName, setEditName] = useState('');
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [colorPickerId, setColorPickerId] = useState<string | null>(null);
+  const [hexDraft, setHexDraft] = useState('');
+  const [colorError, setColorError] = useState<string | null>(null);
 
   const minRequired = settings.playerCount;
   const canDelete = players.length > minRequired;
@@ -39,6 +42,32 @@ export function PlayerSection() {
   const saveEdit = (id: string) => {
     if (editName.trim()) updatePlayer(id, editName);
     setEditingId(null);
+  };
+
+  const openColorPicker = (id: string, currentColor: string) => {
+    if (colorPickerId === id) {
+      setColorPickerId(null);
+      return;
+    }
+    setColorPickerId(id);
+    setHexDraft(currentColor);
+    setColorError(null);
+  };
+
+  const applyColor = (id: string, candidate: string) => {
+    if (!HEX_COLOR_RE.test(candidate)) {
+      setColorError('有効なカラーコードを入力してください（例: #06b6d4）');
+      return;
+    }
+    const normalized = candidate.toLowerCase();
+    const isDuplicate = players.some((o) => o.id !== id && o.color.toLowerCase() === normalized);
+    if (isDuplicate) {
+      setColorError('その色は既に他の雀士が使用しています');
+      return;
+    }
+    setColorError(null);
+    setHexDraft(normalized);
+    setPlayerColor(id, normalized);
   };
 
   const pendingPlayer = players.find((p) => p.id === pendingDeleteId);
@@ -69,7 +98,6 @@ export function PlayerSection() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {players.map((p) => {
-            const colorsInUseByOthers = new Set(players.filter((o) => o.id !== p.id).map((o) => o.color));
             const isPickingColor = colorPickerId === p.id;
             return (
               <div
@@ -80,7 +108,7 @@ export function PlayerSection() {
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <button
                       type="button"
-                      onClick={() => setColorPickerId(isPickingColor ? null : p.id)}
+                      onClick={() => openColorPicker(p.id, p.color)}
                       aria-label={`${p.name}の色を変更`}
                       aria-pressed={isPickingColor}
                       className="shrink-0 w-7 h-7 rounded-full border-2 border-slate-700 hover:border-slate-400 transition-all flex items-center justify-center"
@@ -136,31 +164,26 @@ export function PlayerSection() {
                 </div>
 
                 {isPickingColor && (
-                  <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-700/50">
-                    {PLAYER_COLOR_PALETTE.map((color) => {
-                      const isUsedByOther = colorsInUseByOthers.has(color);
-                      const isSelected = p.color === color;
-                      return (
-                        <button
-                          key={color}
-                          type="button"
-                          disabled={isUsedByOther}
-                          title={isUsedByOther ? '他の雀士が使用中の色です' : color}
-                          onClick={() => {
-                            setPlayerColor(p.id, color);
-                            setColorPickerId(null);
-                          }}
-                          className={`w-8 h-8 rounded-full border-2 transition-all ${
-                            isUsedByOther
-                              ? 'opacity-25 grayscale cursor-not-allowed border-transparent'
-                              : isSelected
-                                ? 'border-white scale-110'
-                                : 'border-transparent hover:scale-110 hover:border-slate-400'
-                          }`}
-                          style={{ backgroundColor: color, boxShadow: isSelected ? `0 0 10px ${color}` : 'none' }}
-                        />
-                      );
-                    })}
+                  <div className="mt-4 pt-4 border-t border-slate-700/50 flex flex-wrap items-center gap-3">
+                    <input
+                      type="color"
+                      value={HEX_COLOR_RE.test(hexDraft) ? hexDraft : p.color}
+                      onChange={(e) => applyColor(p.id, e.target.value)}
+                      aria-label={`${p.name}の色をカラーピッカーで選択`}
+                      className="w-10 h-10 rounded-lg border-2 border-slate-700 bg-transparent cursor-pointer p-0 shrink-0"
+                    />
+                    <input
+                      type="text"
+                      value={hexDraft}
+                      onChange={(e) => setHexDraft(e.target.value)}
+                      onBlur={() => applyColor(p.id, hexDraft)}
+                      onKeyDown={(e) => e.key === 'Enter' && applyColor(p.id, hexDraft)}
+                      placeholder="#06b6d4"
+                      className={`w-32 bg-abyss border rounded-lg px-3 py-2 text-sm text-slate-100 font-mono uppercase tracking-wider focus:outline-none transition-colors ${
+                        colorError ? 'border-rose-500/80 focus:border-rose-400' : 'border-slate-700/80 focus:border-cyan-400'
+                      }`}
+                    />
+                    {colorError && <span className="text-xs text-rose-400 basis-full">{colorError}</span>}
                   </div>
                 )}
               </div>

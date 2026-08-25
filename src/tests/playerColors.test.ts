@@ -15,10 +15,10 @@ describe('pickPlayerColor', () => {
     expect(pickPlayerColor([undefined, PLAYER_COLOR_PALETTE[0], undefined])).toBe(PLAYER_COLOR_PALETTE[1]);
   });
 
-  it('falls back to a distinct generated color once the whole palette is taken', () => {
+  it('falls back to a distinct generated hex color once the whole palette is taken', () => {
     const color = pickPlayerColor(PLAYER_COLOR_PALETTE);
     expect(PLAYER_COLOR_PALETTE).not.toContain(color);
-    expect(color).toMatch(/^hsl\(/);
+    expect(color).toMatch(/^#[0-9a-f]{6}$/);
   });
 
   it('never returns a color already used, even past the palette', () => {
