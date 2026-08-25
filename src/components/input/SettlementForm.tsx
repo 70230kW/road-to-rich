@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Activity, ChevronsRight, DollarSign, Save } from 'lucide-react';
 import type { DaySettlementEntry, DayRecord, Game, Player } from '../../types';
 import { calcDaySettlement, isChipTotalBalanced } from '../../lib/calc';
@@ -37,6 +37,23 @@ export function SettlementForm({
     Object.fromEntries(participantIds.map((id) => [id, initialChips?.[id] !== undefined ? String(initialChips[id]) : ''])),
   );
   const [attemptedSave, setAttemptedSave] = useState(false);
+  const tableFeeInputRef = useRef<HTMLInputElement>(null);
+
+  // 半荘の記録が終わってこの画面に遷移したとき、場代の入力欄まで自動でスクロールする。
+  useEffect(() => {
+    tableFeeInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, []);
+
+  // チップは合計が必ず±0になるため、参加者のうち1人だけ未入力ならその1人分を自動計算する。
+  useEffect(() => {
+    const blankIds = participantIds.filter((id) => (chipInputs[id] ?? '').trim() === '');
+    if (blankIds.length !== 1) return;
+    const [autoId] = blankIds;
+    const sumOfRest = participantIds
+      .filter((id) => id !== autoId)
+      .reduce((acc, id) => acc + (Number(chipInputs[id]) || 0), 0);
+    setChipInputs((prev) => ({ ...prev, [autoId]: String(-sumOfRest) }));
+  }, [chipInputs, participantIds]);
 
   const tableFee = Number(tableFeeInput) || 0;
   const chipRate = Number(chipRateInput) || 0;
@@ -96,6 +113,7 @@ export function SettlementForm({
               1日の総場代 (円)
             </label>
             <input
+              ref={tableFeeInputRef}
               type="number"
               value={tableFeeInput}
               onChange={(e) => setTableFeeInput(e.target.value)}
