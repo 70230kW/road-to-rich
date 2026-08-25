@@ -38,13 +38,13 @@ function TabLoading() {
 
 const TABS: TabDef[] = [
   { id: 'input', name: '成績入力・精算', icon: Plus },
-  { id: 'dashboard', name: 'ダッシュボード', icon: BarChart3 },
-  { id: 'history', name: '対戦履歴', icon: History },
   { id: 'ranking', name: 'ランキング', icon: Crown },
+  { id: 'dashboard', name: 'ダッシュボード', icon: BarChart3 },
   { id: 'trophies', name: 'トロフィー', icon: Trophy },
-  { id: 'settings', name: '計算設定', icon: SettingsIcon },
-  { id: 'players', name: '雀士登録', icon: Users },
+  { id: 'history', name: '対戦履歴', icon: History },
   { id: 'rules', name: 'ルール', icon: BookOpen },
+  { id: 'players', name: '雀士登録', icon: Users },
+  { id: 'settings', name: '計算設定', icon: SettingsIcon },
 ];
 
 function App() {
