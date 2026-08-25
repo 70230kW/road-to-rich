@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   computeDashboardStats,
+  computePlayerRateStats,
   computePlayerYakumanAchievements,
   computeRadarStats,
   computeRankCounts,
@@ -116,6 +117,39 @@ describe('computeRankCounts', () => {
     const counts = computeRankCounts([], players);
     expect(counts.a).toEqual([]);
     expect(counts.b).toEqual([]);
+  });
+});
+
+describe('computePlayerRateStats', () => {
+  it('computes トップ率/連対率/ラス率 from recorded ranks (2-player games: rank 2 is also last place)', () => {
+    const rates = computePlayerRateStats(history, players);
+    expect(rates.a).toEqual({ topRate: 1, rentaiRate: 1, lastRate: 0, tobiRate: 0 });
+    expect(rates.b).toEqual({ topRate: 0, rentaiRate: 1, lastRate: 1, tobiRate: 0 });
+  });
+
+  it('computes トビ率 from hanchans where the raw score went negative', () => {
+    const withTobi: DayRecord[] = [
+      {
+        ...history[0],
+        games: [
+          {
+            id: 'g3',
+            scores: [
+              { playerId: 'a', rawScore: 55000, rank: 1, point: 3000 },
+              { playerId: 'b', rawScore: -5000, rank: 2, point: -3000 },
+            ],
+          },
+        ],
+      },
+    ];
+    const rates = computePlayerRateStats(withTobi, players);
+    expect(rates.a.tobiRate).toBe(0);
+    expect(rates.b.tobiRate).toBe(1);
+  });
+
+  it('returns nulls for a player with no recorded hanchan', () => {
+    const rates = computePlayerRateStats(history, [...players, { id: 'c', name: 'Carol', color: '#34d399' }]);
+    expect(rates.c).toEqual({ topRate: null, rentaiRate: null, lastRate: null, tobiRate: null });
   });
 });
 

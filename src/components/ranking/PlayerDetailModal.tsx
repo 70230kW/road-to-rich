@@ -1,14 +1,19 @@
-import { Award, BarChart3, Coins, Crown, Gamepad2, Sparkles, TrendingUp, X, Zap } from 'lucide-react';
-import type { PlayerYakumanAchievement, RadarRow, RankingRow } from '../../lib/stats';
+import { Award, BarChart3, Coins, Crown, Gamepad2, Skull, Sparkles, TrendingDown, TrendingUp, X, Zap } from 'lucide-react';
+import type { PlayerYakumanAchievement, RadarRow, RankingRow, RateStats } from '../../lib/stats';
 import { formatDate, formatSignedYen } from '../../lib/format';
 import { findYakuman } from '../../lib/yakuman';
 import { RankCountBars } from './RankCountBars';
+
+function formatRate(value: number | null): string {
+  return value !== null ? `${(value * 100).toFixed(1)}%` : '-';
+}
 
 export function PlayerDetailModal({
   row,
   radarRow,
   rankCounts,
   yakumanAchievements,
+  rateStats,
   rank,
   onClose,
 }: {
@@ -16,6 +21,7 @@ export function PlayerDetailModal({
   radarRow: RadarRow | null;
   rankCounts: number[];
   yakumanAchievements: PlayerYakumanAchievement[];
+  rateStats: RateStats;
   rank: number;
   onClose: () => void;
 }) {
@@ -106,6 +112,38 @@ export function PlayerDetailModal({
             </div>
             <div className="font-mono text-xl font-black text-slate-100">
               {radarRow ? formatSignedYen(radarRow.bestDailyWin) : '-'}
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 bg-abyss/60 p-5 rounded-2xl border border-slate-800/80 mt-3">
+          <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-3">
+            <Crown className="w-3.5 h-3.5 mr-1.5 text-yellow-500" /> 着順の勝率
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1">
+                <Crown className="w-3 h-3 mr-1 text-yellow-500" /> トップ率
+              </div>
+              <div className="font-mono text-lg font-black text-yellow-300">{formatRate(rateStats.topRate)}</div>
+            </div>
+            <div>
+              <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1">
+                <TrendingUp className="w-3 h-3 mr-1 text-emerald-500" /> 連対率
+              </div>
+              <div className="font-mono text-lg font-black text-emerald-300">{formatRate(rateStats.rentaiRate)}</div>
+            </div>
+            <div>
+              <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1">
+                <TrendingDown className="w-3 h-3 mr-1 text-rose-500" /> ラス率
+              </div>
+              <div className="font-mono text-lg font-black text-rose-300">{formatRate(rateStats.lastRate)}</div>
+            </div>
+            <div>
+              <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1">
+                <Skull className="w-3 h-3 mr-1 text-fuchsia-500" /> トビ率
+              </div>
+              <div className="font-mono text-lg font-black text-fuchsia-300">{formatRate(rateStats.tobiRate)}</div>
             </div>
           </div>
         </div>
