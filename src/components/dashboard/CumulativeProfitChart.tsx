@@ -114,7 +114,7 @@ export function CumulativeProfitChart({ series }: { series: CumulativeSeries }) 
             <g key={p.id}>
               <polyline points={pointsStr} fill="none" stroke={color} strokeWidth="3.5" filter="url(#line-glow)" />
               {points.map((pt, i) => (
-                <circle key={`c-${p.id}-${i}`} cx={getX(i)} cy={getY(pt.values[p.id] ?? 0)} r="4" fill="#030712" stroke={color} strokeWidth="2.5">
+                <circle key={`c-${p.id}-${i}`} cx={getX(i)} cy={getY(pt.values[p.id] ?? 0)} r="4" fill={color} stroke={color} strokeWidth="2.5">
                   <title>{`${p.name}: ${Math.round(pt.values[p.id] ?? 0).toLocaleString()}`}</title>
                 </circle>
               ))}
