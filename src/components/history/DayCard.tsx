@@ -5,6 +5,7 @@ import { formatDate, formatSignedYen, formatYen } from '../../lib/format';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { DayEditor } from './DayEditor';
 import { MatrixTable } from './MatrixTable';
+import { PointMatrixTable } from './PointMatrixTable';
 
 export function DayCard({
   day,
@@ -139,6 +140,12 @@ export function DayCard({
             半荘マトリックス
           </h4>
           <MatrixTable day={day} participantIds={participantIds} players={players} />
+
+          <h4 className="text-xs font-black text-emerald-400 mt-10 mb-4 tracking-[0.2em] uppercase flex items-center relative z-10">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2 shadow-[0_0_8px_rgba(16,185,129,1)]" />
+            半荘別 獲得金額
+          </h4>
+          <PointMatrixTable day={day} participantIds={participantIds} players={players} />
         </div>
       )}
 
