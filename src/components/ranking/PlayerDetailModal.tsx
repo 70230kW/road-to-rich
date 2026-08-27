@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { Award, BarChart3, Coins, Crown, Gamepad2, Skull, Sparkles, TrendingDown, TrendingUp, X, Zap } from 'lucide-react';
 import type { PlayerYakumanAchievement, RadarRow, RankingRow, RateStats } from '../../lib/stats';
 import { formatDate, formatSignedYen } from '../../lib/format';
@@ -25,7 +26,7 @@ export function PlayerDetailModal({
   rank: number;
   onClose: () => void;
 }) {
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
       role="dialog"
@@ -182,6 +183,7 @@ export function PlayerDetailModal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
