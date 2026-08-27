@@ -130,7 +130,7 @@ export function DashboardSection() {
         </div>
       )}
 
-      <ActivityCalendarSection history={history} />
+      <ActivityCalendarSection history={history} players={players} />
 
       <RivalrySection history={history} players={players} />
 
