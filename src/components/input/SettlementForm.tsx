@@ -44,14 +44,22 @@ export function SettlementForm({
     tableFeeInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, []);
 
-  // チップは合計が必ず±0になるため、参加者のうち1人だけ未入力ならその1人分を自動計算する。
+  // チップは合計が必ず±0になるため、参加者のうち1人だけ「完全な数値入力」が
+  // 済んでいなければその1人分を自動計算する。空文字だけでなく「-」のような
+  // 入力途中の値も未完了として扱い、入力が完了するまで反映しない（素点の自動
+  // 計算と同様の挙動）。
   useEffect(() => {
-    const blankIds = participantIds.filter((id) => (chipInputs[id] ?? '').trim() === '');
-    if (blankIds.length !== 1) return;
-    const [autoId] = blankIds;
-    const sumOfRest = participantIds
-      .filter((id) => id !== autoId)
-      .reduce((acc, id) => acc + (Number(chipInputs[id]) || 0), 0);
+    const parsedValues = participantIds.map((id) => {
+      const trimmed = (chipInputs[id] ?? '').trim();
+      if (trimmed === '') return null;
+      const n = Number(trimmed);
+      return Number.isFinite(n) ? n : null;
+    });
+    const blankIndices = parsedValues.reduce<number[]>((acc, v, i) => (v === null ? [...acc, i] : acc), []);
+    if (blankIndices.length !== 1) return;
+    const autoIdx = blankIndices[0];
+    const autoId = participantIds[autoIdx];
+    const sumOfRest = parsedValues.reduce<number>((acc, v, i) => (i === autoIdx ? acc : acc + (v ?? 0)), 0);
     setChipInputs((prev) => ({ ...prev, [autoId]: String(-sumOfRest) }));
   }, [chipInputs, participantIds]);
 
