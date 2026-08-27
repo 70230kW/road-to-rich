@@ -8,8 +8,10 @@ import {
   computeRankCounts,
   computeRanking,
 } from '../../lib/stats';
+import { filterHistoryBySeason, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
+import { SeasonSelect } from '../common/SeasonSelect';
 import { EmptyState } from '../common/EmptyState';
 import { PlayerDetailModal } from './PlayerDetailModal';
 
@@ -35,8 +37,12 @@ const RANK_STYLES = [
 ];
 
 export function RankingSection() {
-  const history = useAppStore((s) => s.history);
+  const fullHistory = useAppStore((s) => s.history);
   const players = useAppStore((s) => s.players);
+  const [season, setSeason] = useState<SeasonFilter>('all');
+  const seasons = useMemo(() => getAvailableSeasons(fullHistory), [fullHistory]);
+  const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
+
   const rows = useMemo(() => computeRanking(history, players), [history, players]);
   const radarRows = useMemo(() => computeRadarStats(history, players), [history, players]);
   const rankCounts = useMemo(() => computeRankCounts(history, players), [history, players]);
@@ -44,10 +50,12 @@ export function RankingSection() {
   const rateStats = useMemo(() => computePlayerRateStats(history, players), [history, players]);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
+  const seasonSelect = <SeasonSelect season={season} onChange={setSeason} seasons={seasons} accent="yellow" />;
+
   if (rows.length === 0) {
     return (
       <div className="space-y-8">
-        <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" />
+        <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" trailing={seasonSelect} />
         <EmptyState icon={Crown} message="No Ranking Data" hint="精算を保存すると、雀士ごとの累計成績が表示されます。" />
       </div>
     );
@@ -59,7 +67,7 @@ export function RankingSection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" />
+      <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" trailing={seasonSelect} />
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] sm:text-xs text-slate-500 font-mono font-bold px-1">
         <span className="flex items-center">

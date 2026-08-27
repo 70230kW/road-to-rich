@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react';
 import { ChevronDown, Lock, Trophy, Users } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { computePlayerTrophies, TROPHY_LIST, TROPHY_TIER_LABELS, TROPHY_TIERS, type TrophyTier } from '../../lib/trophies';
+import { filterHistoryBySeason, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
 import { SectionHeader } from '../common/SectionHeader';
+import { SeasonSelect } from '../common/SeasonSelect';
 import { EmptyState } from '../common/EmptyState';
 
 const TIER_THEME: Record<
@@ -76,13 +78,18 @@ const TIER_THEME: Record<
 
 export function TrophySection() {
   const players = useAppStore((s) => s.players);
-  const history = useAppStore((s) => s.history);
+  const fullHistory = useAppStore((s) => s.history);
   const settings = useAppStore((s) => s.settings);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>('');
   const [collapsedTiers, setCollapsedTiers] = useState<Set<TrophyTier>>(new Set());
+  const [season, setSeason] = useState<SeasonFilter>('all');
+  const seasons = useMemo(() => getAvailableSeasons(fullHistory), [fullHistory]);
+  const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
 
   const trophiesByPlayer = useMemo(() => computePlayerTrophies(history, players, settings), [history, players, settings]);
   const earned = selectedPlayerId ? (trophiesByPlayer[selectedPlayerId] ?? new Set<string>()) : new Set<string>();
+
+  const seasonSelect = <SeasonSelect season={season} onChange={setSeason} seasons={seasons} accent="yellow" />;
 
   const toggleTier = (tier: TrophyTier) => {
     setCollapsedTiers((prev) => {
@@ -104,7 +111,7 @@ export function TrophySection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" />
+      <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" trailing={seasonSelect} />
 
       <div className="relative">
         <select
