@@ -11,18 +11,27 @@ import {
   computeRanking,
   computeYakumanAchievements,
 } from '../../lib/stats';
+import { filterHistoryBySeason, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
+import { SeasonSelect } from '../common/SeasonSelect';
 import { StatCard } from '../common/StatCard';
 import { EmptyState } from '../common/EmptyState';
 import { CumulativeProfitChart } from './CumulativeProfitChart';
 import { RadarChart } from './RadarChart';
 import { YakumanBoard } from './YakumanBoard';
+import { ActivityCalendarSection } from './ActivityCalendarSection';
+import { RivalrySection } from './RivalrySection';
 import { PlayerDetailModal } from '../ranking/PlayerDetailModal';
 
 export function DashboardSection() {
-  const history = useAppStore((s) => s.history);
+  const fullHistory = useAppStore((s) => s.history);
   const players = useAppStore((s) => s.players);
+  const [season, setSeason] = useState<SeasonFilter>('all');
+  const seasons = useMemo(() => getAvailableSeasons(fullHistory), [fullHistory]);
+  const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
+
+  const seasonSelect = <SeasonSelect season={season} onChange={setSeason} seasons={seasons} accent="cyan" />;
 
   const stats = useMemo(() => computeDashboardStats(history, players), [history, players]);
   const series = useMemo(() => computeCumulativeSeries(history, players), [history, players]);
@@ -42,7 +51,7 @@ export function DashboardSection() {
   if (history.length === 0) {
     return (
       <div className="space-y-8">
-        <SectionHeader icon={BarChart3} title="ダッシュボード" accent="cyan" />
+        <SectionHeader icon={BarChart3} title="ダッシュボード" accent="cyan" trailing={fullHistory.length > 0 ? seasonSelect : undefined} />
         <EmptyState icon={BarChart3} message="No Data" hint="対局を記録して精算を保存すると、ここに統計が表示されます。" />
       </div>
     );
@@ -50,7 +59,7 @@ export function DashboardSection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={BarChart3} title="ダッシュボード" accent="cyan" />
+      <SectionHeader icon={BarChart3} title="ダッシュボード" accent="cyan" trailing={seasonSelect} />
 
       <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
         <StatCard
@@ -120,6 +129,10 @@ export function DashboardSection() {
           <RadarChart rows={radarRows} />
         </div>
       )}
+
+      <ActivityCalendarSection history={history} />
+
+      <RivalrySection history={history} players={players} />
 
       <YakumanBoard achievements={yakumanAchievements} />
 
