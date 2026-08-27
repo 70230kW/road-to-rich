@@ -1,12 +1,12 @@
 import type { DayRecord, Player } from '../types';
 
 export interface DashboardStats {
-  mostHanchansPlayed: { value: number; playerName: string } | null;
-  bestAvgDailyWin: { value: number; playerName: string } | null;
-  highestScore: { value: number; playerName: string } | null;
-  bestDailyWin: { value: number; playerName: string } | null;
-  bestAvgRank: { value: number; playerName: string } | null;
-  bestDailyChips: { value: number; playerName: string } | null;
+  mostHanchansPlayed: { value: number; playerId: string; playerName: string } | null;
+  bestAvgDailyWin: { value: number; playerId: string; playerName: string } | null;
+  highestScore: { value: number; playerId: string; playerName: string } | null;
+  bestDailyWin: { value: number; playerId: string; playerName: string } | null;
+  bestAvgRank: { value: number; playerId: string; playerName: string } | null;
+  bestDailyChips: { value: number; playerId: string; playerName: string } | null;
 }
 
 function playerName(players: Player[], id: string): string {
@@ -58,22 +58,26 @@ export function computeDashboardStats(history: DayRecord[], players: Player[]): 
     }, null);
 
   return {
-    mostHanchansPlayed: mostHanchansRow ? { value: mostHanchansRow.hanchanCount, playerName: mostHanchansRow.name } : null,
+    mostHanchansPlayed: mostHanchansRow
+      ? { value: mostHanchansRow.hanchanCount, playerId: mostHanchansRow.playerId, playerName: mostHanchansRow.name }
+      : null,
     bestAvgDailyWin: bestAvgDailyWinRow
-      ? { value: bestAvgDailyWinRow.avg, playerName: bestAvgDailyWinRow.row.name }
+      ? { value: bestAvgDailyWinRow.avg, playerId: bestAvgDailyWinRow.row.playerId, playerName: bestAvgDailyWinRow.row.name }
       : null,
     highestScore:
       highestScorePlayerId !== null
-        ? { value: highestScore, playerName: playerName(players, highestScorePlayerId) }
+        ? { value: highestScore, playerId: highestScorePlayerId, playerName: playerName(players, highestScorePlayerId) }
         : null,
     bestDailyWin:
       bestDailyWinPlayerId !== null
-        ? { value: bestDailyWin, playerName: playerName(players, bestDailyWinPlayerId) }
+        ? { value: bestDailyWin, playerId: bestDailyWinPlayerId, playerName: playerName(players, bestDailyWinPlayerId) }
         : null,
-    bestAvgRank: bestAvgRankRow ? { value: bestAvgRankRow.avgRank!, playerName: bestAvgRankRow.name } : null,
+    bestAvgRank: bestAvgRankRow
+      ? { value: bestAvgRankRow.avgRank!, playerId: bestAvgRankRow.playerId, playerName: bestAvgRankRow.name }
+      : null,
     bestDailyChips:
       bestDailyChipsPlayerId !== null
-        ? { value: bestDailyChips, playerName: playerName(players, bestDailyChipsPlayerId) }
+        ? { value: bestDailyChips, playerId: bestDailyChipsPlayerId, playerName: playerName(players, bestDailyChipsPlayerId) }
         : null,
   };
 }

@@ -26,17 +26,21 @@ export function StatCard({
   sub,
   icon,
   color,
+  onClick,
 }: {
   title: string;
   value: string;
   sub?: string;
   icon: ReactElement<{ className?: string }>;
   color: Color;
+  onClick?: () => void;
 }) {
-  return (
-    <div
-      className={`p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl border flex flex-col justify-between relative overflow-hidden group transition-all duration-500 hover:scale-[1.02] ${colorMap[color]} backdrop-blur-sm min-w-0`}
-    >
+  const cardClassName = `w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl md:rounded-3xl border flex flex-col justify-between relative overflow-hidden group transition-all duration-500 hover:scale-[1.02] ${colorMap[color]} backdrop-blur-sm min-w-0 ${
+    onClick ? 'cursor-pointer' : ''
+  }`;
+
+  const content = (
+    <>
       <div className="absolute top-0 right-0 -mt-2 -mr-2 opacity-10 group-hover:opacity-20 transition-opacity duration-500 group-hover:scale-125 transform pointer-events-none hidden sm:block">
         {cloneElement(icon, { className: 'w-20 h-20' })}
       </div>
@@ -50,6 +54,16 @@ export function StatCard({
       {sub && (
         <div className={`text-xs sm:text-base md:text-lg font-black mt-1 sm:mt-1.5 z-10 truncate ${textMap[color]}`}>{sub}</div>
       )}
-    </div>
+    </>
   );
+
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={cardClassName}>
+        {content}
+      </button>
+    );
+  }
+
+  return <div className={cardClassName}>{content}</div>;
 }

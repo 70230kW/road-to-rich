@@ -1,7 +1,16 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Award, BarChart3, Coins, Crown, Gamepad2, Medal, Radar, TrendingUp } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import { computeCumulativeSeries, computeDashboardStats, computeRadarStats, computeYakumanAchievements } from '../../lib/stats';
+import {
+  computeCumulativeSeries,
+  computeDashboardStats,
+  computePlayerRateStats,
+  computePlayerYakumanAchievements,
+  computeRadarStats,
+  computeRankCounts,
+  computeRanking,
+  computeYakumanAchievements,
+} from '../../lib/stats';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { StatCard } from '../common/StatCard';
@@ -9,6 +18,7 @@ import { EmptyState } from '../common/EmptyState';
 import { CumulativeProfitChart } from './CumulativeProfitChart';
 import { RadarChart } from './RadarChart';
 import { YakumanBoard } from './YakumanBoard';
+import { PlayerDetailModal } from '../ranking/PlayerDetailModal';
 
 export function DashboardSection() {
   const history = useAppStore((s) => s.history);
@@ -18,6 +28,16 @@ export function DashboardSection() {
   const series = useMemo(() => computeCumulativeSeries(history, players), [history, players]);
   const radarRows = useMemo(() => computeRadarStats(history, players), [history, players]);
   const yakumanAchievements = useMemo(() => computeYakumanAchievements(history, players), [history, players]);
+
+  const rankingRows = useMemo(() => computeRanking(history, players), [history, players]);
+  const rankCounts = useMemo(() => computeRankCounts(history, players), [history, players]);
+  const playerYakumanAchievements = useMemo(() => computePlayerYakumanAchievements(history, players), [history, players]);
+  const rateStats = useMemo(() => computePlayerRateStats(history, players), [history, players]);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+
+  const selectedIdx = rankingRows.findIndex((r) => r.playerId === selectedPlayerId);
+  const selectedRow = selectedIdx >= 0 ? rankingRows[selectedIdx] : null;
+  const selectedRadarRow = radarRows.find((r) => r.playerId === selectedPlayerId) ?? null;
 
   if (history.length === 0) {
     return (
@@ -39,6 +59,7 @@ export function DashboardSection() {
           sub={stats.mostHanchansPlayed?.playerName}
           icon={<Gamepad2 />}
           color="cyan"
+          onClick={stats.mostHanchansPlayed ? () => setSelectedPlayerId(stats.mostHanchansPlayed!.playerId) : undefined}
         />
         <StatCard
           title="1日平均勝ち額"
@@ -46,6 +67,7 @@ export function DashboardSection() {
           sub={stats.bestAvgDailyWin?.playerName}
           icon={<TrendingUp />}
           color="fuchsia"
+          onClick={stats.bestAvgDailyWin ? () => setSelectedPlayerId(stats.bestAvgDailyWin!.playerId) : undefined}
         />
         <StatCard
           title="平均着順1位"
@@ -53,6 +75,7 @@ export function DashboardSection() {
           sub={stats.bestAvgRank?.playerName}
           icon={<Medal />}
           color="indigo"
+          onClick={stats.bestAvgRank ? () => setSelectedPlayerId(stats.bestAvgRank!.playerId) : undefined}
         />
         <StatCard
           title="1半荘最高素点"
@@ -60,6 +83,7 @@ export function DashboardSection() {
           sub={stats.highestScore?.playerName}
           icon={<Award />}
           color="yellow"
+          onClick={stats.highestScore ? () => setSelectedPlayerId(stats.highestScore!.playerId) : undefined}
         />
         <StatCard
           title="1日最高勝利"
@@ -67,6 +91,7 @@ export function DashboardSection() {
           sub={stats.bestDailyWin?.playerName}
           icon={<Crown />}
           color="emerald"
+          onClick={stats.bestDailyWin ? () => setSelectedPlayerId(stats.bestDailyWin!.playerId) : undefined}
         />
         <StatCard
           title="1日最高チップ"
@@ -74,6 +99,7 @@ export function DashboardSection() {
           sub={stats.bestDailyChips?.playerName}
           icon={<Coins />}
           color="rose"
+          onClick={stats.bestDailyChips ? () => setSelectedPlayerId(stats.bestDailyChips!.playerId) : undefined}
         />
       </div>
 
@@ -96,6 +122,25 @@ export function DashboardSection() {
       )}
 
       <YakumanBoard achievements={yakumanAchievements} />
+
+      {selectedRow && (
+        <PlayerDetailModal
+          row={selectedRow}
+          radarRow={selectedRadarRow}
+          rankCounts={selectedPlayerId ? (rankCounts[selectedPlayerId] ?? []) : []}
+          yakumanAchievements={selectedPlayerId ? (playerYakumanAchievements[selectedPlayerId] ?? []) : []}
+          rateStats={
+            (selectedPlayerId ? rateStats[selectedPlayerId] : undefined) ?? {
+              topRate: null,
+              rentaiRate: null,
+              lastRate: null,
+              tobiRate: null,
+            }
+          }
+          rank={selectedIdx + 1}
+          onClose={() => setSelectedPlayerId(null)}
+        />
+      )}
     </div>
   );
 }
