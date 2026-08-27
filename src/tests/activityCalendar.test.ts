@@ -37,5 +37,13 @@ describe('computeActivityCalendarData', () => {
     expect(result.years).toEqual([]);
     expect(result.activityByDate.size).toBe(0);
     expect(result.daysPlayedByYear.size).toBe(0);
+    expect(result.daysByDate.size).toBe(0);
+  });
+
+  it('groups DayRecords by date key, preserving double-header entries separately', () => {
+    const d1 = day('d1', '2026-01-05T00:00:00.000Z', 2);
+    const d2 = day('d2', '2026-01-05T08:00:00.000Z', 3);
+    const { daysByDate } = computeActivityCalendarData([d1, d2]);
+    expect(daysByDate.get('2026-01-05')).toEqual([d1, d2]);
   });
 });

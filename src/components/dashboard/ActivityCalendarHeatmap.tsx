@@ -48,8 +48,16 @@ function monthLabelForWeek(week: DayCell[]): string | null {
   return firstOfMonth ? MONTH_LABELS[firstOfMonth.date.getUTCMonth()] : null;
 }
 
-/** 1年分のGitHub風活動ヒートマップ。 */
-export function ActivityCalendarHeatmap({ year, activity }: { year: number; activity: Map<string, number> }) {
+/** 1年分のGitHub風活動ヒートマップ。対局のある日はクリックでその日の詳細を開ける。 */
+export function ActivityCalendarHeatmap({
+  year,
+  activity,
+  onSelectDate,
+}: {
+  year: number;
+  activity: Map<string, number>;
+  onSelectDate: (dateKey: string) => void;
+}) {
   const weeks = useMemo(() => buildWeeks(year, activity), [year, activity]);
 
   return (
@@ -71,13 +79,23 @@ export function ActivityCalendarHeatmap({ year, activity }: { year: number; acti
               <div className="h-[14px] text-[8px] sm:text-[9px] text-slate-500 font-mono whitespace-nowrap">
                 {monthLabelForWeek(week) ?? ''}
               </div>
-              {week.map((d) => (
-                <div
-                  key={d.key}
-                  title={d.inYear ? `${d.key}: ${d.count}半荘` : undefined}
-                  className={`w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-[2px] ${d.inYear ? intensityClass(d.count) : 'bg-transparent'}`}
-                />
-              ))}
+              {week.map((d) =>
+                d.inYear && d.count > 0 ? (
+                  <button
+                    key={d.key}
+                    type="button"
+                    onClick={() => onSelectDate(d.key)}
+                    title={`${d.key}: ${d.count}半荘`}
+                    className={`w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-[2px] cursor-pointer ring-offset-1 ring-offset-panel-2 hover:ring-2 hover:ring-cyan-300 transition-shadow ${intensityClass(d.count)}`}
+                  />
+                ) : (
+                  <div
+                    key={d.key}
+                    title={d.inYear ? `${d.key}: 0半荘` : undefined}
+                    className={`w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-[2px] ${d.inYear ? intensityClass(0) : 'bg-transparent'}`}
+                  />
+                ),
+              )}
             </div>
           ))}
         </div>
