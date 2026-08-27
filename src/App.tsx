@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from 'react';
-import { BarChart3, BookOpen, Crown, History, Plus, Settings as SettingsIcon, Trophy, Users } from 'lucide-react';
+import { BarChart3, BookOpen, Crown, History, Plus, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { Header } from './components/layout/Header';
 import { TabNav, type TabDef } from './components/layout/TabNav';
@@ -31,6 +31,9 @@ const RulesSection = lazy(() =>
 const TrophySection = lazy(() =>
   import('./components/trophies/TrophySection').then((m) => ({ default: m.TrophySection })),
 );
+const SimulatorSection = lazy(() =>
+  import('./components/simulator/SimulatorSection').then((m) => ({ default: m.SimulatorSection })),
+);
 
 function TabLoading() {
   return <LoadingScreen label="読み込み中" />;
@@ -40,6 +43,7 @@ const TABS: TabDef[] = [
   { id: 'input', name: '成績入力・精算', icon: Plus },
   { id: 'ranking', name: 'ランキング', icon: Crown },
   { id: 'dashboard', name: 'ダッシュボード', icon: BarChart3 },
+  { id: 'simulator', name: '成績予想', icon: Telescope },
   { id: 'trophies', name: 'トロフィー', icon: Trophy },
   { id: 'history', name: '対戦履歴', icon: History },
   { id: 'rules', name: 'ルール', icon: BookOpen },
@@ -80,6 +84,7 @@ function AppShell() {
               {activeTab === 'dashboard' && <DashboardSection />}
               {activeTab === 'history' && <HistorySection />}
               {activeTab === 'ranking' && <RankingSection />}
+              {activeTab === 'simulator' && <SimulatorSection />}
               {activeTab === 'trophies' && <TrophySection />}
               {activeTab === 'settings' && <SettingsSection />}
               {activeTab === 'players' && <PlayerSection />}

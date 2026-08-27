@@ -22,6 +22,8 @@ import { RadarChart } from './RadarChart';
 import { YakumanBoard } from './YakumanBoard';
 import { ActivityCalendarSection } from './ActivityCalendarSection';
 import { RivalrySection } from './RivalrySection';
+import { MonthlyHighlightsSection } from './MonthlyHighlightsSection';
+import { MilestoneBanner } from './MilestoneBanner';
 import { PlayerDetailModal } from '../ranking/PlayerDetailModal';
 
 export function DashboardSection() {
@@ -52,6 +54,8 @@ export function DashboardSection() {
     return (
       <div className="space-y-8">
         <SectionHeader icon={BarChart3} title="ダッシュボード" accent="cyan" trailing={fullHistory.length > 0 ? seasonSelect : undefined} />
+        {fullHistory.length > 0 && <MilestoneBanner history={fullHistory} players={players} />}
+        {fullHistory.length > 0 && <MonthlyHighlightsSection history={fullHistory} players={players} />}
         <EmptyState icon={BarChart3} message="No Data" hint="対局を記録して精算を保存すると、ここに統計が表示されます。" />
       </div>
     );
@@ -60,6 +64,10 @@ export function DashboardSection() {
   return (
     <div className="space-y-8 animate-fade-in">
       <SectionHeader icon={BarChart3} title="ダッシュボード" accent="cyan" trailing={seasonSelect} />
+
+      <MilestoneBanner history={fullHistory} players={players} />
+
+      <MonthlyHighlightsSection history={fullHistory} players={players} />
 
       <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
         <StatCard

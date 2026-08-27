@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { CalendarDays, X } from 'lucide-react';
+import { CalendarDays, StickyNote, X } from 'lucide-react';
 import type { DayRecord, Player } from '../../types';
 import { formatDate, formatSignedYen, formatYen } from '../../lib/format';
 import { MatrixTable } from '../history/MatrixTable';
@@ -12,6 +12,8 @@ function DaySessionBlock({ day, players }: { day: DayRecord; players: Player[] }
     day.games.forEach((g) => g.scores.forEach((s) => seen.add(s.playerId)));
     return players.filter((p) => seen.has(p.id)).map((p) => p.id);
   }, [day, players]);
+
+  const notedGames = useMemo(() => day.games.map((g, i) => ({ index: i, note: g.note })).filter((g) => g.note), [day]);
 
   const name = (id: string) => players.find((p) => p.id === id)?.name ?? '不明';
 
@@ -49,6 +51,19 @@ function DaySessionBlock({ day, players }: { day: DayRecord; players: Player[] }
 
       <h5 className="text-[10px] font-black text-emerald-400 mt-6 mb-3 tracking-[0.2em] uppercase">半荘別 獲得金額</h5>
       <PointMatrixTable day={day} participantIds={participantIds} players={players} />
+
+      {notedGames.length > 0 && (
+        <div className="mt-6 space-y-1.5">
+          {notedGames.map(({ index, note }) => (
+            <div key={index} className="flex items-start gap-2 text-xs text-slate-400">
+              <StickyNote className="w-3.5 h-3.5 text-slate-600 shrink-0 mt-0.5" />
+              <span>
+                <span className="font-mono font-bold text-slate-500">#{String(index + 1).padStart(2, '0')}</span> {note}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, DollarSign, Pencil, Trash2 } from 'lucide-react';
+import { ChevronDown, DollarSign, Pencil, StickyNote, Trash2 } from 'lucide-react';
 import type { DayRecord, Player, Settings } from '../../types';
 import { formatDate, formatSignedYen, formatYen } from '../../lib/format';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { DayEditor } from './DayEditor';
 import { MatrixTable } from './MatrixTable';
 import { PointMatrixTable } from './PointMatrixTable';
+import { HanchanNotes } from './HanchanNotes';
 
 export function DayCard({
   day,
@@ -33,6 +34,16 @@ export function DayCard({
   }, [day, players]);
 
   const name = (id: string) => players.find((p) => p.id === id)?.name ?? '不明';
+
+  const saveNote = (gameId: string, note: string) => {
+    onUpdateDay(day.id, {
+      games: day.games.map((g) => (g.id === gameId ? { ...g, note: note || undefined } : g)),
+      tableFee: day.tableFee,
+      chips: day.chips,
+      chipRate: day.chipRate,
+      settlement: day.settlement,
+    });
+  };
 
   if (isEditing) {
     return (
@@ -146,6 +157,12 @@ export function DayCard({
             半荘別 獲得金額
           </h4>
           <PointMatrixTable day={day} participantIds={participantIds} players={players} />
+
+          <h4 className="text-xs font-black text-slate-400 mt-10 mb-4 tracking-[0.2em] uppercase flex items-center relative z-10">
+            <StickyNote className="w-3.5 h-3.5 mr-2" />
+            対局メモ
+          </h4>
+          <HanchanNotes games={day.games} onSaveNote={saveNote} />
         </div>
       )}
 
