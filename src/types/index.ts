@@ -47,6 +47,8 @@ export interface Game {
   id: string;
   scores: GameScore[];
   yakumanEvents?: YakumanEvent[];
+  /** 「〇〇が大三元」のような、この半荘についての一言メモ。 */
+  note?: string;
 }
 
 /** Per-player result for a finalized day. */
