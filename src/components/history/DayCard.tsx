@@ -46,9 +46,10 @@ export function DayCard({
     });
   };
 
-  const castVote = (category: 'mvp' | 'hanzai', playerId: string) => {
+  const castVote = (category: 'mvp' | 'hanzai', playerId: string, delta: 1 | -1) => {
     const current = day.votes ?? { mvp: {}, hanzai: {} };
-    const nextCategory = { ...current[category], [playerId]: (current[category][playerId] ?? 0) + 1 };
+    const nextCount = Math.max(0, (current[category][playerId] ?? 0) + delta);
+    const nextCategory = { ...current[category], [playerId]: nextCount };
     onUpdateDay(day.id, {
       games: day.games,
       tableFee: day.tableFee,
