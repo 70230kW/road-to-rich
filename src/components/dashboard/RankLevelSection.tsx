@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Gauge } from 'lucide-react';
 import type { DayRecord, Player, Settings } from '../../types';
 import { computePlayerRankStatuses } from '../../lib/rankLevel';
+import { RANK_GROUP_THEME } from '../common/RankBadge';
 
 export function RankLevelSection({ history, players, settings }: { history: DayRecord[]; players: Player[]; settings: Settings }) {
   const statuses = useMemo(() => computePlayerRankStatuses(history, players, settings), [history, players, settings]);
@@ -19,15 +20,16 @@ export function RankLevelSection({ history, players, settings }: { history: DayR
         {players.map((p) => {
           const status = statuses[p.id];
           if (!status) return null;
+          const theme = RANK_GROUP_THEME[status.group];
           return (
             <div key={p.id} className="bg-abyss/70 p-4 rounded-2xl border border-slate-800/80">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-sm text-slate-200 truncate">{p.name}</span>
-                <span className="font-mono text-sm font-black text-cyan-300 shrink-0">{status.levelName}</span>
+                <span className={`font-mono text-sm font-black shrink-0 ${theme.text}`}>{status.levelName}</span>
               </div>
               <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 transition-all"
+                  className={`h-full bg-gradient-to-r ${theme.bar} transition-all`}
                   style={{ width: `${status.progressRatio * 100}%` }}
                 />
               </div>

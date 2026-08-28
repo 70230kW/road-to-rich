@@ -9,13 +9,11 @@ import {
   computeRanking,
 } from '../../lib/stats';
 import { filterHistoryBySeason, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
-import { computePlayerTitles } from '../../lib/titles';
 import { computePlayerRankStatuses } from '../../lib/rankLevel';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { SeasonSelect } from '../common/SeasonSelect';
 import { EmptyState } from '../common/EmptyState';
-import { TitleBadge } from '../common/TitleBadge';
 import { RankBadge } from '../common/RankBadge';
 import { PlayerDetailModal } from './PlayerDetailModal';
 
@@ -53,7 +51,6 @@ export function RankingSection() {
   const rankCounts = useMemo(() => computeRankCounts(history, players), [history, players]);
   const yakumanAchievements = useMemo(() => computePlayerYakumanAchievements(history, players), [history, players]);
   const rateStats = useMemo(() => computePlayerRateStats(history, players), [history, players]);
-  const titles = useMemo(() => computePlayerTitles(history, players), [history, players]);
   // 段位は季節に関係なく、通算の累計ptで判定する（一時的な絞り込みで昇段・降段して見えないように）。
   const rankStatuses = useMemo(() => computePlayerRankStatuses(fullHistory, players, settings), [fullHistory, players, settings]);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
@@ -111,7 +108,6 @@ export function RankingSection() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <div className="font-black text-xs sm:text-xl md:text-2xl text-slate-100 tracking-wide truncate">{row.name}</div>
                   {rankStatuses[row.playerId] && <RankBadge status={rankStatuses[row.playerId]!} />}
-                  {titles[row.playerId] && <TitleBadge title={titles[row.playerId]!} />}
                 </div>
                 <div className="flex items-center gap-1 sm:gap-2 md:gap-3 text-[9px] sm:text-xs text-slate-400 font-mono font-bold mt-1 sm:mt-2">
                   <span className="flex items-center bg-abyss px-1.5 sm:px-3 py-0.5 sm:py-1.5 rounded-md sm:rounded-lg border border-slate-800 shrink-0">

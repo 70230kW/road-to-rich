@@ -1,7 +1,6 @@
 import type { DayRecord, Player, Settings } from '../types';
 import { computeRanking } from './stats';
 import { computeHallOfFame, type HallOfFame } from './hallOfFame';
-import { computePlayerTitles, type PlayerTitle } from './titles';
 import { computePlayerTrophies } from './trophies';
 
 export interface VoteLeader {
@@ -15,7 +14,6 @@ export interface SeasonReportData {
   dayCount: number;
   champion: { playerId: string; playerName: string; profit: number } | null;
   hallOfFame: HallOfFame;
-  titles: Record<string, PlayerTitle | null>;
   trophyCounts: Record<string, number>;
   topVotedMvp: VoteLeader | null;
   topVotedHanzai: VoteLeader | null;
@@ -44,7 +42,6 @@ export function computeSeasonReport(history: DayRecord[], players: Player[], set
   const dayCount = history.length;
 
   const hallOfFame = computeHallOfFame(history, players);
-  const titles = computePlayerTitles(history, players);
 
   const trophiesByPlayer = computePlayerTrophies(history, players, settings);
   const trophyCounts: Record<string, number> = {};
@@ -69,7 +66,6 @@ export function computeSeasonReport(history: DayRecord[], players: Player[], set
     dayCount,
     champion,
     hallOfFame,
-    titles,
     trophyCounts,
     topVotedMvp: topVoted(mvpTally, players),
     topVotedHanzai: topVoted(hanzaiTally, players),
