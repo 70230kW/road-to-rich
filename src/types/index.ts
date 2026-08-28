@@ -65,6 +65,12 @@ export interface DaySettlementEntry {
   totalWithFee: number;
 }
 
+/** その日の「本日のMVP」「本日の戦犯」投票の集計（playerId -> 得票数）。 */
+export interface DayVotes {
+  mvp: Record<string, number>;
+  hanzai: Record<string, number>;
+}
+
 /** A finalized day of play (saved to history). */
 export interface DayRecord {
   id: string;
@@ -75,4 +81,5 @@ export interface DayRecord {
   /** チップ1枚の金額（円）。日によって変わりうるため、設定ではなく精算時に入力する。 */
   chipRate: number;
   settlement: Record<string, DaySettlementEntry>;
+  votes?: DayVotes;
 }

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Award, BarChart3, Coins, Crown, Gamepad2, ListOrdered, Medal, Radar, TrendingUp } from 'lucide-react';
+import { Award, BarChart3, Coins, Crown, Gamepad2, Gift, ListOrdered, Medal, Radar, TrendingUp } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import {
   computeCumulativeSeries,
@@ -13,6 +13,7 @@ import {
 } from '../../lib/stats';
 import { filterHistoryBySeason, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
 import { computeRankRaceSeries } from '../../lib/rankRace';
+import { computeSeasonReport } from '../../lib/seasonReport';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { SeasonSelect } from '../common/SeasonSelect';
@@ -27,16 +28,32 @@ import { RivalrySection } from './RivalrySection';
 import { MonthlyHighlightsSection } from './MonthlyHighlightsSection';
 import { MilestoneBanner } from './MilestoneBanner';
 import { HallOfFameSection } from './HallOfFameSection';
+import { SeasonReportModal } from './SeasonReportModal';
 import { PlayerDetailModal } from '../ranking/PlayerDetailModal';
 
 export function DashboardSection() {
   const fullHistory = useAppStore((s) => s.history);
   const players = useAppStore((s) => s.players);
+  const settings = useAppStore((s) => s.settings);
   const [season, setSeason] = useState<SeasonFilter>('all');
   const seasons = useMemo(() => getAvailableSeasons(fullHistory), [fullHistory]);
   const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
+  const [showReport, setShowReport] = useState(false);
+  const seasonLabel = season === 'all' ? '通算' : `${season}`;
+  const seasonReportData = useMemo(() => computeSeasonReport(history, players, settings), [history, players, settings]);
 
-  const seasonSelect = <SeasonSelect season={season} onChange={setSeason} seasons={seasons} accent="cyan" />;
+  const seasonSelect = (
+    <div className="flex items-center gap-2">
+      <SeasonSelect season={season} onChange={setSeason} seasons={seasons} accent="cyan" />
+      <button
+        type="button"
+        onClick={() => setShowReport(true)}
+        className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/30 hover:bg-fuchsia-500/20 transition-colors whitespace-nowrap"
+      >
+        <Gift className="w-3.5 h-3.5" /> シーズンレポート
+      </button>
+    </div>
+  );
 
   const stats = useMemo(() => computeDashboardStats(history, players), [history, players]);
   const series = useMemo(() => computeCumulativeSeries(history, players), [history, players]);
@@ -61,6 +78,9 @@ export function DashboardSection() {
         {fullHistory.length > 0 && <MilestoneBanner history={fullHistory} players={players} />}
         {fullHistory.length > 0 && <MonthlyHighlightsSection history={fullHistory} players={players} />}
         <EmptyState icon={BarChart3} message="No Data" hint="対局を記録して精算を保存すると、ここに統計が表示されます。" />
+        {showReport && (
+          <SeasonReportModal seasonLabel={seasonLabel} data={seasonReportData} players={players} onClose={() => setShowReport(false)} />
+        )}
       </div>
     );
   }
@@ -177,6 +197,10 @@ export function DashboardSection() {
           rank={selectedIdx + 1}
           onClose={() => setSelectedPlayerId(null)}
         />
+      )}
+
+      {showReport && (
+        <SeasonReportModal seasonLabel={seasonLabel} data={seasonReportData} players={players} onClose={() => setShowReport(false)} />
       )}
     </div>
   );

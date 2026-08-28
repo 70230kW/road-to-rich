@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, DollarSign, Pencil, StickyNote, Trash2 } from 'lucide-react';
+import { ChevronDown, DollarSign, Pencil, StickyNote, Trash2, Vote } from 'lucide-react';
 import type { DayRecord, Player, Settings } from '../../types';
 import { formatDate, formatSignedYen, formatYen } from '../../lib/format';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -7,6 +7,7 @@ import { DayEditor } from './DayEditor';
 import { MatrixTable } from './MatrixTable';
 import { PointMatrixTable } from './PointMatrixTable';
 import { HanchanNotes } from './HanchanNotes';
+import { DayVotes } from './DayVotes';
 
 export function DayCard({
   day,
@@ -42,6 +43,19 @@ export function DayCard({
       chips: day.chips,
       chipRate: day.chipRate,
       settlement: day.settlement,
+    });
+  };
+
+  const castVote = (category: 'mvp' | 'hanzai', playerId: string) => {
+    const current = day.votes ?? { mvp: {}, hanzai: {} };
+    const nextCategory = { ...current[category], [playerId]: (current[category][playerId] ?? 0) + 1 };
+    onUpdateDay(day.id, {
+      games: day.games,
+      tableFee: day.tableFee,
+      chips: day.chips,
+      chipRate: day.chipRate,
+      settlement: day.settlement,
+      votes: { ...current, [category]: nextCategory },
     });
   };
 
@@ -163,6 +177,12 @@ export function DayCard({
             対局メモ
           </h4>
           <HanchanNotes games={day.games} onSaveNote={saveNote} />
+
+          <h4 className="text-xs font-black text-yellow-400 mt-10 mb-4 tracking-[0.2em] uppercase flex items-center relative z-10">
+            <Vote className="w-3.5 h-3.5 mr-2" />
+            本日の投票
+          </h4>
+          <DayVotes participantIds={participantIds} players={players} votes={day.votes} onVote={castVote} />
         </div>
       )}
 

@@ -9,10 +9,12 @@ import {
   computeRanking,
 } from '../../lib/stats';
 import { filterHistoryBySeason, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
+import { computePlayerTitles } from '../../lib/titles';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { SeasonSelect } from '../common/SeasonSelect';
 import { EmptyState } from '../common/EmptyState';
+import { TitleBadge } from '../common/TitleBadge';
 import { PlayerDetailModal } from './PlayerDetailModal';
 
 const RANK_STYLES = [
@@ -48,6 +50,7 @@ export function RankingSection() {
   const rankCounts = useMemo(() => computeRankCounts(history, players), [history, players]);
   const yakumanAchievements = useMemo(() => computePlayerYakumanAchievements(history, players), [history, players]);
   const rateStats = useMemo(() => computePlayerRateStats(history, players), [history, players]);
+  const titles = useMemo(() => computePlayerTitles(history, players), [history, players]);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   const seasonSelect = <SeasonSelect season={season} onChange={setSeason} seasons={seasons} accent="yellow" />;
@@ -100,7 +103,10 @@ export function RankingSection() {
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="font-black text-xs sm:text-xl md:text-2xl text-slate-100 tracking-wide truncate">{row.name}</div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="font-black text-xs sm:text-xl md:text-2xl text-slate-100 tracking-wide truncate">{row.name}</div>
+                  {titles[row.playerId] && <TitleBadge title={titles[row.playerId]!} />}
+                </div>
                 <div className="flex items-center gap-1 sm:gap-2 md:gap-3 text-[9px] sm:text-xs text-slate-400 font-mono font-bold mt-1 sm:mt-2">
                   <span className="flex items-center bg-abyss px-1.5 sm:px-3 py-0.5 sm:py-1.5 rounded-md sm:rounded-lg border border-slate-800 shrink-0">
                     <Gamepad2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5 text-cyan-500" />
