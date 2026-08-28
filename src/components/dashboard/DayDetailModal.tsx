@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { CalendarDays, StickyNote, X } from 'lucide-react';
+import { CalendarDays, Crown, Skull, StickyNote, X } from 'lucide-react';
 import type { DayRecord, Player } from '../../types';
 import { formatDate, formatSignedYen, formatYen } from '../../lib/format';
 import { MatrixTable } from '../history/MatrixTable';
@@ -17,6 +17,17 @@ function DaySessionBlock({ day, players }: { day: DayRecord; players: Player[] }
 
   const name = (id: string) => players.find((p) => p.id === id)?.name ?? '不明';
 
+  const voteLeader = (counts: Record<string, number> | undefined) => {
+    if (!counts) return null;
+    let best: { playerId: string; count: number } | null = null;
+    for (const [playerId, count] of Object.entries(counts)) {
+      if (count > 0 && (best === null || count > best.count)) best = { playerId, count };
+    }
+    return best;
+  };
+  const mvpLeader = voteLeader(day.votes?.mvp);
+  const hanzaiLeader = voteLeader(day.votes?.hanzai);
+
   return (
     <div className="bg-abyss/60 p-5 rounded-2xl border border-slate-800/80">
       <div className="text-xs text-slate-400 mb-4 flex flex-wrap items-center gap-3 font-bold tracking-wider">
@@ -27,6 +38,21 @@ function DaySessionBlock({ day, players }: { day: DayRecord; players: Player[] }
         <span>チップ: {formatYen(day.chipRate)}円/枚</span>
         <span>{participantIds.length}人参加</span>
       </div>
+
+      {(mvpLeader || hanzaiLeader) && (
+        <div className="flex flex-wrap gap-3 mb-4">
+          {mvpLeader && (
+            <span className="flex items-center gap-1.5 text-xs font-bold bg-yellow-500/10 text-yellow-300 border border-yellow-500/30 rounded-full px-3 py-1.5">
+              <Crown className="w-3.5 h-3.5" /> 本日のMVP: {name(mvpLeader.playerId)}（{mvpLeader.count}票）
+            </span>
+          )}
+          {hanzaiLeader && (
+            <span className="flex items-center gap-1.5 text-xs font-bold bg-rose-500/10 text-rose-300 border border-rose-500/30 rounded-full px-3 py-1.5">
+              <Skull className="w-3.5 h-3.5" /> 本日の戦犯: {name(hanzaiLeader.playerId)}（{hanzaiLeader.count}票）
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {participantIds.map((pid) => {

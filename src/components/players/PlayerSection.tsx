@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Check, Edit2, Palette, Plus, Trash2, Users } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
+import { computePlayerTitles } from '../../lib/titles';
 import { SectionHeader } from '../common/SectionHeader';
 import { EmptyState } from '../common/EmptyState';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { NeonButton } from '../common/NeonButton';
+import { TitleBadge } from '../common/TitleBadge';
 
 const HEX_COLOR_RE = /^#[0-9a-f]{6}$/i;
 
@@ -24,6 +26,7 @@ export function PlayerSection() {
   const [colorPickerId, setColorPickerId] = useState<string | null>(null);
   const [hexDraft, setHexDraft] = useState('');
   const [colorError, setColorError] = useState<string | null>(null);
+  const titles = useMemo(() => computePlayerTitles(history, players), [history, players]);
 
   const minRequired = settings.playerCount;
   const canDelete = players.length > minRequired;
@@ -127,9 +130,12 @@ export function PlayerSection() {
                         autoFocus
                       />
                     ) : (
-                      <span className="font-black text-slate-200 text-lg tracking-wider group-hover:text-cyan-100 transition-colors truncate">
-                        {p.name}
-                      </span>
+                      <div className="flex items-center gap-2 flex-wrap min-w-0">
+                        <span className="font-black text-slate-200 text-lg tracking-wider group-hover:text-cyan-100 transition-colors truncate">
+                          {p.name}
+                        </span>
+                        {titles[p.id] && <TitleBadge title={titles[p.id]!} />}
+                      </div>
                     )}
                   </div>
 
