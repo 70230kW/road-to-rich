@@ -1,8 +1,12 @@
 import type { DayRecord, Player, Settings } from '../types';
 
+/** 段位の大分類。同じ group の段位（雀豪1〜雀豪3 など）は UI 上で同じ色になる。 */
+export type RankGroup = '雀士' | '雀傑' | '雀豪' | '雀聖' | '魂天';
+
 export interface RankTier {
   name: string;
   minPt: number;
+  group: RankGroup;
 }
 
 /**
@@ -12,19 +16,19 @@ export interface RankTier {
  * （昇段も降段もあり得る）。
  */
 export const RANK_TIERS: RankTier[] = [
-  { name: '雀士1', minPt: 0 },
-  { name: '雀士2', minPt: 20 },
-  { name: '雀士3', minPt: 40 },
-  { name: '雀傑1', minPt: 60 },
-  { name: '雀傑2', minPt: 90 },
-  { name: '雀傑3', minPt: 120 },
-  { name: '雀豪1', minPt: 160 },
-  { name: '雀豪2', minPt: 200 },
-  { name: '雀豪3', minPt: 250 },
-  { name: '雀聖1', minPt: 320 },
-  { name: '雀聖2', minPt: 400 },
-  { name: '雀聖3', minPt: 500 },
-  { name: '魂天', minPt: 650 },
+  { name: '雀士1', minPt: 0, group: '雀士' },
+  { name: '雀士2', minPt: 20, group: '雀士' },
+  { name: '雀士3', minPt: 40, group: '雀士' },
+  { name: '雀傑1', minPt: 60, group: '雀傑' },
+  { name: '雀傑2', minPt: 90, group: '雀傑' },
+  { name: '雀傑3', minPt: 120, group: '雀傑' },
+  { name: '雀豪1', minPt: 160, group: '雀豪' },
+  { name: '雀豪2', minPt: 200, group: '雀豪' },
+  { name: '雀豪3', minPt: 250, group: '雀豪' },
+  { name: '雀聖1', minPt: 320, group: '雀聖' },
+  { name: '雀聖2', minPt: 400, group: '雀聖' },
+  { name: '雀聖3', minPt: 500, group: '雀聖' },
+  { name: '魂天', minPt: 650, group: '魂天' },
 ];
 
 export interface PlayerRankStatus {
@@ -32,6 +36,7 @@ export interface PlayerRankStatus {
   cumulativePt: number;
   levelIndex: number;
   levelName: string;
+  group: RankGroup;
   nextLevelName: string | null;
   /** 次の段位まで必要なpt。最高段位なら null。 */
   ptToNextLevel: number | null;
@@ -79,6 +84,7 @@ export function computePlayerRankStatuses(
       cumulativePt: pt,
       levelIndex,
       levelName: current.name,
+      group: current.group,
       nextLevelName: next ? next.name : null,
       ptToNextLevel: next ? Math.max(0, next.minPt - pt) : null,
       progressRatio,

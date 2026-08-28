@@ -21,8 +21,6 @@ export function SeasonReportModal({
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
 
-  const titledPlayers = players.filter((p) => data.titles[p.id]);
-
   const handleSave = async () => {
     if (!captureRef.current) return;
     setSaving(true);
@@ -93,22 +91,6 @@ export function SeasonReportModal({
               </div>
               <div className="font-black text-2xl text-slate-100">{data.champion.playerName}</div>
               <div className="font-mono font-black text-emerald-400 mt-1">{formatSignedYen(data.champion.profit)}</div>
-            </div>
-          )}
-
-          {titledPlayers.length > 0 && (
-            <div className="relative z-10 mb-6">
-              <div className="flex items-center text-[10px] font-black text-fuchsia-400 tracking-widest uppercase mb-3">
-                <Sparkles className="w-3.5 h-3.5 mr-1.5" /> 称号
-              </div>
-              <div className="space-y-1.5">
-                {titledPlayers.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between bg-abyss/60 border border-slate-800/80 rounded-xl px-4 py-2">
-                    <span className="font-bold text-sm text-slate-200">{p.name}</span>
-                    <span className="text-xs font-black text-fuchsia-300">{data.titles[p.id]?.title}</span>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
 

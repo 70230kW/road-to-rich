@@ -1,13 +1,11 @@
 import { useMemo, useState } from 'react';
 import { Check, Edit2, Palette, Plus, Target, Trash2, Users } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import { computePlayerTitles } from '../../lib/titles';
 import { computePlayerRankStatuses } from '../../lib/rankLevel';
 import { SectionHeader } from '../common/SectionHeader';
 import { EmptyState } from '../common/EmptyState';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { NeonButton } from '../common/NeonButton';
-import { TitleBadge } from '../common/TitleBadge';
 import { RankBadge } from '../common/RankBadge';
 import { GoalEditor } from './GoalEditor';
 
@@ -32,7 +30,6 @@ export function PlayerSection() {
   const [hexDraft, setHexDraft] = useState('');
   const [colorError, setColorError] = useState<string | null>(null);
   const [goalEditorId, setGoalEditorId] = useState<string | null>(null);
-  const titles = useMemo(() => computePlayerTitles(history, players), [history, players]);
   const rankStatuses = useMemo(() => computePlayerRankStatuses(history, players, settings), [history, players, settings]);
 
   const minRequired = settings.playerCount;
@@ -142,7 +139,6 @@ export function PlayerSection() {
                           {p.name}
                         </span>
                         {rankStatuses[p.id] && <RankBadge status={rankStatuses[p.id]!} />}
-                        {titles[p.id] && <TitleBadge title={titles[p.id]!} />}
                       </div>
                     )}
                   </div>
