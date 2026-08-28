@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, Lock, Trophy, Users } from 'lucide-react';
+import { ChevronDown, Lock, Plus, Sparkles, Trash2, Trophy, Users } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { computePlayerTrophies, TROPHY_LIST, TROPHY_TIER_LABELS, TROPHY_TIERS, type TrophyTier } from '../../lib/trophies';
+import { computeCustomTrophyAchievements, CUSTOM_TROPHY_CONDITION_LABELS } from '../../lib/customTrophies';
 import { filterHistoryBySeason, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
 import { SectionHeader } from '../common/SectionHeader';
 import { SeasonSelect } from '../common/SeasonSelect';
 import { EmptyState } from '../common/EmptyState';
+import { CustomTrophyForm } from './CustomTrophyForm';
 
 const TIER_THEME: Record<
   TrophyTier,
@@ -80,14 +82,20 @@ export function TrophySection() {
   const players = useAppStore((s) => s.players);
   const fullHistory = useAppStore((s) => s.history);
   const settings = useAppStore((s) => s.settings);
+  const customTrophies = useAppStore((s) => s.customTrophies);
+  const addCustomTrophy = useAppStore((s) => s.addCustomTrophy);
+  const removeCustomTrophy = useAppStore((s) => s.removeCustomTrophy);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>('');
   const [collapsedTiers, setCollapsedTiers] = useState<Set<TrophyTier>>(new Set());
+  const [isCreatingTrophy, setIsCreatingTrophy] = useState(false);
   const [season, setSeason] = useState<SeasonFilter>('all');
   const seasons = useMemo(() => getAvailableSeasons(fullHistory), [fullHistory]);
   const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
 
   const trophiesByPlayer = useMemo(() => computePlayerTrophies(history, players, settings), [history, players, settings]);
   const earned = selectedPlayerId ? (trophiesByPlayer[selectedPlayerId] ?? new Set<string>()) : new Set<string>();
+  const customAchievements = useMemo(() => computeCustomTrophyAchievements(history, players, customTrophies), [history, players, customTrophies]);
+  const earnedCustom = selectedPlayerId ? (customAchievements[selectedPlayerId] ?? new Set<string>()) : new Set<string>();
 
   const seasonSelect = <SeasonSelect season={season} onChange={setSeason} seasons={seasons} accent="yellow" />;
 
@@ -205,6 +213,78 @@ export function TrophySection() {
           </div>
         </>
       )}
+
+      <div className="rounded-2xl border border-fuchsia-700/40 bg-fuchsia-950/10 overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4">
+          <span className="font-black tracking-[0.2em] uppercase text-sm text-fuchsia-400 flex items-center">
+            <Sparkles className="w-4 h-4 mr-2" /> 独自トロフィー
+          </span>
+          {!isCreatingTrophy && (
+            <button
+              type="button"
+              onClick={() => setIsCreatingTrophy(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-fuchsia-500/15 text-fuchsia-200 border border-fuchsia-500/40 hover:bg-fuchsia-500/25 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" /> 作成
+            </button>
+          )}
+        </div>
+
+        <div className="px-4 pb-4 space-y-3">
+          {isCreatingTrophy && (
+            <CustomTrophyForm
+              onSave={(trophy) => {
+                addCustomTrophy(trophy);
+                setIsCreatingTrophy(false);
+              }}
+              onCancel={() => setIsCreatingTrophy(false)}
+            />
+          )}
+
+          {customTrophies.length === 0 && !isCreatingTrophy ? (
+            <p className="text-xs text-slate-500 px-1">まだ独自トロフィーはありません。「作成」から追加できます。</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              {customTrophies.map((trophy) => {
+                const isEarned = selectedPlayerId ? earnedCustom.has(trophy.id) : false;
+                return (
+                  <div
+                    key={trophy.id}
+                    className={`relative p-3.5 rounded-xl border transition-all ${
+                      isEarned
+                        ? 'bg-fuchsia-950/30 border-fuchsia-400/70 shadow-[0_0_18px_rgba(232,121,249,0.25)]'
+                        : 'bg-abyss/40 border-slate-800/60'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className={`font-black text-sm tracking-wide ${isEarned ? 'text-fuchsia-200' : 'text-slate-300'}`}>
+                        {trophy.name}
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {selectedPlayerId && (isEarned ? <Trophy className="w-3.5 h-3.5 text-fuchsia-300" /> : <Lock className="w-3.5 h-3.5 text-slate-600" />)}
+                        <button
+                          type="button"
+                          onClick={() => removeCustomTrophy(trophy.id)}
+                          aria-label={`${trophy.name}を削除`}
+                          className="text-slate-600 hover:text-rose-400 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-[11px] leading-relaxed mt-1 text-slate-500">
+                      {trophy.description || CUSTOM_TROPHY_CONDITION_LABELS[trophy.conditionType]}
+                    </div>
+                    <div className="text-[10px] font-mono text-fuchsia-500/70 mt-1.5">
+                      {CUSTOM_TROPHY_CONDITION_LABELS[trophy.conditionType].replace('◯', String(trophy.threshold))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

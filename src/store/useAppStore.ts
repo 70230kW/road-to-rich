@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { DayRecord, Game, Player, PlayerCount, Settings } from '../types';
+import type { CustomTrophyDef, DayRecord, Game, Player, PlayerCount, PlayerGoal, Settings } from '../types';
 import { defaultSettings } from '../lib/defaults';
 import { ensureAnonymousAuth } from '../lib/firebase';
 import { ensurePlayerColors, pickPlayerColor } from '../lib/playerColors';
@@ -8,9 +8,13 @@ import {
   ensureRoomInitialized,
   finalizeDay as finalizeDayRepo,
   saveCurrentDay,
+  saveCustomTrophies,
+  saveGoals,
   savePlayers,
   saveSettings,
   subscribeCurrentDay,
+  subscribeCustomTrophies,
+  subscribeGoals,
   subscribeHistory,
   subscribePlayers,
   subscribeSettings,
@@ -40,6 +44,8 @@ interface AppState {
   settings: Settings;
   currentDayGames: Game[];
   history: DayRecord[];
+  goals: Record<string, PlayerGoal>;
+  customTrophies: CustomTrophyDef[];
 
   _unsubscribeAll: (() => void) | null;
 
@@ -60,6 +66,10 @@ interface AppState {
   finalizeDay: (day: Omit<DayRecord, 'id' | 'date'>) => Promise<void>;
   updateDay: (dayId: string, patch: Omit<DayRecord, 'id' | 'date'>) => Promise<void>;
   deleteDay: (dayId: string) => Promise<void>;
+
+  setPlayerGoal: (playerId: string, goal: PlayerGoal | null) => Promise<void>;
+  addCustomTrophy: (trophy: Omit<CustomTrophyDef, 'id'>) => Promise<void>;
+  removeCustomTrophy: (trophyId: string) => Promise<void>;
 }
 
 export const useAppStore = create<AppState>()((set, get) => ({
@@ -71,6 +81,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
   settings: defaultSettings,
   currentDayGames: [],
   history: [],
+  goals: {},
+  customTrophies: [],
 
   _unsubscribeAll: null,
 
@@ -84,13 +96,15 @@ export const useAppStore = create<AppState>()((set, get) => ({
       settings: defaultSettings,
       currentDayGames: [],
       history: [],
+      goals: {},
+      customTrophies: [],
     });
 
     try {
       await ensureAnonymousAuth();
 
       // Only mark "synced" once every slice has delivered its first snapshot.
-      const pending = new Set(['players', 'settings', 'currentDay', 'history']);
+      const pending = new Set(['players', 'settings', 'currentDay', 'history', 'goals', 'customTrophies']);
       const markReady = (slice: string) => {
         pending.delete(slice);
         if (pending.size === 0 && get().roomCode === roomCode) {
@@ -123,6 +137,14 @@ export const useAppStore = create<AppState>()((set, get) => ({
           set({ history });
           markReady('history');
         }),
+        subscribeGoals(roomCode, (goals) => {
+          set({ goals });
+          markReady('goals');
+        }),
+        subscribeCustomTrophies(roomCode, (customTrophies) => {
+          set({ customTrophies });
+          markReady('customTrophies');
+        }),
       ];
       set({ _unsubscribeAll: () => unsubs.forEach((u) => u()) });
       localStorage.setItem(ROOM_CODE_STORAGE_KEY, roomCode);
@@ -149,6 +171,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
       settings: defaultSettings,
       currentDayGames: [],
       history: [],
+      goals: {},
+      customTrophies: [],
       _unsubscribeAll: null,
     });
   },
@@ -228,5 +252,29 @@ export const useAppStore = create<AppState>()((set, get) => ({
     const { roomCode } = get();
     if (!roomCode) return;
     await deleteDayRepo(roomCode, dayId);
+  },
+
+  setPlayerGoal: async (playerId, goal) => {
+    const { roomCode, goals } = get();
+    if (!roomCode) return;
+    const next = { ...goals };
+    if (goal) next[playerId] = goal;
+    else delete next[playerId];
+    await saveGoals(roomCode, next);
+  },
+
+  addCustomTrophy: async (trophy) => {
+    const { roomCode, customTrophies } = get();
+    if (!roomCode) return;
+    await saveCustomTrophies(roomCode, [...customTrophies, { ...trophy, id: uid() }]);
+  },
+
+  removeCustomTrophy: async (trophyId) => {
+    const { roomCode, customTrophies } = get();
+    if (!roomCode) return;
+    await saveCustomTrophies(
+      roomCode,
+      customTrophies.filter((t) => t.id !== trophyId),
+    );
   },
 }));

@@ -21,7 +21,7 @@ export interface MonthlyHighlights {
 }
 
 /** history を referenceDate と同じ年月の日だけに絞り込む。 */
-function filterToMonth(history: DayRecord[], referenceDate: Date): DayRecord[] {
+export function filterToMonth(history: DayRecord[], referenceDate: Date): DayRecord[] {
   const year = referenceDate.getFullYear();
   const month = referenceDate.getMonth();
   return history.filter((day) => {

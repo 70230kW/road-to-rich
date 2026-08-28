@@ -10,11 +10,13 @@ import {
 } from '../../lib/stats';
 import { filterHistoryBySeason, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
 import { computePlayerTitles } from '../../lib/titles';
+import { computePlayerRankStatuses } from '../../lib/rankLevel';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { SeasonSelect } from '../common/SeasonSelect';
 import { EmptyState } from '../common/EmptyState';
 import { TitleBadge } from '../common/TitleBadge';
+import { RankBadge } from '../common/RankBadge';
 import { PlayerDetailModal } from './PlayerDetailModal';
 
 const RANK_STYLES = [
@@ -41,6 +43,7 @@ const RANK_STYLES = [
 export function RankingSection() {
   const fullHistory = useAppStore((s) => s.history);
   const players = useAppStore((s) => s.players);
+  const settings = useAppStore((s) => s.settings);
   const [season, setSeason] = useState<SeasonFilter>('all');
   const seasons = useMemo(() => getAvailableSeasons(fullHistory), [fullHistory]);
   const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
@@ -51,6 +54,8 @@ export function RankingSection() {
   const yakumanAchievements = useMemo(() => computePlayerYakumanAchievements(history, players), [history, players]);
   const rateStats = useMemo(() => computePlayerRateStats(history, players), [history, players]);
   const titles = useMemo(() => computePlayerTitles(history, players), [history, players]);
+  // 段位は季節に関係なく、通算の累計ptで判定する（一時的な絞り込みで昇段・降段して見えないように）。
+  const rankStatuses = useMemo(() => computePlayerRankStatuses(fullHistory, players, settings), [fullHistory, players, settings]);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   const seasonSelect = <SeasonSelect season={season} onChange={setSeason} seasons={seasons} accent="yellow" />;
@@ -105,6 +110,7 @@ export function RankingSection() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <div className="font-black text-xs sm:text-xl md:text-2xl text-slate-100 tracking-wide truncate">{row.name}</div>
+                  {rankStatuses[row.playerId] && <RankBadge status={rankStatuses[row.playerId]!} />}
                   {titles[row.playerId] && <TitleBadge title={titles[row.playerId]!} />}
                 </div>
                 <div className="flex items-center gap-1 sm:gap-2 md:gap-3 text-[9px] sm:text-xs text-slate-400 font-mono font-bold mt-1 sm:mt-2">
