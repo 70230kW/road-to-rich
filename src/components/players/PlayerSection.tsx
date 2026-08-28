@@ -1,12 +1,15 @@
 import { useMemo, useState } from 'react';
-import { Check, Edit2, Palette, Plus, Trash2, Users } from 'lucide-react';
+import { Check, Edit2, Palette, Plus, Target, Trash2, Users } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { computePlayerTitles } from '../../lib/titles';
+import { computePlayerRankStatuses } from '../../lib/rankLevel';
 import { SectionHeader } from '../common/SectionHeader';
 import { EmptyState } from '../common/EmptyState';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { NeonButton } from '../common/NeonButton';
 import { TitleBadge } from '../common/TitleBadge';
+import { RankBadge } from '../common/RankBadge';
+import { GoalEditor } from './GoalEditor';
 
 const HEX_COLOR_RE = /^#[0-9a-f]{6}$/i;
 
@@ -14,10 +17,12 @@ export function PlayerSection() {
   const players = useAppStore((s) => s.players);
   const settings = useAppStore((s) => s.settings);
   const history = useAppStore((s) => s.history);
+  const goals = useAppStore((s) => s.goals);
   const addPlayer = useAppStore((s) => s.addPlayer);
   const updatePlayer = useAppStore((s) => s.updatePlayer);
   const setPlayerColor = useAppStore((s) => s.setPlayerColor);
   const removePlayer = useAppStore((s) => s.removePlayer);
+  const setPlayerGoal = useAppStore((s) => s.setPlayerGoal);
 
   const [newName, setNewName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -26,7 +31,9 @@ export function PlayerSection() {
   const [colorPickerId, setColorPickerId] = useState<string | null>(null);
   const [hexDraft, setHexDraft] = useState('');
   const [colorError, setColorError] = useState<string | null>(null);
+  const [goalEditorId, setGoalEditorId] = useState<string | null>(null);
   const titles = useMemo(() => computePlayerTitles(history, players), [history, players]);
+  const rankStatuses = useMemo(() => computePlayerRankStatuses(history, players, settings), [history, players, settings]);
 
   const minRequired = settings.playerCount;
   const canDelete = players.length > minRequired;
@@ -134,12 +141,22 @@ export function PlayerSection() {
                         <span className="font-black text-slate-200 text-lg tracking-wider group-hover:text-cyan-100 transition-colors truncate">
                           {p.name}
                         </span>
+                        {rankStatuses[p.id] && <RankBadge status={rankStatuses[p.id]!} />}
                         {titles[p.id] && <TitleBadge title={titles[p.id]!} />}
                       </div>
                     )}
                   </div>
 
                   <div className="flex gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setGoalEditorId(goalEditorId === p.id ? null : p.id)}
+                      aria-label={`${p.name}の目標を設定`}
+                      aria-pressed={goalEditorId === p.id}
+                      className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl hover:bg-emerald-500/20 border border-emerald-500/30 transition-all opacity-100 md:opacity-40 group-hover:opacity-100"
+                    >
+                      <Target className="w-5 h-5" />
+                    </button>
                     {editingId === p.id ? (
                       <button
                         onClick={() => saveEdit(p.id)}
@@ -190,6 +207,12 @@ export function PlayerSection() {
                       }`}
                     />
                     {colorError && <span className="text-xs text-rose-400 basis-full">{colorError}</span>}
+                  </div>
+                )}
+
+                {goalEditorId === p.id && (
+                  <div className="mt-4 pt-4 border-t border-slate-700/50">
+                    <GoalEditor goal={goals[p.id] ?? null} onSave={(goal) => setPlayerGoal(p.id, goal)} />
                   </div>
                 )}
               </div>

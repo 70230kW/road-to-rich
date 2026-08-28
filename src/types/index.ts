@@ -71,6 +71,29 @@ export interface DayVotes {
   hanzai: Record<string, number>;
 }
 
+/** 今月の個人目標。target は type が 'profit' なら円、'topRate' なら 0〜100 のパーセント値。 */
+export interface PlayerGoal {
+  type: 'profit' | 'topRate';
+  target: number;
+}
+
+/** グループ独自に作成するトロフィーの条件種別。 */
+export type CustomTrophyConditionType =
+  | 'profitAtLeast'
+  | 'topRateAtLeast'
+  | 'hanchanCountAtLeast'
+  | 'winStreakAtLeast'
+  | 'tobiCountAtLeast';
+
+/** グループ独自に作成するトロフィーの定義。 */
+export interface CustomTrophyDef {
+  id: string;
+  name: string;
+  description: string;
+  conditionType: CustomTrophyConditionType;
+  threshold: number;
+}
+
 /** A finalized day of play (saved to history). */
 export interface DayRecord {
   id: string;

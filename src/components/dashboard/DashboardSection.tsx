@@ -29,12 +29,16 @@ import { MonthlyHighlightsSection } from './MonthlyHighlightsSection';
 import { MilestoneBanner } from './MilestoneBanner';
 import { HallOfFameSection } from './HallOfFameSection';
 import { SeasonReportModal } from './SeasonReportModal';
+import { RankLevelSection } from './RankLevelSection';
+import { GoalProgressSection } from './GoalProgressSection';
+import { MatchmakingSection } from './MatchmakingSection';
 import { PlayerDetailModal } from '../ranking/PlayerDetailModal';
 
 export function DashboardSection() {
   const fullHistory = useAppStore((s) => s.history);
   const players = useAppStore((s) => s.players);
   const settings = useAppStore((s) => s.settings);
+  const goals = useAppStore((s) => s.goals);
   const [season, setSeason] = useState<SeasonFilter>('all');
   const seasons = useMemo(() => getAvailableSeasons(fullHistory), [fullHistory]);
   const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
@@ -77,6 +81,8 @@ export function DashboardSection() {
         <SectionHeader icon={BarChart3} title="ダッシュボード" accent="cyan" trailing={fullHistory.length > 0 ? seasonSelect : undefined} />
         {fullHistory.length > 0 && <MilestoneBanner history={fullHistory} players={players} />}
         {fullHistory.length > 0 && <MonthlyHighlightsSection history={fullHistory} players={players} />}
+        {fullHistory.length > 0 && <GoalProgressSection history={fullHistory} players={players} goals={goals} />}
+        {fullHistory.length > 0 && <RankLevelSection history={fullHistory} players={players} settings={settings} />}
         <EmptyState icon={BarChart3} message="No Data" hint="対局を記録して精算を保存すると、ここに統計が表示されます。" />
         {showReport && (
           <SeasonReportModal seasonLabel={seasonLabel} data={seasonReportData} players={players} onClose={() => setShowReport(false)} />
@@ -92,6 +98,10 @@ export function DashboardSection() {
       <MilestoneBanner history={fullHistory} players={players} />
 
       <MonthlyHighlightsSection history={fullHistory} players={players} />
+
+      <GoalProgressSection history={fullHistory} players={players} goals={goals} />
+
+      <RankLevelSection history={fullHistory} players={players} settings={settings} />
 
       <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
         <StatCard
@@ -175,6 +185,8 @@ export function DashboardSection() {
       <ActivityCalendarSection history={history} players={players} />
 
       <RivalrySection history={history} players={players} />
+
+      <MatchmakingSection history={history} players={players} />
 
       <HallOfFameSection history={history} players={players} />
 

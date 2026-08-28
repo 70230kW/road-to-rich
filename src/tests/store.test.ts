@@ -9,10 +9,14 @@ const mocks = vi.hoisted(() => ({
   finalizeDay: vi.fn(),
   updateDay: vi.fn(),
   deleteDay: vi.fn(),
+  saveGoals: vi.fn(),
+  saveCustomTrophies: vi.fn(),
   playersCb: null as ((players: unknown[]) => void) | null,
   settingsCb: null as ((settings: unknown) => void) | null,
   currentDayCb: null as ((games: unknown[]) => void) | null,
   historyCb: null as ((history: unknown[]) => void) | null,
+  goalsCb: null as ((goals: unknown) => void) | null,
+  customTrophiesCb: null as ((trophies: unknown[]) => void) | null,
   unsubscribers: [] as ReturnType<typeof vi.fn>[],
 }));
 
@@ -47,21 +51,46 @@ vi.mock('../lib/roomRepo', () => ({
     mocks.unsubscribers.push(unsub);
     return unsub;
   },
+  subscribeGoals: (_roomCode: string, cb: (goals: unknown) => void) => {
+    mocks.goalsCb = cb;
+    const unsub = vi.fn();
+    mocks.unsubscribers.push(unsub);
+    return unsub;
+  },
+  subscribeCustomTrophies: (_roomCode: string, cb: (trophies: unknown[]) => void) => {
+    mocks.customTrophiesCb = cb;
+    const unsub = vi.fn();
+    mocks.unsubscribers.push(unsub);
+    return unsub;
+  },
   savePlayers: mocks.savePlayers,
   saveSettings: mocks.saveSettings,
   saveCurrentDay: mocks.saveCurrentDay,
   finalizeDay: mocks.finalizeDay,
   updateDay: mocks.updateDay,
   deleteDay: mocks.deleteDay,
+  saveGoals: mocks.saveGoals,
+  saveCustomTrophies: mocks.saveCustomTrophies,
 }));
 
 const { useAppStore, defaultSettings, getSavedRoomCode } = await import('../store/useAppStore');
 
-function flushInitialSnapshots(overrides: Partial<{ players: unknown[]; settings: unknown; currentDayGames: unknown[]; history: unknown[] }> = {}) {
+function flushInitialSnapshots(
+  overrides: Partial<{
+    players: unknown[];
+    settings: unknown;
+    currentDayGames: unknown[];
+    history: unknown[];
+    goals: unknown;
+    customTrophies: unknown[];
+  }> = {},
+) {
   mocks.playersCb?.(overrides.players ?? []);
   mocks.settingsCb?.(overrides.settings ?? defaultSettings);
   mocks.currentDayCb?.(overrides.currentDayGames ?? []);
   mocks.historyCb?.(overrides.history ?? []);
+  mocks.goalsCb?.(overrides.goals ?? {});
+  mocks.customTrophiesCb?.(overrides.customTrophies ?? []);
 }
 
 beforeEach(() => {
@@ -74,10 +103,14 @@ beforeEach(() => {
   mocks.finalizeDay.mockResolvedValue(undefined);
   mocks.updateDay.mockResolvedValue(undefined);
   mocks.deleteDay.mockResolvedValue(undefined);
+  mocks.saveGoals.mockResolvedValue(undefined);
+  mocks.saveCustomTrophies.mockResolvedValue(undefined);
   mocks.playersCb = null;
   mocks.settingsCb = null;
   mocks.currentDayCb = null;
   mocks.historyCb = null;
+  mocks.goalsCb = null;
+  mocks.customTrophiesCb = null;
   mocks.unsubscribers = [];
   localStorage.clear();
   useAppStore.setState({
@@ -88,6 +121,8 @@ beforeEach(() => {
     settings: defaultSettings,
     currentDayGames: [],
     history: [],
+    goals: {},
+    customTrophies: [],
     _unsubscribeAll: null,
   });
 });
@@ -108,6 +143,10 @@ describe('connectToRoom', () => {
     mocks.currentDayCb?.([]);
     expect(useAppStore.getState().connectionStatus).toBe('connecting');
     mocks.historyCb?.([]);
+    expect(useAppStore.getState().connectionStatus).toBe('connecting');
+    mocks.goalsCb?.({});
+    expect(useAppStore.getState().connectionStatus).toBe('connecting');
+    mocks.customTrophiesCb?.([]);
     expect(useAppStore.getState().connectionStatus).toBe('synced');
     expect(useAppStore.getState().players).toEqual([{ id: 'p1', name: 'Alice', color: '#06b6d4' }]);
   });
@@ -249,13 +288,50 @@ describe('game actions', () => {
   });
 });
 
+describe('goal and custom trophy actions', () => {
+  beforeEach(async () => {
+    await useAppStore.getState().connectToRoom('room-h');
+    flushInitialSnapshots();
+  });
+
+  it('setPlayerGoal writes the merged goals map', async () => {
+    await useAppStore.getState().setPlayerGoal('p1', { type: 'profit', target: 10000 });
+    expect(mocks.saveGoals).toHaveBeenCalledWith('room-h', { p1: { type: 'profit', target: 10000 } });
+  });
+
+  it('setPlayerGoal with null clears that player\'s goal, keeping others', async () => {
+    flushInitialSnapshots({ goals: { p1: { type: 'profit', target: 10000 }, p2: { type: 'topRate', target: 30 } } });
+    await useAppStore.getState().setPlayerGoal('p1', null);
+    expect(mocks.saveGoals).toHaveBeenCalledWith('room-h', { p2: { type: 'topRate', target: 30 } });
+  });
+
+  it('addCustomTrophy appends a trophy with a generated id', async () => {
+    await useAppStore.getState().addCustomTrophy({ name: '雷神', description: '', conditionType: 'profitAtLeast', threshold: 10000 });
+    expect(mocks.saveCustomTrophies).toHaveBeenCalledWith('room-h', [
+      expect.objectContaining({ id: expect.any(String), name: '雷神', conditionType: 'profitAtLeast', threshold: 10000 }),
+    ]);
+  });
+
+  it('removeCustomTrophy filters the trophy out by id', async () => {
+    flushInitialSnapshots({
+      customTrophies: [{ id: 't1', name: '雷神', description: '', conditionType: 'profitAtLeast', threshold: 10000 }],
+    });
+    await useAppStore.getState().removeCustomTrophy('t1');
+    expect(mocks.saveCustomTrophies).toHaveBeenCalledWith('room-h', []);
+  });
+});
+
 describe('actions are no-ops without a connected room', () => {
   it('does not call Firestore writers when roomCode is null', async () => {
     await useAppStore.getState().addPlayer('Alice');
     await useAppStore.getState().updateSettings({ divider: 1 });
     await useAppStore.getState().addGame({ scores: [] });
+    await useAppStore.getState().setPlayerGoal('p1', { type: 'profit', target: 1000 });
+    await useAppStore.getState().addCustomTrophy({ name: '', description: '', conditionType: 'profitAtLeast', threshold: 1 });
     expect(mocks.savePlayers).not.toHaveBeenCalled();
     expect(mocks.saveSettings).not.toHaveBeenCalled();
     expect(mocks.saveCurrentDay).not.toHaveBeenCalled();
+    expect(mocks.saveGoals).not.toHaveBeenCalled();
+    expect(mocks.saveCustomTrophies).not.toHaveBeenCalled();
   });
 });
