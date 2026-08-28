@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Award, BarChart3, Coins, Crown, Gamepad2, Medal, Radar, TrendingUp } from 'lucide-react';
+import { Award, BarChart3, Coins, Crown, Gamepad2, ListOrdered, Medal, Radar, TrendingUp } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import {
   computeCumulativeSeries,
@@ -12,18 +12,21 @@ import {
   computeYakumanAchievements,
 } from '../../lib/stats';
 import { filterHistoryBySeason, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
+import { computeRankRaceSeries } from '../../lib/rankRace';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { SeasonSelect } from '../common/SeasonSelect';
 import { StatCard } from '../common/StatCard';
 import { EmptyState } from '../common/EmptyState';
 import { CumulativeProfitChart } from './CumulativeProfitChart';
+import { RankRaceChart } from './RankRaceChart';
 import { RadarChart } from './RadarChart';
 import { YakumanBoard } from './YakumanBoard';
 import { ActivityCalendarSection } from './ActivityCalendarSection';
 import { RivalrySection } from './RivalrySection';
 import { MonthlyHighlightsSection } from './MonthlyHighlightsSection';
 import { MilestoneBanner } from './MilestoneBanner';
+import { HallOfFameSection } from './HallOfFameSection';
 import { PlayerDetailModal } from '../ranking/PlayerDetailModal';
 
 export function DashboardSection() {
@@ -37,6 +40,7 @@ export function DashboardSection() {
 
   const stats = useMemo(() => computeDashboardStats(history, players), [history, players]);
   const series = useMemo(() => computeCumulativeSeries(history, players), [history, players]);
+  const rankRaceSeries = useMemo(() => computeRankRaceSeries(history, players), [history, players]);
   const radarRows = useMemo(() => computeRadarStats(history, players), [history, players]);
   const yakumanAchievements = useMemo(() => computeYakumanAchievements(history, players), [history, players]);
 
@@ -128,6 +132,16 @@ export function DashboardSection() {
         <CumulativeProfitChart series={series} />
       </div>
 
+      {rankRaceSeries.activePlayers.length > 0 && (
+        <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-fuchsia-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
+          <h3 className="text-sm font-black text-fuchsia-400 mb-8 flex items-center tracking-[0.2em] uppercase">
+            <ListOrdered className="w-5 h-5 mr-2" /> 順位レース
+            <span className="text-slate-500 ml-2 font-normal text-xs normal-case">(Rank Race)</span>
+          </h3>
+          <RankRaceChart series={rankRaceSeries} />
+        </div>
+      )}
+
       {radarRows.length > 0 && (
         <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-cyan-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
           <h3 className="text-sm font-black text-cyan-400 mb-8 flex items-center tracking-[0.2em] uppercase">
@@ -141,6 +155,8 @@ export function DashboardSection() {
       <ActivityCalendarSection history={history} players={players} />
 
       <RivalrySection history={history} players={players} />
+
+      <HallOfFameSection history={history} players={players} />
 
       <YakumanBoard achievements={yakumanAchievements} />
 
