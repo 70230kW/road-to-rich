@@ -1,18 +1,18 @@
-import { Crown, Skull } from 'lucide-react';
+import { Crown, Minus, Plus, Skull } from 'lucide-react';
 import type { DayVotes as DayVotesData, Player } from '../../types';
 
 function VoteList({
   participantIds,
   players,
   counts,
-  onVote,
+  onChange,
   activeClass,
   buttonClass,
 }: {
   participantIds: string[];
   players: Player[];
   counts: Record<string, number>;
-  onVote: (playerId: string) => void;
+  onChange: (playerId: string, delta: 1 | -1) => void;
   activeClass: string;
   buttonClass: string;
 }) {
@@ -25,17 +25,34 @@ function VoteList({
         const count = counts[pid] ?? 0;
         const isLeader = count > 0 && count === max;
         return (
-          <button
+          <div
             key={pid}
-            type="button"
-            onClick={() => onVote(pid)}
-            className={`w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border transition-colors ${
-              isLeader ? activeClass : 'bg-abyss/60 border-slate-700/60 hover:border-slate-500/60'
+            className={`flex items-center justify-between gap-3 px-3 sm:px-4 py-2.5 rounded-xl border transition-colors ${
+              isLeader ? activeClass : 'bg-abyss/60 border-slate-700/60'
             }`}
           >
             <span className="font-bold text-sm text-slate-200 truncate">{name(pid)}</span>
-            <span className={`font-mono text-xs font-black shrink-0 ${buttonClass}`}>{count}票</span>
-          </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => onChange(pid, -1)}
+                disabled={count === 0}
+                aria-label={`${name(pid)}の票を1減らす`}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/60 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+              >
+                <Minus className="w-3.5 h-3.5" />
+              </button>
+              <span className={`font-mono text-xs font-black w-9 text-center ${buttonClass}`}>{count}票</span>
+              <button
+                type="button"
+                onClick={() => onChange(pid, 1)}
+                aria-label={`${name(pid)}の票を1増やす`}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/60 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
         );
       })}
     </div>
@@ -51,7 +68,7 @@ export function DayVotes({
   participantIds: string[];
   players: Player[];
   votes: DayVotesData | undefined;
-  onVote: (category: 'mvp' | 'hanzai', playerId: string) => void;
+  onVote: (category: 'mvp' | 'hanzai', playerId: string, delta: 1 | -1) => void;
 }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -63,7 +80,7 @@ export function DayVotes({
           participantIds={participantIds}
           players={players}
           counts={votes?.mvp ?? {}}
-          onVote={(pid) => onVote('mvp', pid)}
+          onChange={(pid, delta) => onVote('mvp', pid, delta)}
           activeClass="bg-yellow-500/10 border-yellow-500/50"
           buttonClass="text-yellow-300"
         />
@@ -76,7 +93,7 @@ export function DayVotes({
           participantIds={participantIds}
           players={players}
           counts={votes?.hanzai ?? {}}
-          onVote={(pid) => onVote('hanzai', pid)}
+          onChange={(pid, delta) => onVote('hanzai', pid, delta)}
           activeClass="bg-rose-500/10 border-rose-500/50"
           buttonClass="text-rose-300"
         />
