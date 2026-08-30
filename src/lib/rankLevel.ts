@@ -14,13 +14,13 @@ export interface RankTier {
  * 天鳳・雀魂風の段位ラダー。ポイント変換は行わず、実際に勝った金額（場代抜きの累計収支、
  * 総合ランキングと同じ基準）で判定する。段位はトロフィーと違って永久固定ではなく、
  * 現在の累計収支だけを見て毎回再計算する（昇段も降段もあり得る）。
- * 収支がマイナスの雀士は「地底人」グループ（数字が大きいほど深い）に入る。
+ * 負けが¥15,000を超えている雀士は「地底人」グループ（数字が大きいほど深い）に入る。
  */
 export const RANK_TIERS: RankTier[] = [
-  { name: '地底人3', minProfit: -50000, group: '地底人' },
-  { name: '地底人2', minProfit: -25000, group: '地底人' },
-  { name: '地底人1', minProfit: -10000, group: '地底人' },
-  { name: '雀士1', minProfit: 0, group: '雀士' },
+  { name: '地底人3', minProfit: -150000, group: '地底人' },
+  { name: '地底人2', minProfit: -80000, group: '地底人' },
+  { name: '地底人1', minProfit: -40000, group: '地底人' },
+  { name: '雀士1', minProfit: -15000, group: '雀士' },
   { name: '雀士2', minProfit: 10000, group: '雀士' },
   { name: '雀士3', minProfit: 25000, group: '雀士' },
   { name: '雀傑1', minProfit: 50000, group: '雀傑' },

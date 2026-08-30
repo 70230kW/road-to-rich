@@ -36,7 +36,7 @@ export function RankSection() {
     <div className="space-y-8 animate-fade-in">
       <SectionHeader icon={Gauge} title="段位" accent="cyan" />
       <p className="text-xs text-slate-500 -mt-4">
-        ※ 段位はポイント変換をせず、実際に勝った金額（場代抜きの累計収支、総合ランキングと同じ基準）で判定します。シーズンに関係なく通算の成績で決まり、収支がマイナスの場合は「地底人」になります。
+        ※ 段位はポイント変換をせず、実際に勝った金額（場代抜きの累計収支、総合ランキングと同じ基準）で判定します。シーズンに関係なく通算の成績で決まり、負けが¥15,000を超えると「地底人」になります。
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
