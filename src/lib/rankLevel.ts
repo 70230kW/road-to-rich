@@ -1,7 +1,7 @@
 import type { DayRecord, Player } from '../types';
 
 /** 段位の大分類。同じ group の段位（雀豪1〜雀豪3 など）は UI 上で同じ色になる。 */
-export type RankGroup = '雀士' | '雀傑' | '雀豪' | '雀聖' | '魂天';
+export type RankGroup = '地底人' | '雀士' | '雀傑' | '雀豪' | '雀聖' | '魂天';
 
 export interface RankTier {
   name: string;
@@ -14,8 +14,12 @@ export interface RankTier {
  * 天鳳・雀魂風の段位ラダー。ポイント変換は行わず、実際に勝った金額（場代抜きの累計収支、
  * 総合ランキングと同じ基準）で判定する。段位はトロフィーと違って永久固定ではなく、
  * 現在の累計収支だけを見て毎回再計算する（昇段も降段もあり得る）。
+ * 収支がマイナスの雀士は「地底人」グループ（数字が大きいほど深い）に入る。
  */
 export const RANK_TIERS: RankTier[] = [
+  { name: '地底人3', minProfit: -50000, group: '地底人' },
+  { name: '地底人2', minProfit: -25000, group: '地底人' },
+  { name: '地底人1', minProfit: -10000, group: '地底人' },
   { name: '雀士1', minProfit: 0, group: '雀士' },
   { name: '雀士2', minProfit: 10000, group: '雀士' },
   { name: '雀士3', minProfit: 25000, group: '雀士' },
@@ -84,4 +88,31 @@ export function computePlayerRankStatuses(history: DayRecord[], players: Player[
     };
   });
   return result;
+}
+
+export interface RankGroupSummary {
+  group: RankGroup;
+  /** そのグループに属する段位（雀士1〜3 など）を、しきい値の低い順に並べたもの。 */
+  levels: RankTier[];
+  /** このグループの下限（円）。 */
+  minProfit: number;
+  /** このグループの上限（次のグループの下限、円）。最高グループなら null。 */
+  maxProfitExclusive: number | null;
+}
+
+/** RANK_TIERS を大分類（group）単位でまとめ、各グループの収支レンジを付与する。 */
+export function groupRankTiers(): RankGroupSummary[] {
+  const groups: RankGroupSummary[] = [];
+  for (const tier of RANK_TIERS) {
+    const last = groups[groups.length - 1];
+    if (last && last.group === tier.group) {
+      last.levels.push(tier);
+    } else {
+      groups.push({ group: tier.group, levels: [tier], minProfit: tier.minProfit, maxProfitExclusive: null });
+    }
+  }
+  for (let i = 0; i < groups.length - 1; i++) {
+    groups[i].maxProfitExclusive = groups[i + 1].minProfit;
+  }
+  return groups;
 }

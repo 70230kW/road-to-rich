@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computePlayerRankStatuses, RANK_TIERS } from '../lib/rankLevel';
+import { computePlayerRankStatuses, groupRankTiers, RANK_TIERS } from '../lib/rankLevel';
 import type { DayRecord, Player } from '../types';
 
 const players: Player[] = [
@@ -25,11 +25,12 @@ function day(id: string, profits: Record<string, number>): DayRecord {
 }
 
 describe('computePlayerRankStatuses', () => {
-  it('starts everyone at the base tier with zero cumulative profit when nobody has played', () => {
+  it('starts everyone at 雀士1 with zero cumulative profit when nobody has played', () => {
     const result = computePlayerRankStatuses([], players);
-    expect(result.a.levelName).toBe(RANK_TIERS[0].name);
+    expect(result.a.levelName).toBe('雀士1');
+    expect(result.a.group).toBe('雀士');
     expect(result.a.cumulativeProfit).toBe(0);
-    expect(result.a.profitToNextLevel).toBe(RANK_TIERS[1].minProfit);
+    expect(result.a.profitToNextLevel).toBe(10000);
   });
 
   it('promotes a player once their cumulative profit crosses a tier threshold', () => {
@@ -47,6 +48,21 @@ describe('computePlayerRankStatuses', () => {
     expect(result.a.levelName).toBe('雀士2');
   });
 
+  it('places a player with negative cumulative profit into the 地底人 group', () => {
+    const history = [day('d1', { a: -15000, b: 0 })];
+    const result = computePlayerRankStatuses(history, players);
+    expect(result.a.levelName).toBe('地底人2');
+    expect(result.a.group).toBe('地底人');
+    expect(result.a.nextLevelName).toBe('地底人1');
+  });
+
+  it('floors extremely negative profit at the deepest 地底人 tier without going below it', () => {
+    const history = [day('d1', { a: -9999999, b: 0 })];
+    const result = computePlayerRankStatuses(history, players);
+    expect(result.a.levelName).toBe('地底人3');
+    expect(result.a.progressRatio).toBe(0);
+  });
+
   it('caps progressRatio at 1 for the top tier and reports no next level', () => {
     const history = [day('d1', { a: 2000000, b: 0 })];
     const result = computePlayerRankStatuses(history, players);
@@ -54,5 +70,23 @@ describe('computePlayerRankStatuses', () => {
     expect(result.a.nextLevelName).toBeNull();
     expect(result.a.profitToNextLevel).toBeNull();
     expect(result.a.progressRatio).toBe(1);
+  });
+});
+
+describe('groupRankTiers', () => {
+  it('collapses consecutive same-group tiers into one summary each, in ascending order', () => {
+    const groups = groupRankTiers();
+    expect(groups.map((g) => g.group)).toEqual(['地底人', '雀士', '雀傑', '雀豪', '雀聖', '魂天']);
+    // every RANK_TIERS entry should be accounted for exactly once
+    expect(groups.reduce((sum, g) => sum + g.levels.length, 0)).toBe(RANK_TIERS.length);
+  });
+
+  it('sets each group\'s maxProfitExclusive to the next group\'s minProfit, and null for the last group', () => {
+    const groups = groupRankTiers();
+    const jansi = groups.find((g) => g.group === '雀士')!;
+    const jankai = groups.find((g) => g.group === '雀傑')!;
+    expect(jansi.minProfit).toBe(0);
+    expect(jansi.maxProfitExclusive).toBe(jankai.minProfit);
+    expect(groups[groups.length - 1].maxProfitExclusive).toBeNull();
   });
 });

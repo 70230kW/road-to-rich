@@ -2,8 +2,14 @@ import { Gauge } from 'lucide-react';
 import type { PlayerRankStatus, RankGroup } from '../../lib/rankLevel';
 import { formatSignedYen } from '../../lib/format';
 
-/** 段位の大分類（雀士/雀傑/雀豪/雀聖/魂天）ごとの配色。同じ分類の段位（雀豪1〜3など）は同じ色になる。 */
+/** 段位の大分類（地底人/雀士/雀傑/雀豪/雀聖/魂天）ごとの配色。同じ分類の段位（雀豪1〜3など）は同じ色になる。 */
 export const RANK_GROUP_THEME: Record<RankGroup, { text: string; border: string; bg: string; bar: string }> = {
+  地底人: {
+    text: 'text-rose-400',
+    border: 'border-rose-700/50',
+    bg: 'bg-rose-950/30',
+    bar: 'from-rose-700 to-rose-500',
+  },
   雀士: {
     text: 'text-slate-300',
     border: 'border-slate-500/40',
