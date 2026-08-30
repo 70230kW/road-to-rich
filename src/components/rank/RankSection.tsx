@@ -91,22 +91,22 @@ export function RankSection() {
                   onClick={() => toggleGroup(g.group)}
                   aria-expanded={isExpanded}
                   aria-label={`${g.group}の内訳を${isExpanded ? '閉じる' : '開く'}`}
-                  className="w-full flex items-center justify-between px-5 py-3.5"
+                  className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 px-5 py-3.5 text-left"
                 >
-                  <span className={`font-black text-sm tracking-wide ${theme.text}`}>{g.group}</span>
-                  <div className="flex items-center gap-3">
+                  <span className={`font-black text-sm tracking-wide shrink-0 ${theme.text}`}>{g.group}</span>
+                  <div className="flex items-center justify-between sm:justify-end gap-3">
                     <span className="font-mono text-xs sm:text-sm text-slate-300">収支 {rangeText}</span>
-                    <ChevronDown className={`w-4 h-4 ${theme.text} transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-4 h-4 shrink-0 ${theme.text} transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </div>
                 </button>
 
                 {isExpanded && (
                   <div className="px-5 pb-4 space-y-1.5">
                     {g.levels.map((tier) => (
-                      <div key={tier.name} className="flex items-center justify-between bg-abyss/50 rounded-lg px-4 py-2">
-                        <span className={`font-bold text-xs ${theme.text}`}>{tier.name}</span>
-                        <span className="font-mono text-[11px] text-slate-400">
-                          累計収支 {formatSignedYen(tier.minProfit)} 以上
+                      <div key={tier.name} className="flex items-center justify-between gap-2 bg-abyss/50 rounded-lg px-4 py-2">
+                        <span className={`font-bold text-xs shrink-0 ${theme.text}`}>{tier.name}</span>
+                        <span className="font-mono text-[11px] text-slate-400 text-right whitespace-nowrap">
+                          収支 {formatSignedYen(tier.minProfit)} 以上
                         </span>
                       </div>
                     ))}
