@@ -30,7 +30,7 @@ import { MilestoneBanner } from './MilestoneBanner';
 import { HallOfFameSection } from './HallOfFameSection';
 import { SeasonReportModal } from './SeasonReportModal';
 import { GoalProgressSection } from './GoalProgressSection';
-import { MatchmakingSection } from './MatchmakingSection';
+import { TableRankingSection } from './TableRankingSection';
 import { PlayerDetailModal } from '../ranking/PlayerDetailModal';
 
 export function DashboardSection() {
@@ -182,7 +182,7 @@ export function DashboardSection() {
 
       <RivalrySection history={history} players={players} />
 
-      <MatchmakingSection history={history} players={players} />
+      <TableRankingSection history={history} players={players} />
 
       <HallOfFameSection history={history} players={players} />
 
