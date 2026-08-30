@@ -48,12 +48,19 @@ describe('computePlayerRankStatuses', () => {
     expect(result.a.levelName).toBe('雀士2');
   });
 
-  it('places a player with negative cumulative profit into the 地底人 group', () => {
+  it('keeps a player in 雀士1 while their loss is at most ¥15,000 (not yet 地底人)', () => {
     const history = [day('d1', { a: -15000, b: 0 })];
     const result = computePlayerRankStatuses(history, players);
-    expect(result.a.levelName).toBe('地底人2');
+    expect(result.a.levelName).toBe('雀士1');
+    expect(result.a.group).toBe('雀士');
+  });
+
+  it('places a player into the 地底人 group once their loss exceeds ¥15,000', () => {
+    const history = [day('d1', { a: -20000, b: 0 })];
+    const result = computePlayerRankStatuses(history, players);
+    expect(result.a.levelName).toBe('地底人1');
     expect(result.a.group).toBe('地底人');
-    expect(result.a.nextLevelName).toBe('地底人1');
+    expect(result.a.nextLevelName).toBe('雀士1');
   });
 
   it('floors extremely negative profit at the deepest 地底人 tier without going below it', () => {
@@ -85,7 +92,7 @@ describe('groupRankTiers', () => {
     const groups = groupRankTiers();
     const jansi = groups.find((g) => g.group === '雀士')!;
     const jankai = groups.find((g) => g.group === '雀傑')!;
-    expect(jansi.minProfit).toBe(0);
+    expect(jansi.minProfit).toBe(-15000);
     expect(jansi.maxProfitExclusive).toBe(jankai.minProfit);
     expect(groups[groups.length - 1].maxProfitExclusive).toBeNull();
   });
