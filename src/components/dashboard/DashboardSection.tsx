@@ -29,7 +29,6 @@ import { MonthlyHighlightsSection } from './MonthlyHighlightsSection';
 import { MilestoneBanner } from './MilestoneBanner';
 import { HallOfFameSection } from './HallOfFameSection';
 import { SeasonReportModal } from './SeasonReportModal';
-import { RankLevelSection } from './RankLevelSection';
 import { GoalProgressSection } from './GoalProgressSection';
 import { MatchmakingSection } from './MatchmakingSection';
 import { PlayerDetailModal } from '../ranking/PlayerDetailModal';
@@ -82,7 +81,6 @@ export function DashboardSection() {
         {fullHistory.length > 0 && <MilestoneBanner history={fullHistory} players={players} />}
         {fullHistory.length > 0 && <MonthlyHighlightsSection history={fullHistory} players={players} />}
         {fullHistory.length > 0 && <GoalProgressSection history={fullHistory} players={players} goals={goals} />}
-        {fullHistory.length > 0 && <RankLevelSection history={fullHistory} players={players} settings={settings} />}
         <EmptyState icon={BarChart3} message="No Data" hint="対局を記録して精算を保存すると、ここに統計が表示されます。" />
         {showReport && (
           <SeasonReportModal seasonLabel={seasonLabel} data={seasonReportData} players={players} onClose={() => setShowReport(false)} />
@@ -100,8 +98,6 @@ export function DashboardSection() {
       <MonthlyHighlightsSection history={fullHistory} players={players} />
 
       <GoalProgressSection history={fullHistory} players={players} goals={goals} />
-
-      <RankLevelSection history={fullHistory} players={players} settings={settings} />
 
       <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
         <StatCard

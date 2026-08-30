@@ -30,7 +30,7 @@ export function PlayerSection() {
   const [hexDraft, setHexDraft] = useState('');
   const [colorError, setColorError] = useState<string | null>(null);
   const [goalEditorId, setGoalEditorId] = useState<string | null>(null);
-  const rankStatuses = useMemo(() => computePlayerRankStatuses(history, players, settings), [history, players, settings]);
+  const rankStatuses = useMemo(() => computePlayerRankStatuses(history, players), [history, players]);
 
   const minRequired = settings.playerCount;
   const canDelete = players.length > minRequired;

@@ -1,5 +1,6 @@
 import { Gauge } from 'lucide-react';
 import type { PlayerRankStatus, RankGroup } from '../../lib/rankLevel';
+import { formatSignedYen } from '../../lib/format';
 
 /** 段位の大分類（雀士/雀傑/雀豪/雀聖/魂天）ごとの配色。同じ分類の段位（雀豪1〜3など）は同じ色になる。 */
 export const RANK_GROUP_THEME: Record<RankGroup, { text: string; border: string; bg: string; bar: string }> = {
@@ -39,7 +40,7 @@ export function RankBadge({ status }: { status: PlayerRankStatus }) {
   const theme = RANK_GROUP_THEME[status.group];
   return (
     <span
-      title={`累計 ${status.cumulativePt}pt`}
+      title={`累計収支 ${formatSignedYen(status.cumulativeProfit)}`}
       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide whitespace-nowrap border ${theme.text} ${theme.border} ${theme.bg}`}
     >
       <Gauge className="w-2.5 h-2.5 shrink-0" /> {status.levelName}

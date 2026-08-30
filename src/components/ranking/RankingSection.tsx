@@ -41,7 +41,6 @@ const RANK_STYLES = [
 export function RankingSection() {
   const fullHistory = useAppStore((s) => s.history);
   const players = useAppStore((s) => s.players);
-  const settings = useAppStore((s) => s.settings);
   const [season, setSeason] = useState<SeasonFilter>('all');
   const seasons = useMemo(() => getAvailableSeasons(fullHistory), [fullHistory]);
   const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
@@ -52,7 +51,7 @@ export function RankingSection() {
   const yakumanAchievements = useMemo(() => computePlayerYakumanAchievements(history, players), [history, players]);
   const rateStats = useMemo(() => computePlayerRateStats(history, players), [history, players]);
   // 段位は季節に関係なく、通算の累計ptで判定する（一時的な絞り込みで昇段・降段して見えないように）。
-  const rankStatuses = useMemo(() => computePlayerRankStatuses(fullHistory, players, settings), [fullHistory, players, settings]);
+  const rankStatuses = useMemo(() => computePlayerRankStatuses(fullHistory, players), [fullHistory, players]);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   const seasonSelect = <SeasonSelect season={season} onChange={setSeason} seasons={seasons} accent="yellow" />;
