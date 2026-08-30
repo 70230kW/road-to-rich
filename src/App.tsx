@@ -7,6 +7,7 @@ import { InputSection } from './components/input/InputSection';
 import { RoomGate } from './components/room/RoomGate';
 import { RoomBadge } from './components/room/RoomBadge';
 import { LoadingScreen } from './components/common/LoadingScreen';
+import { RippleLayer } from './components/common/RippleLayer';
 
 // Only the default "input" tab loads eagerly; the rest are fetched on first
 // visit so the initial bundle (and time-to-interactive) stays small.
@@ -67,6 +68,7 @@ function AppShell() {
   return (
     <div className="min-h-screen bg-abyss text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-hidden relative">
       <Background />
+      <RippleLayer />
 
       <div className="max-w-md md:max-w-5xl mx-auto p-4 md:p-6 relative z-10">
         <Header />
