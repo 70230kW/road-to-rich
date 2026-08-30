@@ -15,6 +15,9 @@
   --animate-dot-fade: dot-fade 1.4s ease-in-out infinite;
   --animate-scan-bar: scan-bar 1.6s ease-in-out infinite;
   --animate-ripple: ripple 600ms ease-out;
+  --animate-blob-drift: blob-drift 16s ease-in-out infinite;
+  --animate-grid-scroll: grid-scroll 24s linear infinite;
+  --animate-tile-fall: tile-fall 20s linear infinite;
 }
 
 @keyframes fade-in {
@@ -68,6 +71,50 @@
   to {
     transform: scale(1);
     opacity: 0;
+  }
+}
+
+@keyframes blob-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(6%, 8%) scale(1.15);
+  }
+}
+
+@keyframes grid-scroll {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 4rem 4rem;
+  }
+}
+
+@keyframes tile-fall {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.55;
+  }
+  92% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(110vh) rotate(var(--rotate-end, 90deg));
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob-drift,
+  .animate-grid-scroll,
+  .animate-tile-fall {
+    animation: none;
   }
 }
 
