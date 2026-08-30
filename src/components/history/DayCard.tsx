@@ -156,6 +156,10 @@ export function DayCard({
                     {formatSignedYen(entry.totalWithFee)}
                   </div>
                   <div className="text-[10px] text-slate-600 font-mono mt-1 pl-1">場代抜き {formatSignedYen(entry.totalWithoutFee)}</div>
+                  <div className="text-[10px] text-slate-600 font-mono pl-1">
+                    チップ {entry.chipCount > 0 ? '+' : ''}
+                    {entry.chipCount}枚
+                  </div>
                 </div>
               );
             })}
