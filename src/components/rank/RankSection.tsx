@@ -23,6 +23,20 @@ export function RankSection() {
     });
   };
 
+  const rankedPlayers = useMemo(() => {
+    return [...players].sort((a, b) => {
+      const sa = statuses[a.id];
+      const sb = statuses[b.id];
+      if (!sa || !sb) return 0;
+      if (sb.levelIndex !== sa.levelIndex) return sb.levelIndex - sa.levelIndex;
+      return sb.cumulativeProfit - sa.cumulativeProfit;
+    });
+  }, [players, statuses]);
+
+  const scrollToTierList = () => {
+    document.getElementById('rank-tier-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   if (players.length === 0) {
     return (
       <div className="space-y-8">
@@ -37,10 +51,17 @@ export function RankSection() {
       <SectionHeader icon={Gauge} title="段位" accent="cyan" />
       <p className="text-xs text-slate-500 -mt-4">
         ※ 段位はポイント変換をせず、実際に勝った金額（場代抜きの累計収支、総合ランキングと同じ基準）で判定します。シーズンに関係なく通算の成績で決まり、負けが¥15,000を超えると「地底人」になります。
+        <button
+          type="button"
+          onClick={scrollToTierList}
+          className="ml-1 font-bold text-cyan-400 underline underline-offset-2 hover:text-cyan-300"
+        >
+          各段位の達成条件はこちら
+        </button>
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {players.map((p) => {
+        {rankedPlayers.map((p) => {
           const status = statuses[p.id];
           if (!status) return null;
           const theme = RANK_GROUP_THEME[status.group];
@@ -69,7 +90,10 @@ export function RankSection() {
         })}
       </div>
 
-      <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden backdrop-blur-md">
+      <div
+        id="rank-tier-list"
+        className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden backdrop-blur-md scroll-mt-4"
+      >
         <h3 className="text-sm font-black text-slate-300 mb-2 tracking-[0.2em] uppercase">段位一覧</h3>
         <p className="text-[11px] text-slate-500 mb-6">タップすると、その中の細かい段位としきい値が見られます。</p>
         <div className="space-y-2">
