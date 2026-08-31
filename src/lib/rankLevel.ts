@@ -29,10 +29,10 @@ export const RANK_TIERS: RankTier[] = [
   { name: '雀豪1', minProfit: 180000, group: '雀豪' },
   { name: '雀豪2', minProfit: 250000, group: '雀豪' },
   { name: '雀豪3', minProfit: 350000, group: '雀豪' },
-  { name: '雀聖1', minProfit: 500000, group: '雀聖' },
-  { name: '雀聖2', minProfit: 700000, group: '雀聖' },
-  { name: '雀聖3', minProfit: 1000000, group: '雀聖' },
-  { name: '魂天', minProfit: 1500000, group: '魂天' },
+  { name: '雀聖1', minProfit: 400000, group: '雀聖' },
+  { name: '雀聖2', minProfit: 440000, group: '雀聖' },
+  { name: '雀聖3', minProfit: 470000, group: '雀聖' },
+  { name: '魂天', minProfit: 500000, group: '魂天' },
 ];
 
 export interface PlayerRankStatus {
