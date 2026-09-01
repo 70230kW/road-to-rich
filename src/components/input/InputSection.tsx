@@ -9,6 +9,7 @@ export function InputSection({ onNavigateToPlayers }: { onNavigateToPlayers: () 
   const currentDayGames = useAppStore((s) => s.currentDayGames);
   const addGame = useAppStore((s) => s.addGame);
   const removeGame = useAppStore((s) => s.removeGame);
+  const updateGameYakuman = useAppStore((s) => s.updateGameYakuman);
   const finalizeDay = useAppStore((s) => s.finalizeDay);
 
   const [isSettling, setIsSettling] = useState(false);
@@ -34,6 +35,7 @@ export function InputSection({ onNavigateToPlayers }: { onNavigateToPlayers: () 
       currentDayGames={currentDayGames}
       onAddGame={addGame}
       onRemoveGame={removeGame}
+      onUpdateGameYakuman={updateGameYakuman}
       onStartSettling={() => setIsSettling(true)}
       onNavigateToPlayers={onNavigateToPlayers}
     />

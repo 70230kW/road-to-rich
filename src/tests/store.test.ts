@@ -270,6 +270,25 @@ describe('game actions', () => {
     expect(mocks.saveCurrentDay).toHaveBeenCalledWith('room-g', []);
   });
 
+  it('updateGameYakuman sets yakumanEvents on the matching game, leaving others untouched', async () => {
+    flushInitialSnapshots({ currentDayGames: [{ id: 'g1', scores }, { id: 'g2', scores }] });
+    const events = [{ id: 'y1', playerId: 'a', yakumanIds: ['daisangen'] }];
+    await useAppStore.getState().updateGameYakuman('g1', events);
+    expect(mocks.saveCurrentDay).toHaveBeenCalledWith('room-g', [
+      { id: 'g1', scores, yakumanEvents: events },
+      { id: 'g2', scores },
+    ]);
+  });
+
+  it('updateGameYakuman with an empty list omits the yakumanEvents field entirely (no undefined written)', async () => {
+    const events = [{ id: 'y1', playerId: 'a', yakumanIds: ['daisangen'] }];
+    flushInitialSnapshots({ currentDayGames: [{ id: 'g1', scores, yakumanEvents: events }] });
+    await useAppStore.getState().updateGameYakuman('g1', []);
+    const [, savedGames] = mocks.saveCurrentDay.mock.calls.at(-1)!;
+    expect(savedGames).toEqual([{ id: 'g1', scores }]);
+    expect(savedGames[0]).not.toHaveProperty('yakumanEvents');
+  });
+
   it('finalizeDay stamps a date and delegates to the repo', async () => {
     const day = { games: [{ id: 'g1', scores }], tableFee: 4000, chips: { a: 0 }, chipRate: 100, settlement: {} };
     await useAppStore.getState().finalizeDay(day);

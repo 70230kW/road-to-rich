@@ -14,6 +14,7 @@ export function HanchanForm({
   currentDayGames,
   onAddGame,
   onRemoveGame,
+  onUpdateGameYakuman,
   onStartSettling,
   onNavigateToPlayers,
 }: {
@@ -22,6 +23,7 @@ export function HanchanForm({
   currentDayGames: Game[];
   onAddGame: (game: Omit<Game, 'id'>) => void;
   onRemoveGame: (gameId: string) => void;
+  onUpdateGameYakuman: (gameId: string, events: YakumanEvent[]) => void;
   onStartSettling: () => void;
   onNavigateToPlayers: () => void;
 }) {
@@ -288,7 +290,12 @@ export function HanchanForm({
           </NeonButton>
 
           {currentDayGames.length > 0 && (
-            <RecordedGamesList games={currentDayGames} players={players} onRemove={onRemoveGame} />
+            <RecordedGamesList
+              games={currentDayGames}
+              players={players}
+              onRemove={onRemoveGame}
+              onUpdateYakuman={onUpdateGameYakuman}
+            />
           )}
         </>
       )}

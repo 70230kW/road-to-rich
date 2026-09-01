@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { CustomTrophyDef, DayRecord, Game, Player, PlayerCount, PlayerGoal, Settings } from '../types';
+import type { CustomTrophyDef, DayRecord, Game, Player, PlayerCount, PlayerGoal, Settings, YakumanEvent } from '../types';
 import { defaultSettings } from '../lib/defaults';
 import { ensureAnonymousAuth } from '../lib/firebase';
 import { ensurePlayerColors, pickPlayerColor } from '../lib/playerColors';
@@ -62,6 +62,7 @@ interface AppState {
 
   addGame: (game: Omit<Game, 'id'>) => Promise<void>;
   removeGame: (gameId: string) => Promise<void>;
+  updateGameYakuman: (gameId: string, yakumanEvents: YakumanEvent[]) => Promise<void>;
 
   finalizeDay: (day: Omit<DayRecord, 'id' | 'date'>) => Promise<void>;
   updateDay: (dayId: string, patch: Omit<DayRecord, 'id' | 'date'>) => Promise<void>;
@@ -233,6 +234,19 @@ export const useAppStore = create<AppState>()((set, get) => ({
     await saveCurrentDay(
       roomCode,
       currentDayGames.filter((g) => g.id !== gameId),
+    );
+  },
+
+  updateGameYakuman: async (gameId, yakumanEvents) => {
+    const { roomCode, currentDayGames } = get();
+    if (!roomCode) return;
+    await saveCurrentDay(
+      roomCode,
+      currentDayGames.map((g) => {
+        if (g.id !== gameId) return g;
+        const { yakumanEvents: _omit, ...rest } = g;
+        return { ...rest, ...(yakumanEvents.length > 0 ? { yakumanEvents } : {}) };
+      }),
     );
   },
 

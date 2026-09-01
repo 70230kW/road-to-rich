@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Pencil } from 'lucide-react';
-import type { DayRecord, Game, Player, Settings } from '../../types';
+import type { DayRecord, Game, Player, Settings, YakumanEvent } from '../../types';
 import { NeonButton } from '../common/NeonButton';
 import { HanchanForm } from '../input/HanchanForm';
 import { SettlementForm } from '../input/SettlementForm';
@@ -27,6 +27,14 @@ export function DayEditor({
 
   const addGame = (game: Omit<Game, 'id'>) => setGames((prev) => [...prev, { ...game, id: uid() }]);
   const removeGame = (gameId: string) => setGames((prev) => prev.filter((g) => g.id !== gameId));
+  const updateGameYakuman = (gameId: string, events: YakumanEvent[]) =>
+    setGames((prev) =>
+      prev.map((g) => {
+        if (g.id !== gameId) return g;
+        const { yakumanEvents: _omit, ...rest } = g;
+        return { ...rest, ...(events.length > 0 ? { yakumanEvents: events } : {}) };
+      }),
+    );
 
   if (step === 'settlement') {
     return (
@@ -59,6 +67,7 @@ export function DayEditor({
         currentDayGames={games}
         onAddGame={addGame}
         onRemoveGame={removeGame}
+        onUpdateGameYakuman={updateGameYakuman}
         onStartSettling={() => setStep('settlement')}
         onNavigateToPlayers={onCancel}
       />

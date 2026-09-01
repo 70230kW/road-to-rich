@@ -78,6 +78,19 @@ describe('computePlayerRankStatuses', () => {
     expect(result.a.profitToNextLevel).toBeNull();
     expect(result.a.progressRatio).toBe(1);
   });
+
+  it('stays at 雀聖3 just below the ¥500,000 魂天 threshold', () => {
+    const history = [day('d1', { a: 499999, b: 0 })];
+    const result = computePlayerRankStatuses(history, players);
+    expect(result.a.levelName).toBe('雀聖3');
+    expect(result.a.nextLevelName).toBe('魂天');
+  });
+
+  it('reaches 魂天 at exactly ¥500,000', () => {
+    const history = [day('d1', { a: 500000, b: 0 })];
+    const result = computePlayerRankStatuses(history, players);
+    expect(result.a.levelName).toBe('魂天');
+  });
 });
 
 describe('groupRankTiers', () => {
