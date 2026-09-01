@@ -1,18 +1,23 @@
 import { useState } from 'react';
-import { ListOrdered, Trash2 } from 'lucide-react';
-import type { Game, Player } from '../../types';
+import { ListOrdered, Sparkles, Trash2 } from 'lucide-react';
+import type { Game, Player, YakumanEvent } from '../../types';
 import { ConfirmDialog } from '../common/ConfirmDialog';
+import { findYakuman } from '../../lib/yakuman';
+import { YakumanInput } from './YakumanInput';
 
 export function RecordedGamesList({
   games,
   players,
   onRemove,
+  onUpdateYakuman,
 }: {
   games: Game[];
   players: Player[];
   onRemove: (gameId: string) => void;
+  onUpdateYakuman: (gameId: string, events: YakumanEvent[]) => void;
 }) {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [editingYakumanGameId, setEditingYakumanGameId] = useState<string | null>(null);
 
   if (games.length === 0) return null;
 
@@ -26,37 +31,79 @@ export function RecordedGamesList({
       <div className="space-y-2.5">
         {games.map((g, idx) => {
           const sorted = [...g.scores].sort((a, b) => a.rank - b.rank);
+          const events = g.yakumanEvents ?? [];
+          const isEditingYakuman = editingYakumanGameId === g.id;
           return (
             <div
               key={g.id}
-              className="flex items-center gap-3 md:gap-4 bg-panel-2/40 border border-slate-700/50 rounded-2xl px-4 py-3 hover:border-slate-500/50 transition-colors group"
+              className="bg-panel-2/40 border border-slate-700/50 rounded-2xl px-4 py-3 hover:border-slate-500/50 transition-colors group"
             >
-              <span className="shrink-0 text-cyan-500 font-mono font-black text-sm w-8">
-                #{String(idx + 1).padStart(2, '0')}
-              </span>
-              <div className="flex-1 flex flex-wrap gap-x-4 gap-y-1.5 font-mono text-xs md:text-sm">
-                {sorted.map((s) => (
-                  <span key={s.playerId} className="flex items-center gap-1.5 text-slate-300">
-                    <span
-                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                        s.point >= 0 ? 'bg-emerald-950/50 text-emerald-400' : 'bg-rose-950/50 text-rose-400'
-                      }`}
-                    >
-                      {s.rank}着
+              <div className="flex items-center gap-3 md:gap-4">
+                <span className="shrink-0 text-cyan-500 font-mono font-black text-sm w-8">
+                  #{String(idx + 1).padStart(2, '0')}
+                </span>
+                <div className="flex-1 flex flex-wrap gap-x-4 gap-y-1.5 font-mono text-xs md:text-sm">
+                  {sorted.map((s) => (
+                    <span key={s.playerId} className="flex items-center gap-1.5 text-slate-300">
+                      <span
+                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                          s.point >= 0 ? 'bg-emerald-950/50 text-emerald-400' : 'bg-rose-950/50 text-rose-400'
+                        }`}
+                      >
+                        {s.rank}着
+                      </span>
+                      <span className="font-bold">{name(s.playerId)}</span>
+                      <span className="text-slate-500">{s.rawScore.toLocaleString()}</span>
                     </span>
-                    <span className="font-bold">{name(s.playerId)}</span>
-                    <span className="text-slate-500">{s.rawScore.toLocaleString()}</span>
-                  </span>
-                ))}
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingYakumanGameId(isEditingYakuman ? null : g.id)}
+                  aria-expanded={isEditingYakuman}
+                  aria-label="この半荘の役満を編集"
+                  className={`shrink-0 p-2 rounded-lg transition-colors ${
+                    isEditingYakuman || events.length > 0
+                      ? 'text-purple-300 bg-purple-500/10'
+                      : 'text-slate-600 opacity-60 group-hover:opacity-100 hover:text-purple-300 hover:bg-purple-500/10'
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPendingDeleteId(g.id)}
+                  aria-label="この半荘を削除"
+                  className="shrink-0 p-2 rounded-lg text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 transition-colors opacity-60 group-hover:opacity-100"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setPendingDeleteId(g.id)}
-                aria-label="この半荘を削除"
-                className="shrink-0 p-2 rounded-lg text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 transition-colors opacity-60 group-hover:opacity-100"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+
+              {events.length > 0 && !isEditingYakuman && (
+                <div className="flex flex-wrap gap-1.5 mt-2.5 pl-11">
+                  {events.map((event) => (
+                    <span
+                      key={event.id}
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-950/50 text-purple-300 border border-purple-500/30"
+                    >
+                      {name(event.playerId)}:{' '}
+                      {event.yakumanIds.map((id) => findYakuman(id)?.name ?? id).join(' + ')}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {isEditingYakuman && (
+                <div className="mt-3">
+                  <YakumanInput
+                    players={players}
+                    participantIds={sorted.map((s) => s.playerId)}
+                    events={events}
+                    onChange={(next) => onUpdateYakuman(g.id, next)}
+                  />
+                </div>
+              )}
             </div>
           );
         })}
