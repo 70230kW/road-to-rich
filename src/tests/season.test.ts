@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterHistoryBySeason, getAvailableSeasons } from '../lib/season';
+import { filterHistoryBySeason, formatSeasonLabel, getAvailableSeasons } from '../lib/season';
 import type { DayRecord } from '../types';
 
 function day(id: string, date: string): DayRecord {
@@ -27,12 +27,35 @@ describe('filterHistoryBySeason', () => {
     expect(filterHistoryBySeason(history, 'all')).toEqual(history);
   });
 
-  it('filters down to only the days in the given year', () => {
-    const result = filterHistoryBySeason(history, 2026);
+  it('filters down to only the days in the given year when month is "all"', () => {
+    const result = filterHistoryBySeason(history, { year: 2026, month: 'all' });
     expect(result.map((d) => d.id)).toEqual(['d1', 'd2']);
   });
 
+  it('filters down to only the days in the given year AND month', () => {
+    const result = filterHistoryBySeason(history, { year: 2026, month: 1 });
+    expect(result.map((d) => d.id)).toEqual(['d1']);
+  });
+
   it('returns an empty array for a year with no data', () => {
-    expect(filterHistoryBySeason(history, 2025)).toEqual([]);
+    expect(filterHistoryBySeason(history, { year: 2025, month: 'all' })).toEqual([]);
+  });
+
+  it('returns an empty array for a year/month combination with no data', () => {
+    expect(filterHistoryBySeason(history, { year: 2026, month: 12 })).toEqual([]);
+  });
+});
+
+describe('formatSeasonLabel', () => {
+  it("labels 'all' as 通算", () => {
+    expect(formatSeasonLabel('all')).toBe('通算');
+  });
+
+  it('labels a whole year as ◯◯年', () => {
+    expect(formatSeasonLabel({ year: 2026, month: 'all' })).toBe('2026年');
+  });
+
+  it('labels a specific month as ◯◯年◯月', () => {
+    expect(formatSeasonLabel({ year: 2026, month: 5 })).toBe('2026年5月');
   });
 });

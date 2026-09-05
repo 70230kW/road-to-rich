@@ -11,7 +11,7 @@ import {
   computeRanking,
   computeYakumanAchievements,
 } from '../../lib/stats';
-import { filterHistoryBySeason, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
+import { filterHistoryBySeason, formatSeasonLabel, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
 import { computeRankRaceSeries } from '../../lib/rankRace';
 import { computeSeasonReport } from '../../lib/seasonReport';
 import { formatSignedYen } from '../../lib/format';
@@ -42,7 +42,7 @@ export function DashboardSection() {
   const seasons = useMemo(() => getAvailableSeasons(fullHistory), [fullHistory]);
   const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
   const [showReport, setShowReport] = useState(false);
-  const seasonLabel = season === 'all' ? '通算' : `${season}`;
+  const seasonLabel = formatSeasonLabel(season);
   const seasonReportData = useMemo(() => computeSeasonReport(history, players, settings), [history, players, settings]);
 
   const seasonSelect = (
