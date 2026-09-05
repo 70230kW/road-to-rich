@@ -150,12 +150,12 @@ export function DayCard({
                   <div className="text-xs font-bold text-slate-400 mb-2 tracking-wide pl-1">{name(pid)}</div>
                   <div
                     className={`font-mono font-black text-xl md:text-2xl pl-1 ${
-                      entry.totalWithFee >= 0 ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]' : 'text-rose-400'
+                      entry.totalWithoutFee >= 0 ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]' : 'text-rose-400'
                     }`}
                   >
-                    {formatSignedYen(entry.totalWithFee)}
+                    {formatSignedYen(entry.totalWithoutFee)}
                   </div>
-                  <div className="text-[10px] text-slate-600 font-mono mt-1 pl-1">場代抜き {formatSignedYen(entry.totalWithoutFee)}</div>
+                  <div className="text-[10px] text-slate-600 font-mono mt-1 pl-1">場代込み {formatSignedYen(entry.totalWithFee)}</div>
                   <div className="text-[10px] text-slate-600 font-mono pl-1">
                     チップ {entry.chipCount > 0 ? '+' : ''}
                     {entry.chipCount}枚
