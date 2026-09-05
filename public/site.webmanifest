@@ -1,7 +1,7 @@
 {
-  "name": "ROAD to RICH",
-  "short_name": "ROAD to RICH",
-  "description": "麻雀成績・精算管理システム",
+  "name": "じゃんかね",
+  "short_name": "じゃんかね",
+  "description": "じゃんかね（ROAD TO RICH） - 麻雀成績・精算管理システム",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#030712",
