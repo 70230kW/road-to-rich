@@ -17,7 +17,20 @@ const accentIconClass: Record<Accent, string> = {
   emerald: 'text-emerald-500/70',
 };
 
-/** シーズン（年）選択プルダウン。「通算」+ history に含まれる年ごとの選択肢を表示する。 */
+const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
+
+function toValue(season: SeasonFilter): string {
+  if (season === 'all') return 'all';
+  return `${season.year}:${season.month}`;
+}
+
+function parseValue(value: string): SeasonFilter {
+  if (value === 'all') return 'all';
+  const [yearStr, monthStr] = value.split(':');
+  return { year: Number(yearStr), month: monthStr === 'all' ? 'all' : Number(monthStr) };
+}
+
+/** シーズン（年・年月）選択プルダウン。「通算」+ history に含まれる年ごとに「通期」「1〜12月」を表示する。 */
 export function SeasonSelect({
   season,
   onChange,
@@ -32,16 +45,21 @@ export function SeasonSelect({
   return (
     <div className="relative shrink-0">
       <select
-        value={season === 'all' ? 'all' : String(season)}
-        onChange={(e) => onChange(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+        value={toValue(season)}
+        onChange={(e) => onChange(parseValue(e.target.value))}
         aria-label="シーズンを選択"
-        className={`bg-abyss border border-slate-700/80 rounded-xl pl-4 pr-9 py-2 text-slate-100 focus:outline-none focus:ring-1 font-bold text-xs sm:text-sm appearance-none transition-all cursor-pointer tracking-wide shadow-inner ${accentClass[accent]}`}
+        className={`bg-abyss border border-slate-700/80 rounded-xl pl-4 pr-9 py-2 text-slate-100 focus:outline-none focus:ring-1 font-bold text-xs sm:text-sm appearance-none transition-all cursor-pointer tracking-wide shadow-inner max-w-[9rem] sm:max-w-none ${accentClass[accent]}`}
       >
         <option value="all">通算</option>
         {seasons.map((year) => (
-          <option key={year} value={year}>
-            {year}
-          </option>
+          <optgroup key={year} label={`${year}年`}>
+            <option value={`${year}:all`}>{year}年（通期）</option>
+            {MONTHS.map((month) => (
+              <option key={month} value={`${year}:${month}`}>
+                {year}年{month}月
+              </option>
+            ))}
+          </optgroup>
         ))}
       </select>
       <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${accentIconClass[accent]}`} />
