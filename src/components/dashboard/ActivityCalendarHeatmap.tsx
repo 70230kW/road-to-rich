@@ -15,7 +15,7 @@ function intensityClass(count: number): string {
   if (count === 1) return 'bg-cyan-900';
   if (count <= 3) return 'bg-cyan-700';
   if (count <= 6) return 'bg-cyan-500';
-  return 'bg-cyan-300 shadow-[0_0_6px_rgba(34,211,238,0.8)]';
+  return 'bg-cyan-300 shadow-[0_0_6px_rgba(251,191,36,0.8)]';
 }
 
 function buildWeeks(year: number, activity: Map<string, number>): DayCell[][] {

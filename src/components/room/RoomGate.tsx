@@ -101,7 +101,7 @@ export function RoomGate({ children }: { children: ReactNode }) {
         <div className="absolute -top-20 -right-20 w-48 h-48 bg-cyan-500/10 blur-[60px] rounded-full pointer-events-none" />
 
         <div className="relative z-10 flex items-center gap-3">
-          <Radio className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+          <Radio className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
           <h2 className="font-black text-lg md:text-xl tracking-wide text-cyan-100">ルームに入る</h2>
         </div>
         <p className="relative z-10 text-sm text-slate-400 leading-relaxed">

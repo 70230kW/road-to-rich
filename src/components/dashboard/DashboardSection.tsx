@@ -105,7 +105,7 @@ export function DashboardSection() {
           value={stats.mostHanchansPlayed ? `${stats.mostHanchansPlayed.value} GAMES` : '-'}
           sub={stats.mostHanchansPlayed?.playerName}
           icon={<Gamepad2 />}
-          color="cyan"
+          color="sky"
           onClick={stats.mostHanchansPlayed ? () => setSelectedPlayerId(stats.mostHanchansPlayed!.playerId) : undefined}
         />
         <StatCard

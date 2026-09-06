@@ -82,7 +82,7 @@ export function RadarChart({ rows }: { rows: RadarRow[] }) {
     <div>
       <svg
         viewBox={`0 0 ${SIZE} ${SIZE}`}
-        className="w-full h-auto max-w-md mx-auto drop-shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+        className="w-full h-auto max-w-md mx-auto drop-shadow-[0_0_20px_rgba(245,158,11,0.15)]"
         role="img"
         aria-label="能力レーダーチャート"
       >
@@ -125,7 +125,7 @@ export function RadarChart({ rows }: { rows: RadarRow[] }) {
               {AXES.map((axis, i) => {
                 const p = pointAt(i, radiusFor(i, row[axis.key] as number));
                 return (
-                  <circle key={`${row.playerId}-${axis.key}`} cx={p.x} cy={p.y} r="3.5" fill="#030712" stroke={color} strokeWidth="2">
+                  <circle key={`${row.playerId}-${axis.key}`} cx={p.x} cy={p.y} r="3.5" fill="#08070a" stroke={color} strokeWidth="2">
                     <title>{`${row.name} / ${axis.label}: ${axis.format(row)}`}</title>
                   </circle>
                 );

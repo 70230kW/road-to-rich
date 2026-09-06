@@ -6,10 +6,36 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --font-sans: "Noto Sans JP", "Inter", sans-serif;
 
-  --color-abyss: #030712;
-  --color-panel: #0b1120;
-  --color-panel-2: #0f172a;
-  --color-panel-3: #0a0f1d;
+  --color-abyss: #08070a;
+  --color-panel: #14100b;
+  --color-panel-2: #1a150d;
+  --color-panel-3: #100d08;
+
+  /* 黒×ゴールドの高級感テーマ: cyan/blue のブランドアクセントをゴールドに置き換える。
+     Tailwind ユーティリティ（text-cyan-400 など）はこのトークンを参照して自動的に再配色される。 */
+  --color-cyan-50: #fffbeb;
+  --color-cyan-100: #fef3c7;
+  --color-cyan-200: #fde68a;
+  --color-cyan-300: #fcd34d;
+  --color-cyan-400: #fbbf24;
+  --color-cyan-500: #f59e0b;
+  --color-cyan-600: #d97706;
+  --color-cyan-700: #b45309;
+  --color-cyan-800: #92400e;
+  --color-cyan-900: #78350f;
+  --color-cyan-950: #451a03;
+
+  --color-blue-50: #fffbeb;
+  --color-blue-100: #fef3c7;
+  --color-blue-200: #fde68a;
+  --color-blue-300: #fcd34d;
+  --color-blue-400: #fbbf24;
+  --color-blue-500: #f59e0b;
+  --color-blue-600: #d97706;
+  --color-blue-700: #b45309;
+  --color-blue-800: #92400e;
+  --color-blue-900: #78350f;
+  --color-blue-950: #451a03;
 
   --animate-fade-in: fade-in 0.5s ease-out;
   --animate-logo-pulse: logo-pulse 2.2s ease-in-out infinite;
@@ -36,11 +62,11 @@
   0%,
   100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.6));
+    filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6));
   }
   50% {
     transform: scale(1.06);
-    filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.9));
+    filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.9));
   }
 }
 
@@ -132,7 +158,7 @@ body {
 }
 
 ::selection {
-  background-color: rgba(6, 182, 212, 0.3);
+  background-color: rgba(245, 158, 11, 0.3);
 }
 
 ::-webkit-scrollbar {
@@ -143,7 +169,7 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #0891b2, #164e63);
+  background: linear-gradient(180deg, #d97706, #78350f);
   border-radius: 999px;
 }
 

@@ -1,9 +1,9 @@
 import { cloneElement, type ReactElement } from 'react';
 
-type Color = 'cyan' | 'fuchsia' | 'yellow' | 'emerald' | 'rose' | 'indigo';
+type Color = 'sky' | 'fuchsia' | 'yellow' | 'emerald' | 'rose' | 'indigo';
 
 const colorMap: Record<Color, string> = {
-  cyan: 'text-cyan-400 bg-[#0a192f]/60 border-cyan-800/60 shadow-[0_4px_20px_rgba(6,182,212,0.15)]',
+  sky: 'text-sky-400 bg-[#0a1a2f]/60 border-sky-800/60 shadow-[0_4px_20px_rgba(14,165,233,0.15)]',
   fuchsia: 'text-fuchsia-400 bg-fuchsia-950/20 border-fuchsia-800/60 shadow-[0_4px_20px_rgba(232,121,249,0.15)]',
   yellow: 'text-yellow-400 bg-yellow-950/20 border-yellow-800/60 shadow-[0_4px_20px_rgba(250,204,21,0.15)]',
   emerald: 'text-emerald-400 bg-emerald-950/20 border-emerald-800/60 shadow-[0_4px_20px_rgba(52,211,153,0.15)]',
@@ -12,7 +12,7 @@ const colorMap: Record<Color, string> = {
 };
 
 const textMap: Record<Color, string> = {
-  cyan: 'text-cyan-300 drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]',
+  sky: 'text-sky-300 drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]',
   fuchsia: 'text-fuchsia-300 drop-shadow-[0_0_10px_rgba(232,121,249,0.8)]',
   yellow: 'text-yellow-300 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]',
   emerald: 'text-emerald-300 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]',

@@ -2,7 +2,8 @@ import { lazy, Suspense, useState } from 'react';
 import { BarChart3, BookOpen, Crown, Gauge, History, Plus, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { Header } from './components/layout/Header';
-import { TabNav, type TabDef } from './components/layout/TabNav';
+import { BottomNav, type PrimaryTabDef } from './components/layout/BottomNav';
+import { MoreMenu } from './components/layout/MoreMenu';
 import { InputSection } from './components/input/InputSection';
 import { RoomGate } from './components/room/RoomGate';
 import { RoomBadge } from './components/room/RoomBadge';
@@ -41,13 +42,17 @@ function TabLoading() {
   return <LoadingScreen label="読み込み中" />;
 }
 
-const TABS: TabDef[] = [
-  { id: 'input', name: '成績入力・精算', icon: Plus },
-  { id: 'ranking', name: 'ランキング', icon: Crown },
+// 画面下部の固定ナビゲーションに収まる主要4タブ。残りは「その他」メニューにまとめる。
+const PRIMARY_TABS: PrimaryTabDef[] = [
+  { id: 'ranking', name: '成績', icon: Crown },
+  { id: 'dashboard', name: '分析', icon: BarChart3 },
+  { id: 'input', name: '記録', icon: Plus },
+  { id: 'trophies', name: '実績', icon: Trophy },
+];
+
+const OTHER_TABS: PrimaryTabDef[] = [
   { id: 'rank', name: '段位', icon: Gauge },
-  { id: 'dashboard', name: 'ダッシュボード', icon: BarChart3 },
   { id: 'simulator', name: '成績予想', icon: Telescope },
-  { id: 'trophies', name: 'トロフィー', icon: Trophy },
   { id: 'history', name: '対戦履歴', icon: History },
   { id: 'rules', name: 'ルール', icon: BookOpen },
   { id: 'players', name: '雀士登録', icon: Users },
@@ -64,17 +69,22 @@ function App() {
 
 function AppShell() {
   const [activeTab, setActiveTab] = useState<string>('input');
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const isMoreActive = OTHER_TABS.some((t) => t.id === activeTab);
+
+  const selectTab = (id: string) => {
+    setActiveTab(id);
+    setIsMoreOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-abyss text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-hidden relative">
       <Background />
       <RippleLayer />
 
-      <div className="max-w-md md:max-w-5xl mx-auto p-4 md:p-6 relative z-10">
+      <div className="max-w-md md:max-w-5xl mx-auto p-4 md:p-6 pb-28 relative z-10">
         <Header />
         <RoomBadge />
-
-        <TabNav tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
 
         <div className="backdrop-blur-2xl bg-panel/70 border border-slate-700/50 rounded-[2rem] p-5 sm:p-6 md:p-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] relative overflow-hidden min-h-[500px]">
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
@@ -83,7 +93,7 @@ function AppShell() {
           <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-500/10 blur-[60px] rounded-full pointer-events-none" />
 
           <div className="relative z-10">
-            {activeTab === 'input' && <InputSection onNavigateToPlayers={() => setActiveTab('players')} />}
+            {activeTab === 'input' && <InputSection onNavigateToPlayers={() => selectTab('players')} />}
             <Suspense fallback={<TabLoading />}>
               {activeTab === 'dashboard' && <DashboardSection />}
               {activeTab === 'history' && <HistorySection />}
@@ -102,6 +112,18 @@ function AppShell() {
           じゃんかね — Provided by K.Waga
         </footer>
       </div>
+
+      <BottomNav
+        tabs={PRIMARY_TABS}
+        activeTab={activeTab}
+        isMoreActive={isMoreActive}
+        onChange={selectTab}
+        onOpenMore={() => setIsMoreOpen(true)}
+      />
+
+      {isMoreOpen && (
+        <MoreMenu tabs={OTHER_TABS} activeTab={activeTab} onSelect={selectTab} onClose={() => setIsMoreOpen(false)} />
+      )}
     </div>
   );
 }

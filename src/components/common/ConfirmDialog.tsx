@@ -29,7 +29,7 @@ export function ConfirmDialog({
       aria-labelledby="confirm-dialog-title"
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative w-full max-w-md bg-[#0b1120] border border-rose-500/40 rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(244,63,94,0.2)] overflow-hidden">
+      <div className="relative w-full max-w-md bg-[#14100b] border border-rose-500/40 rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(244,63,94,0.2)] overflow-hidden">
         <div className="absolute -top-16 -right-16 w-40 h-40 bg-rose-500/10 blur-[60px] rounded-full pointer-events-none" />
         <div className="relative z-10 flex items-start gap-4">
           <div
@@ -60,7 +60,7 @@ export function ConfirmDialog({
             className={`flex-1 px-5 py-3 rounded-xl font-black tracking-wide transition-all border ${
               danger
                 ? 'bg-rose-600/90 hover:bg-rose-500 border-rose-400/50 text-white shadow-[0_0_20px_rgba(244,63,94,0.3)]'
-                : 'bg-cyan-600/90 hover:bg-cyan-500 border-cyan-400/50 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)]'
+                : 'bg-cyan-600/90 hover:bg-cyan-500 border-cyan-400/50 text-white shadow-[0_0_20px_rgba(245,158,11,0.3)]'
             }`}
           >
             {confirmLabel}

@@ -4,8 +4,8 @@
   "description": "じゃんかね（ROAD TO RICH） - 麻雀成績・精算管理システム",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#030712",
-  "theme_color": "#030712",
+  "background_color": "#08070a",
+  "theme_color": "#08070a",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

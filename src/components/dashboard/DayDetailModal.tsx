@@ -31,7 +31,7 @@ function DaySessionBlock({ day, players }: { day: DayRecord; players: Player[] }
   return (
     <div className="bg-abyss/60 p-5 rounded-2xl border border-slate-800/80">
       <div className="text-xs text-slate-400 mb-4 flex flex-wrap items-center gap-3 font-bold tracking-wider">
-        <span className="bg-[#0a192f] border border-cyan-900/50 px-3 py-1 rounded-md text-cyan-400">
+        <span className="bg-[#241c0f] border border-cyan-900/50 px-3 py-1 rounded-md text-cyan-400">
           {day.games.length} 半荘
         </span>
         <span>場代: {formatYen(day.tableFee)}円</span>
@@ -113,7 +113,7 @@ export function DayDetailModal({
       aria-labelledby="day-detail-title"
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-2xl bg-[#0b1120] border border-emerald-500/40 rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(16,185,129,0.2)] overflow-hidden max-h-[85vh] overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-[#14100b] border border-emerald-500/40 rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(16,185,129,0.2)] overflow-hidden max-h-[85vh] overflow-y-auto">
         <div className="absolute -top-16 -right-16 w-40 h-40 bg-emerald-500/10 blur-[60px] rounded-full pointer-events-none" />
 
         <div className="relative z-10 flex items-start justify-between gap-4 mb-6">

@@ -17,7 +17,7 @@ export function CurrentProfitsBar({ games, players }: { games: Game[]; players: 
   if (games.length === 0) return null;
 
   return (
-    <div className="bg-panel-2/60 p-5 md:p-6 rounded-3xl border border-cyan-900/40 shadow-[0_0_20px_rgba(6,182,212,0.1)] backdrop-blur-sm animate-fade-in">
+    <div className="bg-panel-2/60 p-5 md:p-6 rounded-3xl border border-cyan-900/40 shadow-[0_0_20px_rgba(245,158,11,0.1)] backdrop-blur-sm animate-fade-in">
       <h3 className="text-xs font-black text-cyan-400 mb-4 tracking-[0.2em] uppercase flex items-center">
         <Activity className="w-4 h-4 mr-2 animate-pulse" /> 現在の暫定損益 ({games.length}G)
       </h3>
