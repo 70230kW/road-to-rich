@@ -6,10 +6,10 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --font-sans: "Noto Sans JP", "Inter", sans-serif;
 
-  --color-abyss: #08070a;
-  --color-panel: #14100b;
-  --color-panel-2: #1a150d;
-  --color-panel-3: #100d08;
+  --color-abyss: #1c1c1e;
+  --color-panel: #232325;
+  --color-panel-2: #2a2a2c;
+  --color-panel-3: #1f1f21;
 
   /* 黒×ゴールドの高級感テーマ: cyan/blue のブランドアクセントをゴールドに置き換える。
      Tailwind ユーティリティ（text-cyan-400 など）はこのトークンを参照して自動的に再配色される。 */
@@ -42,8 +42,6 @@
   --animate-dot-fade: dot-fade 1.4s ease-in-out infinite;
   --animate-scan-bar: scan-bar 1.6s ease-in-out infinite;
   --animate-ripple: ripple 600ms ease-out;
-  --animate-blob-drift: blob-drift 16s ease-in-out infinite;
-  --animate-grid-scroll: grid-scroll 24s linear infinite;
   --animate-tile-fall: tile-fall 20s linear infinite;
 }
 
@@ -101,25 +99,6 @@
   }
 }
 
-@keyframes blob-drift {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(6%, 8%) scale(1.15);
-  }
-}
-
-@keyframes grid-scroll {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: 4rem 4rem;
-  }
-}
-
 @keyframes tile-fall {
   0% {
     transform: translateY(-10vh) rotate(0deg);
@@ -138,8 +117,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-blob-drift,
-  .animate-grid-scroll,
   .animate-tile-fall {
     animation: none;
   }
