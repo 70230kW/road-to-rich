@@ -104,7 +104,7 @@ export function SettlementForm({
     <div className="space-y-8 animate-fade-in">
       <div className="flex items-center justify-between border-b border-slate-700/50 pb-5 relative">
         <h2 className="text-2xl md:text-3xl font-black font-display text-transparent bg-clip-text bg-gradient-to-r from-cyan-100 to-cyan-400 flex items-center tracking-wider">
-          <DollarSign className="w-7 h-7 md:w-8 md:h-8 mr-3 text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]" />
+          <DollarSign className="w-7 h-7 md:w-8 md:h-8 mr-3 text-cyan-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]" />
           本日の精算
         </h2>
         <div className="absolute -bottom-[1px] left-0 w-32 h-[2px] bg-gradient-to-r from-cyan-400 to-transparent" />
@@ -156,7 +156,7 @@ export function SettlementForm({
                   type="number"
                   value={chipRateInput}
                   onChange={(e) => setChipRateInput(e.target.value)}
-                  className={`w-28 bg-[#0a0f1d] border rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-1 font-mono text-right text-lg transition-all ${
+                  className={`w-28 bg-[#100d08] border rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-1 font-mono text-right text-lg transition-all ${
                     chipRateMissing && attemptedSave
                       ? 'border-rose-500/70 focus:border-rose-400 focus:ring-rose-400/50'
                       : 'border-slate-700 focus:border-fuchsia-400 focus:ring-fuchsia-400/50'
@@ -181,7 +181,7 @@ export function SettlementForm({
                       type="number"
                       value={chipInputs[pid] ?? ''}
                       onChange={(e) => setChipInputs({ ...chipInputs, [pid]: e.target.value })}
-                      className={`w-28 bg-[#0a0f1d] border rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-1 font-mono text-right text-lg transition-all ${
+                      className={`w-28 bg-[#100d08] border rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-1 font-mono text-right text-lg transition-all ${
                         !chipsBalanced && attemptedSave
                           ? 'border-rose-500/70 focus:border-rose-400 focus:ring-rose-400/50'
                           : 'border-slate-700 focus:border-fuchsia-400 focus:ring-fuchsia-400/50'
@@ -198,7 +198,7 @@ export function SettlementForm({
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-[#0f172a] to-[#070b14] p-6 md:p-8 rounded-3xl border border-slate-700/50 shadow-[0_0_30px_rgba(0,0,0,0.5)] relative">
+        <div className="bg-gradient-to-br from-[#1a150d] to-[#050403] p-6 md:p-8 rounded-3xl border border-slate-700/50 shadow-[0_0_30px_rgba(0,0,0,0.5)] relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 blur-[40px] rounded-full pointer-events-none" />
           <h3 className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400 mb-6 tracking-[0.2em] uppercase flex items-center">
             <Activity className="w-5 h-5 mr-2 text-cyan-400" />
@@ -218,7 +218,7 @@ export function SettlementForm({
                       {name(pid)}
                     </span>
 
-                    <div className="flex items-center justify-between gap-3 bg-[#0a0f1d] px-4 py-2.5 rounded-xl border border-slate-800">
+                    <div className="flex items-center justify-between gap-3 bg-[#100d08] px-4 py-2.5 rounded-xl border border-slate-800">
                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">場代抜き</span>
                       <span
                         className={`font-mono font-black text-lg ${
@@ -228,7 +228,7 @@ export function SettlementForm({
                         {formatSignedYen(entry.totalWithoutFee)}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between gap-3 bg-[#0a0f1d] px-4 py-2.5 rounded-xl border border-cyan-900/50">
+                    <div className="flex items-center justify-between gap-3 bg-[#100d08] px-4 py-2.5 rounded-xl border border-cyan-900/50">
                       <span className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest flex items-center gap-1">
                         <ChevronsRight className="w-3 h-3" /> 場代込み（最終）
                       </span>

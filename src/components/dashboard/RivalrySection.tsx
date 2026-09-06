@@ -16,12 +16,12 @@ interface SlotTheme {
 
 const SLOT_THEME: SlotTheme[] = [
   {
-    text: 'text-cyan-300',
-    border: 'border-cyan-800/50',
-    bar: 'from-cyan-600 to-cyan-400',
-    focus: 'focus:border-cyan-400 focus:ring-cyan-400/50',
-    icon: 'text-cyan-500/70',
-    glow: 'drop-shadow-[0_0_10px_rgba(34,211,238,0.6)]',
+    text: 'text-sky-300',
+    border: 'border-sky-800/50',
+    bar: 'from-sky-600 to-sky-400',
+    focus: 'focus:border-sky-400 focus:ring-sky-400/50',
+    icon: 'text-sky-500/70',
+    glow: 'drop-shadow-[0_0_10px_rgba(56,189,248,0.6)]',
   },
   {
     text: 'text-fuchsia-300',

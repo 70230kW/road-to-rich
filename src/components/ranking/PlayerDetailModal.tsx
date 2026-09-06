@@ -34,7 +34,7 @@ export function PlayerDetailModal({
       aria-labelledby="player-detail-title"
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-[#0b1120] border border-cyan-500/40 rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(6,182,212,0.2)] overflow-hidden max-h-[85vh] overflow-y-auto">
+      <div className="relative w-full max-w-md bg-[#14100b] border border-cyan-500/40 rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(245,158,11,0.2)] overflow-hidden max-h-[85vh] overflow-y-auto">
         <div className="absolute -top-16 -right-16 w-40 h-40 bg-cyan-500/10 blur-[60px] rounded-full pointer-events-none" />
 
         <div className="relative z-10 flex items-start justify-between gap-4 mb-6">

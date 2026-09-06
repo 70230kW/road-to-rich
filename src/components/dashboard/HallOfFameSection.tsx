@@ -64,7 +64,7 @@ export function HallOfFameSection({ history, players }: { history: DayRecord[]; 
         <RecordCard
           icon={Swords}
           label="大接戦"
-          accent="text-cyan-400"
+          accent="text-sky-400"
           record={hallOfFame.nailbiter}
           formatValue={(r) => `${r.value.toLocaleString()}点差`}
           formatDetail={(r) => (r.opponentName ? `vs ${r.opponentName}` : null)}

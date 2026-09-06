@@ -82,7 +82,7 @@ export function SettingsSection() {
       <div className="bg-panel-2/60 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 hover:border-cyan-800/80 transition-all duration-300 backdrop-blur-sm mt-8">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <label className="text-sm font-black text-cyan-400 tracking-[0.2em] uppercase flex items-center">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 mr-2 shadow-[0_0_8px_rgba(34,211,238,1)]" />
+            <span className="w-2 h-2 rounded-full bg-cyan-400 mr-2 shadow-[0_0_8px_rgba(251,191,36,1)]" />
             順位点（ウマ・オカ込み）
           </label>
           <span
@@ -104,7 +104,7 @@ export function SettingsSection() {
                 type="number"
                 value={value}
                 onChange={(e) => handleRankChange(idx, e.target.value)}
-                className="w-full bg-[#0a192f] border border-slate-700 rounded-xl px-3 py-3 text-slate-100 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 font-mono text-lg text-center transition-all"
+                className="w-full bg-[#241c0f] border border-slate-700 rounded-xl px-3 py-3 text-slate-100 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 font-mono text-lg text-center transition-all"
               />
             </div>
           ))}

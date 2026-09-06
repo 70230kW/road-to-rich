@@ -63,7 +63,7 @@ export function PlayerSection() {
 
   const applyColor = (id: string, candidate: string) => {
     if (!HEX_COLOR_RE.test(candidate)) {
-      setColorError('有効なカラーコードを入力してください（例: #06b6d4）');
+      setColorError('有効なカラーコードを入力してください（例: #f59e0b）');
       return;
     }
     const normalized = candidate.toLowerCase();
@@ -197,7 +197,7 @@ export function PlayerSection() {
                       onChange={(e) => setHexDraft(e.target.value)}
                       onBlur={() => applyColor(p.id, hexDraft)}
                       onKeyDown={(e) => e.key === 'Enter' && applyColor(p.id, hexDraft)}
-                      placeholder="#06b6d4"
+                      placeholder="#f59e0b"
                       className={`w-32 bg-abyss border rounded-lg px-3 py-2 text-sm text-slate-100 font-mono uppercase tracking-wider focus:outline-none transition-colors ${
                         colorError ? 'border-rose-500/80 focus:border-rose-400' : 'border-slate-700/80 focus:border-cyan-400'
                       }`}

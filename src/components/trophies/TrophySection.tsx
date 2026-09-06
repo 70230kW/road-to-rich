@@ -47,7 +47,7 @@ const TIER_THEME: Record<
     earnedText: 'text-cyan-100',
     earnedBorder: 'border-cyan-300/70',
     earnedBg: 'bg-cyan-950/30',
-    earnedGlow: 'shadow-[0_0_18px_rgba(103,232,249,0.25)]',
+    earnedGlow: 'shadow-[0_0_18px_rgba(252,211,77,0.25)]',
   },
   special: {
     chipText: 'text-fuchsia-400',

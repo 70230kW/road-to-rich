@@ -23,10 +23,10 @@ export const RANK_GROUP_THEME: Record<RankGroup, { text: string; border: string;
     bar: 'from-emerald-600 to-emerald-300',
   },
   雀豪: {
-    text: 'text-cyan-300',
-    border: 'border-cyan-500/40',
-    bg: 'bg-cyan-950/30',
-    bar: 'from-cyan-600 to-cyan-300',
+    text: 'text-sky-300',
+    border: 'border-sky-500/40',
+    bg: 'bg-sky-950/30',
+    bar: 'from-sky-600 to-sky-300',
   },
   雀聖: {
     text: 'text-fuchsia-300',
