@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeHeadToHead } from '../lib/rivalry';
+import { computeGroupHeadToHead } from '../lib/rivalry';
 import type { DayRecord } from '../types';
 
 const history: DayRecord[] = [
@@ -21,7 +21,7 @@ const history: DayRecord[] = [
       },
       {
         id: 'g2',
-        // b beats a this time; c does not play, so this hanchan isn't "shared" for a-vs-c.
+        // b beats a this time; c does not play, so this hanchan isn't "shared" for groups including c.
         scores: [
           { playerId: 'b', rawScore: 40000, rank: 1, point: 4500 },
           { playerId: 'a', rawScore: 20000, rank: 3, point: -1500 },
@@ -34,26 +34,47 @@ const history: DayRecord[] = [
   },
 ];
 
-describe('computeHeadToHead', () => {
-  it('counts shared hanchans, wins by rank, and the point differential', () => {
-    const stats = computeHeadToHead(history, 'a', 'b');
-    // g1: a rank1 beats b rank3. g2: b rank1 beats a rank3.
-    expect(stats.sharedHanchanCount).toBe(2);
-    expect(stats.aWins).toBe(1);
-    expect(stats.bWins).toBe(1);
-    // g1: 4500 - (-1500) = 6000. g2: -1500 - 4500 = -6000. Total 0.
-    expect(stats.totalPointDiff).toBe(0);
+describe('computeGroupHeadToHead', () => {
+  it('counts shared hanchans and each player wins/points for a 2-player group', () => {
+    const result = computeGroupHeadToHead(history, ['a', 'b']);
+    expect(result.sharedHanchanCount).toBe(2);
+    expect(result.players.map((p) => p.playerId)).toEqual(['a', 'b']);
+    expect(result.players[0].wins).toBe(1); // a won g1
+    expect(result.players[1].wins).toBe(1); // b won g2
+    expect(result.players[0].totalPoints).toBe(3000); // 4500 + -1500
+    expect(result.players[1].totalPoints).toBe(3000); // -1500 + 4500
   });
 
-  it('only counts hanchans where both players actually participated', () => {
-    const stats = computeHeadToHead(history, 'a', 'c');
-    expect(stats.sharedHanchanCount).toBe(1);
-    expect(stats.aWins).toBe(1);
-    expect(stats.bWins).toBe(0);
+  it('only counts hanchans where every selected player participated', () => {
+    const result = computeGroupHeadToHead(history, ['a', 'c']);
+    expect(result.sharedHanchanCount).toBe(1); // only g1; c sat out g2
   });
 
-  it('returns all-zero stats for a pair that never shared a table', () => {
-    const stats = computeHeadToHead(history, 'c', 'e');
-    expect(stats).toEqual({ sharedHanchanCount: 0, aWins: 0, bWins: 0, totalPointDiff: 0 });
+  it('supports 3-player groups, picking the best rank within just the selected group', () => {
+    const result = computeGroupHeadToHead(history, ['a', 'b', 'd']);
+    // g1: a=1, b=3, d=4 among these three -> a has the best rank -> a wins
+    // g2: a=3, b=1, d=2 among these three -> b has the best rank -> b wins
+    expect(result.sharedHanchanCount).toBe(2);
+    const byId = Object.fromEntries(result.players.map((p) => [p.playerId, p]));
+    expect(byId.a.wins).toBe(1);
+    expect(byId.b.wins).toBe(1);
+    expect(byId.d.wins).toBe(0);
+  });
+
+  it('supports 4-player groups', () => {
+    const result = computeGroupHeadToHead(history, ['a', 'b', 'c', 'd']);
+    // only g1 has all four players (g2 has e instead of c)
+    expect(result.sharedHanchanCount).toBe(1);
+    const byId = Object.fromEntries(result.players.map((p) => [p.playerId, p]));
+    expect(byId.a.wins).toBe(1);
+    expect(byId.b.wins).toBe(0);
+    expect(byId.c.wins).toBe(0);
+    expect(byId.d.wins).toBe(0);
+  });
+
+  it('returns all-zero stats for a group that never fully shared a table', () => {
+    const result = computeGroupHeadToHead(history, ['c', 'e']);
+    expect(result.sharedHanchanCount).toBe(0);
+    expect(result.players.every((p) => p.wins === 0 && p.totalPoints === 0)).toBe(true);
   });
 });
