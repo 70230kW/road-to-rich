@@ -45,7 +45,7 @@ export function BottomNav({
             >
               <Icon
                 className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform ${
-                  isActive ? 'scale-110 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : ''
+                  isActive ? 'scale-110 drop-shadow-[0_0_8px_rgb(var(--accent-rgb-500)/0.8)]' : ''
                 }`}
               />
               <span className="text-[10px] sm:text-xs font-bold tracking-wide">{tab.name}</span>
@@ -63,7 +63,7 @@ export function BottomNav({
         >
           <LayoutGrid
             className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform ${
-              isMoreActive ? 'scale-110 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]' : ''
+              isMoreActive ? 'scale-110 drop-shadow-[0_0_8px_rgb(var(--accent-rgb-500)/0.8)]' : ''
             }`}
           />
           <span className="text-[10px] sm:text-xs font-bold tracking-wide">その他</span>

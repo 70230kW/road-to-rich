@@ -53,6 +53,10 @@ function ConnectingScreen({ roomCode }: { roomCode: string }) {
   );
 }
 
+// キャッシュ済みセッションだと接続が一瞬で完了し、ローディング演出が
+// ほぼ表示されないまま消えてしまうため、接続開始からの最低表示時間を設ける。
+const MIN_CONNECTING_DISPLAY_MS = 600;
+
 export function RoomGate({ children }: { children: ReactNode }) {
   const roomCode = useAppStore((s) => s.roomCode);
   const status = useAppStore((s) => s.connectionStatus);
@@ -62,6 +66,10 @@ export function RoomGate({ children }: { children: ReactNode }) {
   const [input, setInput] = useState('');
   const [attempted, setAttempted] = useState(false);
   const autoJoinedRef = useRef(false);
+
+  const [minDisplayDone, setMinDisplayDone] = useState(false);
+  const prevStatusRef = useRef(status);
+  const minDisplayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (autoJoinedRef.current || !isFirebaseConfigured()) return;
@@ -73,11 +81,27 @@ export function RoomGate({ children }: { children: ReactNode }) {
     }
   }, [connectToRoom]);
 
+  useEffect(() => {
+    const prevStatus = prevStatusRef.current;
+    prevStatusRef.current = status;
+    if (status === 'connecting' && prevStatus !== 'connecting') {
+      setMinDisplayDone(false);
+      if (minDisplayTimerRef.current) clearTimeout(minDisplayTimerRef.current);
+      minDisplayTimerRef.current = setTimeout(() => setMinDisplayDone(true), MIN_CONNECTING_DISPLAY_MS);
+    }
+  }, [status]);
+
+  useEffect(() => {
+    return () => {
+      if (minDisplayTimerRef.current) clearTimeout(minDisplayTimerRef.current);
+    };
+  }, []);
+
   if (!isFirebaseConfigured()) {
     return <ConfigMissingScreen />;
   }
 
-  if (roomCode && status === 'connecting') {
+  if (roomCode && (status === 'connecting' || (status === 'synced' && !minDisplayDone))) {
     return <ConnectingScreen roomCode={roomCode} />;
   }
 
@@ -101,7 +125,7 @@ export function RoomGate({ children }: { children: ReactNode }) {
         <div className="absolute -top-20 -right-20 w-48 h-48 bg-cyan-500/10 blur-[60px] rounded-full pointer-events-none" />
 
         <div className="relative z-10 flex items-center gap-3">
-          <Radio className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+          <Radio className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgb(var(--accent-rgb-400)/0.8)]" />
           <h2 className="font-black text-lg md:text-xl tracking-wide text-cyan-100">ルームに入る</h2>
         </div>
         <p className="relative z-10 text-sm text-slate-400 leading-relaxed">

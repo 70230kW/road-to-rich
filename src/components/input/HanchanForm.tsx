@@ -118,10 +118,10 @@ export function HanchanForm({
     <div className="space-y-8 animate-fade-in">
       <div className="flex justify-between items-end border-b border-slate-700/50 pb-5 relative">
         <h2 className="text-2xl md:text-3xl font-black font-display text-transparent bg-clip-text bg-gradient-to-r from-cyan-100 to-cyan-400 flex items-center tracking-wider">
-          <Gamepad2 className="w-7 h-7 md:w-8 md:h-8 mr-3 text-cyan-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]" />
+          <Gamepad2 className="w-7 h-7 md:w-8 md:h-8 mr-3 text-cyan-400 drop-shadow-[0_0_10px_rgb(var(--accent-rgb-400)/0.8)]" />
           半荘成績入力
         </h2>
-        <div className="text-cyan-400 font-mono font-black bg-cyan-950/40 px-3 md:px-4 py-1.5 rounded-xl border border-cyan-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)] tracking-widest text-xs md:text-sm">
+        <div className="text-cyan-400 font-mono font-black bg-cyan-950/40 px-3 md:px-4 py-1.5 rounded-xl border border-cyan-500/30 shadow-[0_0_15px_rgb(var(--accent-rgb-500)/0.2)] tracking-widest text-xs md:text-sm">
           {playerCount}人麻雀
         </div>
         <div className="absolute -bottom-[1px] left-0 w-32 h-[2px] bg-gradient-to-r from-cyan-400 to-transparent" />
@@ -168,7 +168,7 @@ export function HanchanForm({
                   key={i}
                   className={`flex items-center gap-2 sm:gap-4 p-2.5 sm:p-4 md:p-5 rounded-2xl border transition-all duration-300 ${
                     isAuto
-                      ? 'bg-cyan-950/20 border-cyan-800/50 shadow-[0_0_15px_rgba(245,158,11,0.05)]'
+                      ? 'bg-cyan-950/20 border-cyan-800/50 shadow-[0_0_15px_rgb(var(--accent-rgb-500)/0.05)]'
                       : 'bg-panel-2/60 border-slate-700/50 hover:border-slate-500/50'
                   }`}
                 >
@@ -216,7 +216,7 @@ export function HanchanForm({
                     </div>
                     <span
                       className={`font-mono font-black text-base sm:text-xl md:text-2xl w-6 sm:w-9 md:w-12 ${
-                        isAuto ? 'text-cyan-500/80 drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]' : 'text-slate-500'
+                        isAuto ? 'text-cyan-500/80 drop-shadow-[0_0_5px_rgb(var(--accent-rgb-500)/0.5)]' : 'text-slate-500'
                       }`}
                     >
                       00
