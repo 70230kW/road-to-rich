@@ -10,7 +10,7 @@ const accentGradient: Record<Accent, string> = {
 };
 
 const accentIcon: Record<Accent, string> = {
-  cyan: 'text-cyan-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]',
+  cyan: 'text-cyan-400 drop-shadow-[0_0_10px_rgb(var(--accent-rgb-400)/0.8)]',
   fuchsia: 'text-fuchsia-400 drop-shadow-[0_0_10px_rgba(232,121,249,0.8)]',
   yellow: 'text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]',
   emerald: 'text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]',

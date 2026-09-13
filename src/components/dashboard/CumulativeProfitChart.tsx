@@ -44,7 +44,7 @@ export function CumulativeProfitChart({ series }: { series: CumulativeSeries }) 
     <div className="pb-4">
       <svg
         viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-        className="w-full h-auto drop-shadow-[0_0_20px_rgba(245,158,11,0.15)]"
+        className="w-full h-auto drop-shadow-[0_0_20px_rgb(var(--accent-rgb-500)/0.15)]"
         role="img"
         aria-label="累計収支推移グラフ"
       >

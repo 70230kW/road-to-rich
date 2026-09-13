@@ -11,7 +11,8 @@ export function RoomBadge() {
 
   if (!roomCode) return null;
 
-  const dotColor = status === 'synced' ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]' : 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)]';
+  const dotColor =
+    status === 'synced' ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]' : 'bg-cyan-400 shadow-[0_0_8px_rgb(var(--accent-rgb-400)/0.9)]';
 
   return (
     <div className="flex items-center justify-center gap-2 mb-4 relative z-10">

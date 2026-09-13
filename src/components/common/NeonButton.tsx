@@ -65,9 +65,9 @@ export function NeonButton({ variant = 'primary', children, className = '', ...r
       {...rest}
       className={`relative group overflow-hidden rounded-2xl disabled:opacity-40 disabled:pointer-events-none ${className}`}
     >
-      <div className="absolute inset-0 bg-[#241c0f] border-2 border-cyan-700/50 group-hover:border-cyan-400 transition-colors duration-300 rounded-2xl" />
+      <div className="absolute inset-0 bg-panel-3 border-2 border-cyan-700/50 group-hover:border-cyan-400 transition-colors duration-300 rounded-2xl" />
       <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/10 to-cyan-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-      <div className="relative flex items-center justify-center py-4 md:py-5 font-black text-base md:text-lg text-cyan-300 group-hover:text-cyan-100 tracking-widest drop-shadow-[0_0_8px_rgba(251,191,36,0.5)] px-4">
+      <div className="relative flex items-center justify-center py-4 md:py-5 font-black text-base md:text-lg text-cyan-300 group-hover:text-cyan-100 tracking-widest drop-shadow-[0_0_8px_rgb(var(--accent-rgb-400)/0.5)] px-4">
         {children}
       </div>
     </button>

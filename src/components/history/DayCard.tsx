@@ -78,7 +78,7 @@ export function DayCard({
   return (
     <div
       className={`bg-panel-2/60 border transition-all duration-300 rounded-[2rem] overflow-hidden backdrop-blur-sm ${
-        isExpanded ? 'border-cyan-500/50 shadow-[0_0_30px_rgba(245,158,11,0.15)]' : 'border-slate-700/50 hover:border-slate-500/50'
+        isExpanded ? 'border-cyan-500/50 shadow-[0_0_30px_rgb(var(--accent-rgb-500)/0.15)]' : 'border-slate-700/50 hover:border-slate-500/50'
       }`}
     >
       <button
@@ -93,7 +93,7 @@ export function DayCard({
             {formatDate(day.date)}
           </div>
           <div className="text-xs text-slate-400 mt-2 flex flex-wrap items-center gap-3 md:gap-4 font-bold tracking-wider">
-            <span className="bg-[#241c0f] border border-cyan-900/50 px-3 py-1 rounded-md text-cyan-400">
+            <span className="bg-panel-3 border border-cyan-900/50 px-3 py-1 rounded-md text-cyan-400">
               {day.games.length} 半荘
             </span>
             <span className="flex items-center">
@@ -107,7 +107,7 @@ export function DayCard({
         <div
           className={`shrink-0 w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-500 relative z-10 ${
             isExpanded
-              ? 'bg-cyan-900/50 text-cyan-300 shadow-[0_0_15px_rgba(245,158,11,0.4)]'
+              ? 'bg-cyan-900/50 text-cyan-300 shadow-[0_0_15px_rgb(var(--accent-rgb-500)/0.4)]'
               : 'bg-panel-2 text-slate-400 group-hover:bg-slate-800 group-hover:text-cyan-400'
           }`}
         >
@@ -135,7 +135,7 @@ export function DayCard({
           </div>
 
           <h4 className="text-xs font-black text-cyan-400 mb-4 tracking-[0.2em] uppercase flex items-center relative z-10">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 mr-2 shadow-[0_0_8px_rgba(251,191,36,1)]" />
+            <span className="w-2 h-2 rounded-full bg-cyan-400 mr-2 shadow-[0_0_8px_rgb(var(--accent-rgb-400)/1)]" />
             この日の精算結果
           </h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 relative z-10">
@@ -166,7 +166,7 @@ export function DayCard({
           </div>
 
           <h4 className="text-xs font-black text-blue-400 mb-4 tracking-[0.2em] uppercase flex items-center relative z-10">
-            <span className="w-2 h-2 rounded-full bg-blue-500 mr-2 shadow-[0_0_8px_rgba(245,158,11,1)]" />
+            <span className="w-2 h-2 rounded-full bg-blue-500 mr-2 shadow-[0_0_8px_rgb(var(--accent-rgb-500)/1)]" />
             半荘マトリックス
           </h4>
           <MatrixTable day={day} participantIds={participantIds} players={players} />

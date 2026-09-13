@@ -82,7 +82,7 @@ export function RadarChart({ rows }: { rows: RadarRow[] }) {
     <div>
       <svg
         viewBox={`0 0 ${SIZE} ${SIZE}`}
-        className="w-full h-auto max-w-md mx-auto drop-shadow-[0_0_20px_rgba(245,158,11,0.15)]"
+        className="w-full h-auto max-w-md mx-auto drop-shadow-[0_0_20px_rgb(var(--accent-rgb-500)/0.15)]"
         role="img"
         aria-label="能力レーダーチャート"
       >

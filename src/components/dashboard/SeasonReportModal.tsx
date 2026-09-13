@@ -26,7 +26,7 @@ export function SeasonReportModal({
     setSaving(true);
     setSaveError(false);
     try {
-      const dataUrl = await toPng(captureRef.current, { backgroundColor: '#14100b', pixelRatio: 2 });
+      const dataUrl = await toPng(captureRef.current, { backgroundColor: '#232325', pixelRatio: 2 });
       const link = document.createElement('a');
       link.href = dataUrl;
       link.download = `road-to-rich-${seasonLabel}.png`;
@@ -58,7 +58,7 @@ export function SeasonReportModal({
 
         <div
           ref={captureRef}
-          className="bg-[#14100b] p-8 md:p-10 border border-fuchsia-500/30 relative overflow-hidden"
+          className="bg-panel p-8 md:p-10 border border-fuchsia-500/30 relative overflow-hidden"
         >
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-fuchsia-500/10 blur-[80px] rounded-full pointer-events-none" />
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-cyan-500/10 blur-[80px] rounded-full pointer-events-none" />
@@ -185,7 +185,7 @@ export function SeasonReportModal({
           )}
         </div>
 
-        <div className="bg-[#14100b] border-t border-slate-800/80 p-4 flex flex-col items-center gap-2">
+        <div className="bg-panel border-t border-slate-800/80 p-4 flex flex-col items-center gap-2">
           <button
             type="button"
             onClick={handleSave}
