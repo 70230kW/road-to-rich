@@ -47,13 +47,13 @@ const PRIMARY_TABS: PrimaryTabDef[] = [
   { id: 'ranking', name: '成績', icon: Crown },
   { id: 'dashboard', name: '分析', icon: BarChart3 },
   { id: 'input', name: '記録', icon: Plus },
-  { id: 'trophies', name: '実績', icon: Trophy },
+  { id: 'history', name: '対戦履歴', icon: History },
 ];
 
 const OTHER_TABS: PrimaryTabDef[] = [
   { id: 'rank', name: '段位', icon: Gauge },
   { id: 'simulator', name: '成績予想', icon: Telescope },
-  { id: 'history', name: '対戦履歴', icon: History },
+  { id: 'trophies', name: '実績', icon: Trophy },
   { id: 'rules', name: 'ルール', icon: BookOpen },
   { id: 'players', name: '雀士登録', icon: Users },
   { id: 'settings', name: '計算設定', icon: SettingsIcon },
