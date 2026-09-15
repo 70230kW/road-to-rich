@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pencil } from 'lucide-react';
 import type { DayRecord, Game, Player, Settings, YakumanEvent } from '../../types';
+import { useAppStore } from '../../store/useAppStore';
 import { NeonButton } from '../common/NeonButton';
 import { HanchanForm } from '../input/HanchanForm';
 import { SettlementForm } from '../input/SettlementForm';
@@ -24,6 +25,7 @@ export function DayEditor({
 }) {
   const [games, setGames] = useState<Game[]>(day.games);
   const [step, setStep] = useState<'games' | 'settlement'>('games');
+  const setPlayerCount = useAppStore((s) => s.setPlayerCount);
 
   const addGame = (game: Omit<Game, 'id'>) => setGames((prev) => [...prev, { ...game, id: uid() }]);
   const removeGame = (gameId: string) => setGames((prev) => prev.filter((g) => g.id !== gameId));
@@ -70,6 +72,7 @@ export function DayEditor({
         onUpdateGameYakuman={updateGameYakuman}
         onStartSettling={() => setStep('settlement')}
         onNavigateToPlayers={onCancel}
+        onSetPlayerCount={setPlayerCount}
       />
     </div>
   );

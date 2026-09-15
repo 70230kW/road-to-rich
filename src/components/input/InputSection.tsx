@@ -11,6 +11,7 @@ export function InputSection({ onNavigateToPlayers }: { onNavigateToPlayers: () 
   const removeGame = useAppStore((s) => s.removeGame);
   const updateGameYakuman = useAppStore((s) => s.updateGameYakuman);
   const finalizeDay = useAppStore((s) => s.finalizeDay);
+  const setPlayerCount = useAppStore((s) => s.setPlayerCount);
 
   const [isSettling, setIsSettling] = useState(false);
 
@@ -38,6 +39,7 @@ export function InputSection({ onNavigateToPlayers }: { onNavigateToPlayers: () 
       onUpdateGameYakuman={updateGameYakuman}
       onStartSettling={() => setIsSettling(true)}
       onNavigateToPlayers={onNavigateToPlayers}
+      onSetPlayerCount={setPlayerCount}
     />
   );
 }

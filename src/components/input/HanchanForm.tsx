@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, ChevronDown, ChevronUp, Gamepad2, Plus, RotateCcw, Scale, Target, UserPlus } from 'lucide-react';
-import type { Game, Player, Settings, YakumanEvent } from '../../types';
+import type { Game, Player, PlayerCount, Settings, YakumanEvent } from '../../types';
 import {
   calcGameSettlement,
   computeAutoLastScore,
@@ -24,6 +24,7 @@ export function HanchanForm({
   onUpdateGameYakuman,
   onStartSettling,
   onNavigateToPlayers,
+  onSetPlayerCount,
 }: {
   players: Player[];
   settings: Settings;
@@ -33,6 +34,7 @@ export function HanchanForm({
   onUpdateGameYakuman: (gameId: string, events: YakumanEvent[]) => void;
   onStartSettling: () => void;
   onNavigateToPlayers: () => void;
+  onSetPlayerCount: (count: PlayerCount) => void;
 }) {
   const playerCount = settings.playerCount;
   const lastIndex = playerCount - 1;
@@ -151,9 +153,19 @@ export function HanchanForm({
           <Gamepad2 className="w-7 h-7 md:w-8 md:h-8 mr-3 text-cyan-400 drop-shadow-[0_0_10px_rgb(var(--accent-rgb-400)/0.8)]" />
           半荘成績入力
         </h2>
-        <div className="text-cyan-400 font-mono font-black bg-cyan-950/40 px-3 md:px-4 py-1.5 rounded-xl border border-cyan-500/30 shadow-[0_0_15px_rgb(var(--accent-rgb-500)/0.2)] tracking-widest text-xs md:text-sm">
+        <button
+          type="button"
+          onClick={() => onSetPlayerCount(playerCount === 4 ? 3 : 4)}
+          disabled={currentDayGames.length > 0}
+          title={
+            currentDayGames.length > 0
+              ? '本日、未精算の半荘記録があるため対局形式は変更できません。先に精算を保存するか、記録を削除してください。'
+              : 'タップで4人麻雀⇔3人麻雀を切り替え'
+          }
+          className="text-cyan-400 font-mono font-black bg-cyan-950/40 px-3 md:px-4 py-1.5 rounded-xl border border-cyan-500/30 shadow-[0_0_15px_rgb(var(--accent-rgb-500)/0.2)] tracking-widest text-xs md:text-sm transition-colors hover:bg-cyan-950/70 hover:border-cyan-400/60 disabled:opacity-50 disabled:pointer-events-none disabled:hover:bg-cyan-950/40"
+        >
           {playerCount}人麻雀
-        </div>
+        </button>
         <div className="absolute -bottom-[1px] left-0 w-32 h-[2px] bg-gradient-to-r from-cyan-400 to-transparent" />
       </div>
 
@@ -302,7 +314,7 @@ export function HanchanForm({
                     onClick={() => setRankPointsOverride(halveRankPoints(defaultRankPoints))}
                     className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl bg-cyan-950/40 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-950/70 transition-colors"
                   >
-                    <Scale className="w-3.5 h-3.5" /> 半分にする（東場のみ終了）
+                    <Scale className="w-3.5 h-3.5" /> 順位点を半分にする
                   </button>
                   <button
                     type="button"
