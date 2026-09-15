@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ListOrdered, Sparkles, Trash2 } from 'lucide-react';
+import { ListOrdered, Scale, Sparkles, Trash2 } from 'lucide-react';
 import type { Game, Player, YakumanEvent } from '../../types';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { findYakuman } from '../../lib/yakuman';
@@ -42,6 +42,14 @@ export function RecordedGamesList({
                 <span className="shrink-0 text-cyan-500 font-mono font-black text-sm w-8">
                   #{String(idx + 1).padStart(2, '0')}
                 </span>
+                {g.rankPointsUsed && (
+                  <span
+                    title="この半荘だけ順位点を変更しています"
+                    className="shrink-0 flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-cyan-950/60 text-cyan-300 border border-cyan-500/30"
+                  >
+                    <Scale className="w-3 h-3" /> 順位点変更
+                  </span>
+                )}
                 <div className="flex-1 flex flex-wrap gap-x-4 gap-y-1.5 font-mono text-xs md:text-sm">
                   {sorted.map((s) => (
                     <span key={s.playerId} className="flex items-center gap-1.5 text-slate-300">
