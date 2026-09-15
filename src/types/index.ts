@@ -49,6 +49,12 @@ export interface Game {
   yakumanEvents?: YakumanEvent[];
   /** 「〇〇が大三元」のような、この半荘についての一言メモ。 */
   note?: string;
+  /**
+   * この半荘だけ通常の設定と異なる順位点を使った場合の実際値（終電で東場のみ
+   * 打ち切った場合など）。未指定なら記録時点の設定通りの順位点が使われている。
+   * 長さは playerCount と一致する。
+   */
+  rankPointsUsed?: number[];
 }
 
 /** Per-player result for a finalized day. */

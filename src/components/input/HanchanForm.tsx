@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, ChevronDown, ChevronUp, Gamepad2, Plus, Target, UserPlus } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronUp, Gamepad2, Plus, RotateCcw, Scale, Target, UserPlus } from 'lucide-react';
 import type { Game, Player, Settings, YakumanEvent } from '../../types';
-import { calcGameSettlement, computeAutoLastScore, parseHundredsInput, validateHanchanInput } from '../../lib/calc';
+import {
+  calcGameSettlement,
+  computeAutoLastScore,
+  getRankPoints,
+  halveRankPoints,
+  parseHundredsInput,
+  validateHanchanInput,
+} from '../../lib/calc';
 import { ErrorBanner } from '../common/ErrorBanner';
 import { NeonButton } from '../common/NeonButton';
 import { CurrentProfitsBar } from './CurrentProfitsBar';
@@ -35,6 +42,9 @@ export function HanchanForm({
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [tieOrderOverrides, setTieOrderOverrides] = useState<Record<number, string[]>>({});
   const [yakumanEvents, setYakumanEvents] = useState<YakumanEvent[]>([]);
+  const [isRankPointsOpen, setIsRankPointsOpen] = useState(false);
+  // null = 通常の設定通り。値を編集した半荘だけ、この配列を使う。
+  const [rankPointsOverride, setRankPointsOverride] = useState<number[] | null>(null);
 
   useEffect(() => {
     setSelectedIds(Array(playerCount).fill(null));
@@ -42,7 +52,21 @@ export function HanchanForm({
     setAttemptedSubmit(false);
     setTieOrderOverrides({});
     setYakumanEvents([]);
+    setIsRankPointsOpen(false);
+    setRankPointsOverride(null);
   }, [playerCount]);
+
+  const defaultRankPoints = useMemo(() => getRankPoints(settings), [settings]);
+  const activeRankPoints = rankPointsOverride ?? defaultRankPoints;
+  const isRankPointsChanged = activeRankPoints.some((v, i) => v !== defaultRankPoints[i]);
+
+  const handleRankPointChange = (index: number, value: string) => {
+    const n = Number(value);
+    const base = rankPointsOverride ?? [...defaultRankPoints];
+    const next = [...base];
+    next[index] = Number.isFinite(n) ? n : 0;
+    setRankPointsOverride(next);
+  };
 
   const otherRaw = useMemo(() => manualInputs.map(parseHundredsInput), [manualInputs]);
   const autoRaw = useMemo(() => computeAutoLastScore(otherRaw, settings), [otherRaw, settings]);
@@ -100,13 +124,19 @@ export function HanchanForm({
     if (!validation.isValid) return;
 
     const entries = selectedIds.map((id, i) => ({ playerId: id as string, rawScore: rawScores[i] as number }));
-    const settled = calcGameSettlement(entries, settings, tieBreakOrder);
-    onAddGame({ scores: settled, ...(yakumanEvents.length > 0 ? { yakumanEvents } : {}) });
+    const settled = calcGameSettlement(entries, settings, tieBreakOrder, isRankPointsChanged ? activeRankPoints : undefined);
+    onAddGame({
+      scores: settled,
+      ...(yakumanEvents.length > 0 ? { yakumanEvents } : {}),
+      ...(isRankPointsChanged ? { rankPointsUsed: [...activeRankPoints] } : {}),
+    });
 
     setManualInputs(Array(lastIndex).fill(''));
     setAttemptedSubmit(false);
     setTieOrderOverrides({});
     setYakumanEvents([]);
+    setIsRankPointsOpen(false);
+    setRankPointsOverride(null);
     // selectedIds intentionally preserved for the next hanchan
   };
 
@@ -225,6 +255,66 @@ export function HanchanForm({
                 </div>
               );
             })}
+          </div>
+
+          <div className="bg-panel-2/40 border border-slate-700/50 rounded-2xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setIsRankPointsOpen((v) => !v)}
+              aria-expanded={isRankPointsOpen}
+              className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left"
+            >
+              <span className="flex items-center gap-2 text-xs md:text-sm font-bold text-slate-300 tracking-wide">
+                <Scale className="w-4 h-4 text-cyan-500 shrink-0" />
+                順位点を編集
+                {isRankPointsChanged && (
+                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-cyan-950/60 text-cyan-300 border border-cyan-500/30">
+                    変更中
+                  </span>
+                )}
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isRankPointsOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {isRankPointsOpen && (
+              <div className="px-4 pb-4 space-y-3">
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  終電などで東場のみで打ち切った半荘など、この半荘だけ順位点を変えたいときに編集してください。次の半荘には引き継がれません。
+                </p>
+                <div className={`grid grid-cols-2 gap-2.5 ${playerCount === 4 ? 'sm:grid-cols-4' : 'sm:grid-cols-3'}`}>
+                  {activeRankPoints.map((v, i) => (
+                    <div key={i} className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 tracking-wide">{i + 1}着</label>
+                      <input
+                        type="number"
+                        value={v}
+                        onChange={(e) => handleRankPointChange(i, e.target.value)}
+                        className="w-full bg-abyss border border-slate-700/80 rounded-xl px-3 py-2 text-slate-100 font-mono text-sm text-right focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 shadow-inner"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setRankPointsOverride(halveRankPoints(defaultRankPoints))}
+                    className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl bg-cyan-950/40 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-950/70 transition-colors"
+                  >
+                    <Scale className="w-3.5 h-3.5" /> 半分にする（東場のみ終了）
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!isRankPointsChanged}
+                    onClick={() => setRankPointsOverride(null)}
+                    className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl text-slate-400 border border-slate-700/60 hover:bg-slate-800 hover:text-white disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" /> デフォルトに戻す
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {tieGroups.length > 0 && (

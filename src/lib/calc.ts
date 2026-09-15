@@ -108,8 +108,9 @@ export function calcGameSettlement(
   entries: { playerId: string; rawScore: number }[],
   settings: Settings,
   tieBreakOrder?: string[],
+  rankPointsOverride?: readonly number[],
 ): GameScore[] {
-  const rankPoints = getRankPoints(settings);
+  const rankPoints = rankPointsOverride ?? getRankPoints(settings);
   const priority = tieBreakOrder ? new Map(tieBreakOrder.map((id, i) => [id, i])) : null;
   const sorted = [...entries].sort((a, b) => {
     if (b.rawScore !== a.rawScore) return b.rawScore - a.rawScore;
@@ -177,6 +178,15 @@ export function calcDaySettlement(
 
 export function defaultRankPoints(playerCount: PlayerCount): number[] {
   return playerCount === 4 ? [30000, 10000, -10000, -30000] : [20000, 0, -20000];
+}
+
+/**
+ * 終電などで東場のみ打ち切った半荘向けに、順位点を半分にする（端数は四捨五入）。
+ * 符号ごとに絶対値を四捨五入するので、対称な順位点（例: 30000/10000/-10000/-30000）
+ * を渡せば結果も対称のまま（合計0）になる。
+ */
+export function halveRankPoints(rankPoints: readonly number[]): number[] {
+  return rankPoints.map((v) => Math.sign(v) * Math.round(Math.abs(v) / 2));
 }
 
 /**

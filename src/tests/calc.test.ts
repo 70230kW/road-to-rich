@@ -5,6 +5,7 @@ import {
   calcTableFeeShare,
   computeAutoLastScore,
   getExpectedScoreTotal,
+  halveRankPoints,
   isChipTotalBalanced,
   parseHundredsInput,
   validateHanchanInput,
@@ -148,6 +149,34 @@ describe('calcGameSettlement', () => {
     const first = result.find((r) => r.playerId === 'a')!;
     // (45000 + 20000 - 25000) / 10 = 4000
     expect(first.point).toBe(4000);
+  });
+
+  it('uses rankPointsOverride instead of the settings rank points when given', () => {
+    const result = calcGameSettlement(
+      [
+        { playerId: 'a', rawScore: 58200 },
+        { playerId: 'b', rawScore: 20000 },
+        { playerId: 'c', rawScore: 15000 },
+        { playerId: 'd', rawScore: 6800 },
+      ],
+      fourPlayerSettings,
+      undefined,
+      [15000, 5000, -5000, -15000], // halved rank points for an East-only hanchan
+    );
+    const first = result.find((r) => r.playerId === 'a')!;
+    // (58200 + 15000 - 25000) / 10 = 4820, vs 6320 with the full rank points
+    expect(first.point).toBe(4820);
+  });
+});
+
+describe('halveRankPoints', () => {
+  it('halves each rank point value', () => {
+    expect(halveRankPoints([30000, 10000, -10000, -30000])).toEqual([15000, 5000, -5000, -15000]);
+    expect(halveRankPoints([20000, 0, -20000])).toEqual([10000, 0, -10000]);
+  });
+
+  it('rounds odd values to the nearest integer', () => {
+    expect(halveRankPoints([15001, -15001])).toEqual([7501, -7501]);
   });
 });
 
