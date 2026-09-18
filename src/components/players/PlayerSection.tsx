@@ -101,7 +101,7 @@ export function PlayerSection() {
       </div>
 
       {players.length === 0 ? (
-        <EmptyState icon={Users} message="No Players" hint="まずは雀士を登録しましょう。" />
+        <EmptyState icon={Users} message="雀士が登録されていません" hint="まずは雀士を登録しましょう。" />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {players.map((p) => {
