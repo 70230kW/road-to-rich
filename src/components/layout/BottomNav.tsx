@@ -44,7 +44,7 @@ export function BottomNav({
               <Icon
                 className="nav-icon"
               />
-              <span className="nav-label">{tab.name}</span>
+              <span className="nav-label">{tab.id === 'input' ? '対局を記録' : tab.name}</span>
             </button>
           );
         })}
@@ -65,4 +65,3 @@ export function BottomNav({
     </nav>
   );
 }
-
