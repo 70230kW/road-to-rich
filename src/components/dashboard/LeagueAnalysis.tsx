@@ -77,7 +77,7 @@ export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
         {fullHistory.length > 0 && <MilestoneBanner history={fullHistory} players={players} />}
         {fullHistory.length > 0 && <MonthlyHighlightsSection history={fullHistory} players={players} />}
         {fullHistory.length > 0 && <GoalProgressSection history={fullHistory} players={players} goals={goals} />}
-        <EmptyState icon={BarChart3} message="No Data" hint="対局を記録して精算を保存すると、ここに統計が表示されます。" />
+        <EmptyState icon={BarChart3} message="分析データがありません" hint="対局を記録して精算を保存すると、ここに統計が表示されます。" />
         {showReport && (
           <SeasonReportModal seasonLabel={seasonLabel} data={seasonReportData} players={players} onClose={() => setShowReport(false)} />
         )}
@@ -209,4 +209,3 @@ export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
     </div>
   );
 }
-
