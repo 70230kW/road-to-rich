@@ -87,7 +87,7 @@ function AppShell() {
   };
 
   return (
-    <div className="min-h-screen bg-abyss text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-hidden relative">
+    <div className="min-h-screen bg-abyss text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-clip relative">
       <Background />
 
       <div className="app-workspace relative z-10">
