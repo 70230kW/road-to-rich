@@ -3,7 +3,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { HanchanForm } from './HanchanForm';
 import { SettlementForm } from './SettlementForm';
 
-export function InputSection({ onNavigateToPlayers }: { onNavigateToPlayers: () => void }) {
+export function InputSection({ onNavigateToPlayers, startSettling = false }: { onNavigateToPlayers: () => void; startSettling?: boolean }) {
   const players = useAppStore((s) => s.players);
   const settings = useAppStore((s) => s.settings);
   const currentDayGames = useAppStore((s) => s.currentDayGames);
@@ -13,7 +13,7 @@ export function InputSection({ onNavigateToPlayers }: { onNavigateToPlayers: () 
   const finalizeDay = useAppStore((s) => s.finalizeDay);
   const setPlayerCount = useAppStore((s) => s.setPlayerCount);
 
-  const [isSettling, setIsSettling] = useState(false);
+  const [isSettling, setIsSettling] = useState(startSettling);
 
   if (isSettling) {
     return (
@@ -43,3 +43,4 @@ export function InputSection({ onNavigateToPlayers }: { onNavigateToPlayers: () 
     />
   );
 }
+

@@ -1,6 +1,8 @@
 import { lazy, Suspense, useState } from 'react';
 import { BarChart3, BookOpen, Crown, Gauge, History, Plus, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
+import { RecordSheet } from './components/layout/RecordSheet';
+import { useAppStore } from './store/useAppStore';
 import { Header } from './components/layout/Header';
 import { BottomNav, type PrimaryTabDef } from './components/layout/BottomNav';
 import { MoreMenu } from './components/layout/MoreMenu';
@@ -8,10 +10,9 @@ import { InputSection } from './components/input/InputSection';
 import { RoomGate } from './components/room/RoomGate';
 import { RoomBadge } from './components/room/RoomBadge';
 import { LoadingScreen } from './components/common/LoadingScreen';
-import { RippleLayer } from './components/common/RippleLayer';
 
-// Only the default "input" tab loads eagerly; the rest are fetched on first
-// visit so the initial bundle (and time-to-interactive) stays small.
+
+// Secondary screens are loaded on demand.
 const DashboardSection = lazy(() =>
   import('./components/dashboard/DashboardSection').then((m) => ({ default: m.DashboardSection })),
 );
@@ -68,32 +69,31 @@ function App() {
 }
 
 function AppShell() {
-  const [activeTab, setActiveTab] = useState<string>('input');
+  const [activeTab, setActiveTab] = useState<string>('ranking');
+  const [isRecordOpen, setIsRecordOpen] = useState(false);
+  const [startSettling, setStartSettling] = useState(false);
+  const [inputKey, setInputKey] = useState(0);
+  const gameCount = useAppStore(s => s.currentDayGames.length);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const isMoreActive = OTHER_TABS.some((t) => t.id === activeTab);
 
   const selectTab = (id: string) => {
     setActiveTab(id);
     setIsMoreOpen(false);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   return (
     <div className="min-h-screen bg-abyss text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-hidden relative">
       <Background />
-      <RippleLayer />
 
-      <div className="max-w-md md:max-w-5xl mx-auto p-4 md:p-6 pb-28 relative z-10">
+      <div className="max-w-5xl mx-auto px-5 md:px-8 pt-4 pb-28 relative z-10">
         <Header />
         <RoomBadge />
 
-        <div className="backdrop-blur-2xl bg-panel/70 border border-slate-700/50 rounded-[2rem] p-5 sm:p-6 md:p-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] relative overflow-hidden min-h-[500px]">
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-fuchsia-400/20 to-transparent" />
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/10 blur-[60px] rounded-full pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-500/10 blur-[60px] rounded-full pointer-events-none" />
-
+        <main className="min-h-[500px] pt-5">
           <div className="relative z-10">
-            {activeTab === 'input' && <InputSection onNavigateToPlayers={() => selectTab('players')} />}
+            {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} />}
             <Suspense fallback={<TabLoading />}>
               {activeTab === 'dashboard' && <DashboardSection />}
               {activeTab === 'history' && <HistorySection />}
@@ -106,7 +106,7 @@ function AppShell() {
               {activeTab === 'rules' && <RulesSection />}
             </Suspense>
           </div>
-        </div>
+        </main>
 
         <footer className="text-center py-8 text-[10px] text-slate-700 font-mono tracking-[0.2em] uppercase">
           じゃんかね — Provided by K.Waga
@@ -117,9 +117,16 @@ function AppShell() {
         tabs={PRIMARY_TABS}
         activeTab={activeTab}
         isMoreActive={isMoreActive}
-        onChange={selectTab}
+        onChange={id => id === 'input' ? setIsRecordOpen(true) : selectTab(id)}
         onOpenMore={() => setIsMoreOpen(true)}
       />
+
+      {isRecordOpen && <RecordSheet gameCount={gameCount} onClose={() => setIsRecordOpen(false)} onSelect={settle => {
+        setStartSettling(settle);
+        setInputKey(key => key + 1);
+        setIsRecordOpen(false);
+        selectTab('input');
+      }} />}
 
       {isMoreOpen && (
         <MoreMenu tabs={OTHER_TABS} activeTab={activeTab} onSelect={selectTab} onClose={() => setIsMoreOpen(false)} />
@@ -129,3 +136,4 @@ function AppShell() {
 }
 
 export default App;
+
