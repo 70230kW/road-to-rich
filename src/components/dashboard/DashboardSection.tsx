@@ -1,215 +1,69 @@
-import { useMemo, useState } from 'react';
-import { Award, BarChart3, Coins, Crown, Gamepad2, Gift, ListOrdered, Medal, Radar, TrendingUp } from 'lucide-react';
+import { lazy, Suspense, useMemo, useState } from 'react';
+import { BarChart3, ArrowUpRight, ChevronDown, Sparkles } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import {
-  computeCumulativeSeries,
-  computeDashboardStats,
-  computePlayerRateStats,
-  computePlayerYakumanAchievements,
-  computeRadarStats,
-  computeRankCounts,
-  computeRanking,
-  computeYakumanAchievements,
-} from '../../lib/stats';
-import { filterHistoryBySeason, formatSeasonLabel, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
-import { computeRankRaceSeries } from '../../lib/rankRace';
-import { computeSeasonReport } from '../../lib/seasonReport';
+import { computeRanking, computePlayerRateStats } from '../../lib/stats';
+import { computePlayerRankStatuses } from '../../lib/rankLevel';
+import { filterHistoryBySeason, getAvailableSeasons, formatSeasonLabel, type SeasonFilter } from '../../lib/season';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { SeasonSelect } from '../common/SeasonSelect';
-import { StatCard } from '../common/StatCard';
 import { EmptyState } from '../common/EmptyState';
-import { CumulativeProfitChart } from './CumulativeProfitChart';
-import { RankRaceChart } from './RankRaceChart';
-import { RadarChart } from './RadarChart';
-import { YakumanBoard } from './YakumanBoard';
-import { ActivityCalendarSection } from './ActivityCalendarSection';
-import { RivalrySection } from './RivalrySection';
-import { MonthlyHighlightsSection } from './MonthlyHighlightsSection';
-import { MilestoneBanner } from './MilestoneBanner';
-import { HallOfFameSection } from './HallOfFameSection';
-import { SeasonReportModal } from './SeasonReportModal';
-import { GoalProgressSection } from './GoalProgressSection';
-import { TableRankingSection } from './TableRankingSection';
-import { PlayerDetailModal } from '../ranking/PlayerDetailModal';
+import { PlayerSelect } from '../common/PlayerSelect';
+import { PersonalProfitChart } from './PersonalProfitChart';
+const LeagueAnalysis = lazy(() => import('./LeagueAnalysis').then(m => ({ default: m.LeagueAnalysis })));
 
 export function DashboardSection() {
-  const fullHistory = useAppStore((s) => s.history);
-  const players = useAppStore((s) => s.players);
-  const settings = useAppStore((s) => s.settings);
-  const goals = useAppStore((s) => s.goals);
+  const history = useAppStore(s => s.history);
+  const players = useAppStore(s => s.players);
   const [season, setSeason] = useState<SeasonFilter>('all');
-  const seasons = useMemo(() => getAvailableSeasons(fullHistory), [fullHistory]);
-  const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
-  const [showReport, setShowReport] = useState(false);
-  const seasonLabel = formatSeasonLabel(season);
-  const seasonReportData = useMemo(() => computeSeasonReport(history, players, settings), [history, players, settings]);
+  const [playerId, setPlayerId] = useState('');
+  const [showDetails, setShowDetails] = useState(false);
+  const activeId = players.some(p => p.id === playerId) ? playerId : players[0]?.id ?? '';
+  const filtered = useMemo(() => filterHistoryBySeason(history, season), [history, season]);
+  const rows = useMemo(() => computeRanking(filtered, players), [filtered, players]);
+  const rates = useMemo(() => computePlayerRateStats(filtered, players), [filtered, players]);
+  const statuses = useMemo(() => computePlayerRankStatuses(history, players), [history, players]);
+  const row = rows.find(r => r.playerId === activeId);
+  const rate = rates[activeId];
+  const status = statuses[activeId];
+  const games = useMemo(() => [...filtered].sort((a,b) => Date.parse(a.date)-Date.parse(b.date))
+    .flatMap(day => day.games.flatMap((game, index) => {
+      const score = game.scores.find(s => s.playerId === activeId);
+      return score ? [{ ...score, id: game.id, date: day.date, number: index + 1 }] : [];
+    })), [filtered, activeId]);
+  const recent = games.slice(-10);
+  const previous = games.slice(-20, -10);
+  const topRateChange = recent.length === 10 && previous.length === 10
+    ? (recent.filter(g => g.rank === 1).length - previous.filter(g => g.rank === 1).length) * 10 : null;
+  const percent = (n: number | null | undefined) => n == null ? '—' : `${(n * 100).toFixed(1)}%`;
 
-  const seasonSelect = (
-    <div className="flex items-center gap-2">
-      <SeasonSelect season={season} onChange={setSeason} seasons={seasons} accent="cyan" />
-      <button
-        type="button"
-        onClick={() => setShowReport(true)}
-        className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/30 hover:bg-fuchsia-500/20 transition-colors whitespace-nowrap"
-      >
-        <Gift className="w-3.5 h-3.5" /> シーズンレポート
-      </button>
-    </div>
-  );
-
-  const stats = useMemo(() => computeDashboardStats(history, players), [history, players]);
-  const series = useMemo(() => computeCumulativeSeries(history, players), [history, players]);
-  const rankRaceSeries = useMemo(() => computeRankRaceSeries(history, players), [history, players]);
-  const radarRows = useMemo(() => computeRadarStats(history, players), [history, players]);
-  const yakumanAchievements = useMemo(() => computeYakumanAchievements(history, players), [history, players]);
-
-  const rankingRows = useMemo(() => computeRanking(history, players), [history, players]);
-  const rankCounts = useMemo(() => computeRankCounts(history, players), [history, players]);
-  const playerYakumanAchievements = useMemo(() => computePlayerYakumanAchievements(history, players), [history, players]);
-  const rateStats = useMemo(() => computePlayerRateStats(history, players), [history, players]);
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
-
-  const selectedIdx = rankingRows.findIndex((r) => r.playerId === selectedPlayerId);
-  const selectedRow = selectedIdx >= 0 ? rankingRows[selectedIdx] : null;
-  const selectedRadarRow = radarRows.find((r) => r.playerId === selectedPlayerId) ?? null;
-
-  if (history.length === 0) {
-    return (
-      <div className="space-y-8">
-        <SectionHeader icon={BarChart3} title="ダッシュボード" accent="cyan" trailing={fullHistory.length > 0 ? seasonSelect : undefined} />
-        {fullHistory.length > 0 && <MilestoneBanner history={fullHistory} players={players} />}
-        {fullHistory.length > 0 && <MonthlyHighlightsSection history={fullHistory} players={players} />}
-        {fullHistory.length > 0 && <GoalProgressSection history={fullHistory} players={players} goals={goals} />}
-        <EmptyState icon={BarChart3} message="No Data" hint="対局を記録して精算を保存すると、ここに統計が表示されます。" />
-        {showReport && (
-          <SeasonReportModal seasonLabel={seasonLabel} data={seasonReportData} players={players} onClose={() => setShowReport(false)} />
-        )}
+  return <div className="space-y-7 animate-fade-in">
+    <SectionHeader icon={BarChart3} title="ダッシュボード" trailing={<SeasonSelect season={season} onChange={setSeason} seasons={getAvailableSeasons(history)} />} />
+    {players.length === 0 ? <EmptyState icon={BarChart3} message="最初の一戦から、キャリアが始まる。" hint="雀士を登録し、対局を記録すると個人成績が表示されます。" /> : <>
+      <PlayerSelect players={players} value={activeId} onChange={setPlayerId} />
+      <section className="performance-hero">
+        <div className="section-kicker"><span className="eyebrow">YOUR PERFORMANCE</span><span>{formatSeasonLabel(season)}</span></div>
+        <p className="hero-label">{season === 'all' ? '累計収支' : '期間収支'} <span>場代抜き・円</span></p>
+        <p className={`hero-number ${(row?.totalProfitWithoutFee ?? 0) >= 0 ? 'profit-positive' : 'profit-negative'}`}>{row ? formatSignedYen(row.totalProfitWithoutFee) : '—'}</p>
+        <p className="muted text-xs">場代込み {row ? formatSignedYen(row.totalProfitWithFee) : '—'} · {row?.dayCount ?? 0}日間の記録</p>
+        {status && <div className="hero-rank"><div><strong className="text-gold">{status.levelName}</strong><span>通算段位</span></div>
+          <progress className="rank-progress" value={status.progressRatio} max={1} aria-label="次の段位への進捗" />
+          <small>{status.nextLevelName ? `${status.nextLevelName}まであと ¥${status.profitToNextLevel!.toLocaleString()}` : '最高段位に到達'}</small>
+        </div>}
+      </section>
+      <div className="kpi-grid">
+        {[['平均順位', row?.avgRank?.toFixed(2) ?? '—'], ['トップ率', percent(rate?.topRate)], ['ラス率', percent(rate?.lastRate)], ['半荘数', String(row?.hanchanCount ?? 0)]].map(([label, value]) => <div key={label} className="kpi"><span>{label}</span><strong>{value}</strong></div>)}
       </div>
-    );
-  }
-
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={BarChart3} title="ダッシュボード" accent="cyan" trailing={seasonSelect} />
-
-      <MilestoneBanner history={fullHistory} players={players} />
-
-      <MonthlyHighlightsSection history={fullHistory} players={players} />
-
-      <GoalProgressSection history={fullHistory} players={players} goals={goals} />
-
-      <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
-        <StatCard
-          title="参加半荘数1位"
-          value={stats.mostHanchansPlayed ? `${stats.mostHanchansPlayed.value} GAMES` : '-'}
-          sub={stats.mostHanchansPlayed?.playerName}
-          icon={<Gamepad2 />}
-          color="sky"
-          onClick={stats.mostHanchansPlayed ? () => setSelectedPlayerId(stats.mostHanchansPlayed!.playerId) : undefined}
-        />
-        <StatCard
-          title="1日平均勝ち額"
-          value={stats.bestAvgDailyWin ? formatSignedYen(Math.round(stats.bestAvgDailyWin.value)) : '-'}
-          sub={stats.bestAvgDailyWin?.playerName}
-          icon={<TrendingUp />}
-          color="fuchsia"
-          onClick={stats.bestAvgDailyWin ? () => setSelectedPlayerId(stats.bestAvgDailyWin!.playerId) : undefined}
-        />
-        <StatCard
-          title="平均着順1位"
-          value={stats.bestAvgRank ? `${stats.bestAvgRank.value.toFixed(2)}位` : '-'}
-          sub={stats.bestAvgRank?.playerName}
-          icon={<Medal />}
-          color="indigo"
-          onClick={stats.bestAvgRank ? () => setSelectedPlayerId(stats.bestAvgRank!.playerId) : undefined}
-        />
-        <StatCard
-          title="1半荘最高素点"
-          value={stats.highestScore ? stats.highestScore.value.toLocaleString() : '-'}
-          sub={stats.highestScore?.playerName}
-          icon={<Award />}
-          color="yellow"
-          onClick={stats.highestScore ? () => setSelectedPlayerId(stats.highestScore!.playerId) : undefined}
-        />
-        <StatCard
-          title="1日最高勝利"
-          value={stats.bestDailyWin ? formatSignedYen(stats.bestDailyWin.value) : '-'}
-          sub={stats.bestDailyWin?.playerName}
-          icon={<Crown />}
-          color="emerald"
-          onClick={stats.bestDailyWin ? () => setSelectedPlayerId(stats.bestDailyWin!.playerId) : undefined}
-        />
-        <StatCard
-          title="1日最高チップ"
-          value={stats.bestDailyChips ? `${stats.bestDailyChips.value > 0 ? '+' : ''}${stats.bestDailyChips.value}枚` : '-'}
-          sub={stats.bestDailyChips?.playerName}
-          icon={<Coins />}
-          color="rose"
-          onClick={stats.bestDailyChips ? () => setSelectedPlayerId(stats.bestDailyChips!.playerId) : undefined}
-        />
-      </div>
-
-      <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-cyan-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
-        <h3 className="text-sm font-black text-cyan-400 mb-8 flex items-center tracking-[0.2em] uppercase">
-          <TrendingUp className="w-5 h-5 mr-2" /> 累計収支推移
-          <span className="text-slate-500 ml-2 font-normal text-xs normal-case">(Cumulative Profit)</span>
-        </h3>
-        <CumulativeProfitChart series={series} />
-      </div>
-
-      {rankRaceSeries.activePlayers.length > 0 && (
-        <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-fuchsia-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
-          <h3 className="text-sm font-black text-fuchsia-400 mb-8 flex items-center tracking-[0.2em] uppercase">
-            <ListOrdered className="w-5 h-5 mr-2" /> 順位レース
-            <span className="text-slate-500 ml-2 font-normal text-xs normal-case">(Rank Race)</span>
-          </h3>
-          <RankRaceChart series={rankRaceSeries} />
-        </div>
-      )}
-
-      {radarRows.length > 0 && (
-        <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-cyan-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
-          <h3 className="text-sm font-black text-cyan-400 mb-8 flex items-center tracking-[0.2em] uppercase">
-            <Radar className="w-5 h-5 mr-2" /> 能力レーダー
-            <span className="text-slate-500 ml-2 font-normal text-xs normal-case">(平均着順は良いほど外側)</span>
-          </h3>
-          <RadarChart rows={radarRows} />
-        </div>
-      )}
-
-      <ActivityCalendarSection history={history} players={players} />
-
-      <RivalrySection history={history} players={players} />
-
-      <TableRankingSection history={history} players={players} />
-
-      <HallOfFameSection history={history} players={players} />
-
-      <YakumanBoard achievements={yakumanAchievements} />
-
-      {selectedRow && (
-        <PlayerDetailModal
-          row={selectedRow}
-          radarRow={selectedRadarRow}
-          rankCounts={selectedPlayerId ? (rankCounts[selectedPlayerId] ?? []) : []}
-          yakumanAchievements={selectedPlayerId ? (playerYakumanAchievements[selectedPlayerId] ?? []) : []}
-          rateStats={
-            (selectedPlayerId ? rateStats[selectedPlayerId] : undefined) ?? {
-              topRate: null,
-              rentaiRate: null,
-              lastRate: null,
-              tobiRate: null,
-            }
-          }
-          rank={selectedIdx + 1}
-          onClose={() => setSelectedPlayerId(null)}
-        />
-      )}
-
-      {showReport && (
-        <SeasonReportModal seasonLabel={seasonLabel} data={seasonReportData} players={players} onClose={() => setShowReport(false)} />
-      )}
-    </div>
-  );
+      {row ? <>
+        <PersonalProfitChart history={filtered} playerId={activeId} />
+        <section className="premium-panel"><div className="section-kicker"><h3>直近の対局</h3><span>最新5半荘 · チップ・場代除く（円）</span></div>
+          {games.slice(-5).reverse().map(game => <div key={game.id} className="recent-row"><span className={`placement placement-${game.rank}`}>{game.rank}<small>位</small></span><div><strong>第{game.number}半荘</strong><small>{new Date(game.date).toLocaleDateString('ja-JP')}</small></div><strong className={`ml-auto font-mono ${game.point >= 0 ? 'profit-positive' : 'profit-negative'}`}>{formatSignedYen(game.point)}</strong></div>)}
+          {games.length === 0 && <p className="muted text-sm py-5">この期間の半荘記録はありません。</p>}
+        </section>
+        <section className="insight-panel"><Sparkles size={19} className="text-gold shrink-0" /><div><p className="eyebrow mb-2">PERFORMANCE NOTE</p><p>{topRateChange !== null ? `直近10半荘のトップ率は、その前の10半荘と比べて${topRateChange > 0 ? '+' : ''}${topRateChange}ポイント${topRateChange === 0 ? 'で変化なしです。' : '変化しています。'}` : `この期間に${games.length}半荘を記録。20半荘以上になると、直近のトップ率の変化を比較できます。`}</p></div><ArrowUpRight size={18} className="text-gold shrink-0" /></section>
+      </> : <EmptyState icon={BarChart3} message="この期間の成績はありません" hint="期間または雀士を切り替えると、ほかの記録を確認できます。" />}
+    </>}
+    <button type="button" className="details-toggle" aria-expanded={showDetails} aria-controls="league-analysis" onClick={() => setShowDetails(!showDetails)}>リーグ全体の分析 {showDetails ? 'を閉じる' : 'を見る'}<ChevronDown size={18} className={showDetails ? 'rotate-180' : ''} /></button>
+    {showDetails && <div id="league-analysis"><Suspense fallback={<p className="muted">分析を読み込み中…</p>}><LeagueAnalysis season={season} /></Suspense></div>}
+  </div>;
 }

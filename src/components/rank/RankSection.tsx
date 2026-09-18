@@ -1,15 +1,18 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, Gauge, Users } from 'lucide-react';
+import { ChevronDown, Gauge, Users, Gem } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { computePlayerRankStatuses, groupRankTiers, type RankGroup } from '../../lib/rankLevel';
 import { RANK_GROUP_THEME } from '../common/RankBadge';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
+import { PlayerSelect } from '../common/PlayerSelect';
 import { EmptyState } from '../common/EmptyState';
 
 export function RankSection() {
   const players = useAppStore((s) => s.players);
   const history = useAppStore((s) => s.history);
+  const [playerId, setPlayerId] = useState('');
+  const activeId = players.some(p => p.id === playerId) ? playerId : players[0]?.id ?? '';
   const statuses = useMemo(() => computePlayerRankStatuses(history, players), [history, players]);
   const groups = useMemo(() => groupRankTiers(), []);
   const [expandedGroups, setExpandedGroups] = useState<Set<RankGroup>>(new Set());
@@ -49,17 +52,32 @@ export function RankSection() {
   return (
     <div className="space-y-8 animate-fade-in">
       <SectionHeader icon={Gauge} title="段位" accent="cyan" />
-      <p className="text-xs text-slate-500 -mt-4">
-        ※ 段位はポイント変換をせず、実際に勝った金額（場代抜きの累計収支、総合ランキングと同じ基準）で判定します。シーズンに関係なく通算の成績で決まり、負けが¥15,000を超えると「地底人」になります。
-        <button
-          type="button"
-          onClick={scrollToTierList}
-          className="ml-1 font-bold text-cyan-400 underline underline-offset-2 hover:text-cyan-300"
-        >
-          各段位の達成条件はこちら
-        </button>
+      <PlayerSelect players={players} value={activeId} onChange={setPlayerId} />
+      {statuses[activeId] && (() => {
+        const status = statuses[activeId];
+        const recentDays = [...history].filter(d => d.settlement[activeId]).sort((a,b) => Date.parse(b.date)-Date.parse(a.date)).slice(0,4);
+        return <>
+          <section className="rank-hero">
+            <p className="eyebrow">YOUR MAHJONG CAREER</p>
+            <div className="rank-emblem" aria-hidden="true"><span /><Gem size={58} strokeWidth={1} /></div>
+            <p className="rank-title">{status.levelName}</p>
+            <p className="muted text-xs mb-5">通算の累計収支で決まる、あなたの段位</p>
+            <strong className="rank-total">{formatSignedYen(status.cumulativeProfit)}</strong>
+            <p className="eyebrow mt-2 mb-7">LIFETIME PROFIT · 場代抜き（円）</p>
+            <div className="rank-next"><span>{status.levelName}</span><span>{status.nextLevelName ?? '最高段位'}</span></div>
+            <progress className="rank-progress" value={status.progressRatio} max={1} aria-label="次の段位への進捗" />
+            <p className="rank-remaining">{status.nextLevelName ? <>昇段まであと <strong>¥{status.profitToNextLevel!.toLocaleString()}</strong></> : '最高段位に到達しました！'}</p>
+          </section>
+          <section className="premium-panel"><div className="section-kicker"><h3>直近の段位対象収支</h3><span>場代抜き（円）</span></div>
+            {recentDays.map(day => <div key={day.id} className="rank-day"><span>{new Date(day.date).toLocaleDateString('ja-JP')}</span><strong className={day.settlement[activeId].totalWithoutFee >= 0 ? 'profit-positive' : 'profit-negative'}>{formatSignedYen(day.settlement[activeId].totalWithoutFee)}</strong></div>)}
+            {recentDays.length === 0 && <p className="muted py-4 text-sm">最初の精算を保存すると表示されます。</p>}
+          </section>
+        </>;
+      })()}
+      <p className="muted text-xs leading-6">段位はシーズンに関係なく場代抜きの累計収支で判定し、収支に応じて昇段・降段します。
+        <button type="button" onClick={scrollToTierList} className="text-gold underline underline-offset-4 ml-2">達成条件を見る</button>
       </p>
-
+      <details className="rank-members"><summary>仲間の段位を見る</summary>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {rankedPlayers.map((p) => {
           const status = statuses[p.id];
@@ -89,6 +107,8 @@ export function RankSection() {
           );
         })}
       </div>
+
+      </details>
 
       <div
         id="rank-tier-list"
@@ -144,3 +164,4 @@ export function RankSection() {
     </div>
   );
 }
+

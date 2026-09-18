@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Crown, Gamepad2, TrendingUp, Zap } from 'lucide-react';
+import { Crown, ChevronRight } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import {
   computePlayerRateStats,
@@ -16,27 +16,6 @@ import { SeasonSelect } from '../common/SeasonSelect';
 import { EmptyState } from '../common/EmptyState';
 import { RankBadge } from '../common/RankBadge';
 import { PlayerDetailModal } from './PlayerDetailModal';
-
-const RANK_STYLES = [
-  {
-    text: 'text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]',
-    border: 'border-yellow-500/40 bg-yellow-950/10',
-    glow: 'shadow-[0_0_30px_rgba(250,204,21,0.15)]',
-    bar: 'bg-gradient-to-b from-yellow-400 to-amber-600',
-  },
-  {
-    text: 'text-slate-300 drop-shadow-[0_0_10px_rgba(203,213,225,0.8)]',
-    border: 'border-slate-400/40 bg-slate-900/40',
-    glow: '',
-    bar: 'bg-gradient-to-b from-slate-300 to-slate-500',
-  },
-  {
-    text: 'text-amber-600 drop-shadow-[0_0_10px_rgba(217,119,6,0.8)]',
-    border: 'border-amber-700/40 bg-amber-950/10',
-    glow: '',
-    bar: 'bg-gradient-to-b from-amber-600 to-amber-800',
-  },
-];
 
 export function RankingSection() {
   const fullHistory = useAppStore((s) => s.history);
@@ -73,79 +52,35 @@ export function RankingSection() {
     <div className="space-y-8 animate-fade-in">
       <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" trailing={seasonSelect} />
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] sm:text-xs text-slate-500 font-mono font-bold px-1">
-        <span className="flex items-center">
-          <Gamepad2 className="w-3 h-3 mr-1.5 text-cyan-500" /> 半荘数
-        </span>
-        <span className="flex items-center">
-          <TrendingUp className="w-3 h-3 mr-1.5 text-fuchsia-500" /> 平均着順
-        </span>
-        <span className="flex items-center">
-          <Zap className="w-3 h-3 mr-1.5 text-yellow-500" /> 平均チップ（1日あたり）
-        </span>
+      <div className="section-kicker"><span className="eyebrow">THE LEADERBOARD</span><span>{rows.length}人の雀士 · 場代抜き収支順（円）</span></div>
+      <div className="podium" aria-label="上位3名">
+        {rows.slice(0, 3).map((row, idx) => (
+          <button type="button" key={row.playerId} className={`podium-player podium-${idx + 1}`}
+            onClick={() => setSelectedPlayerId(row.playerId)} aria-label={`${idx + 1}位 ${row.name}の成績詳細`}>
+            <span className="podium-crown">{idx === 0 ? <Crown size={22} /> : <span>0{idx + 1}</span>}</span>
+            <span className="player-avatar">{Array.from(row.name)[0]}</span>
+            <strong className="podium-name">{row.name}</strong>
+            <span className="podium-tier">{rankStatuses[row.playerId]?.levelName}</span>
+            <span className={`podium-profit ${row.totalProfitWithoutFee >= 0 ? 'profit-positive' : 'profit-negative'}`}>{formatSignedYen(row.totalProfitWithoutFee)}</span>
+            <span className="podium-base"><span>0{idx + 1}</span><small>{row.hanchanCount} 半荘</small></span>
+          </button>
+        ))}
       </div>
-
-      <div className="space-y-3 sm:space-y-5">
-        {rows.map((row, idx) => {
-          const style = RANK_STYLES[idx] ?? { text: 'text-slate-600', border: 'border-slate-800/80', glow: '', bar: 'bg-slate-800' };
-          return (
-            <button
-              type="button"
-              key={row.playerId}
-              onClick={() => setSelectedPlayerId(row.playerId)}
-              className={`w-full text-left bg-panel-2/70 p-3 sm:p-5 rounded-2xl sm:rounded-[2rem] border ${style.border} ${style.glow} flex items-center gap-2 sm:gap-4 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300 backdrop-blur-md cursor-pointer`}
-            >
-              <div className={`absolute left-0 top-0 bottom-0 w-1.5 sm:w-2 transition-colors ${style.bar}`} />
-
-              <div
-                className={`shrink-0 w-7 sm:w-16 md:w-20 text-center font-black text-base sm:text-3xl md:text-4xl italic ${style.text} font-mono tracking-tighter`}
-              >
-                #{idx + 1}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <div className="font-black text-xs sm:text-xl md:text-2xl text-slate-100 tracking-wide truncate">{row.name}</div>
-                  {rankStatuses[row.playerId] && <RankBadge status={rankStatuses[row.playerId]!} />}
-                </div>
-                <div className="flex items-center gap-1 sm:gap-2 md:gap-3 text-[9px] sm:text-xs text-slate-400 font-mono font-bold mt-1 sm:mt-2">
-                  <span className="flex items-center bg-abyss px-1.5 sm:px-3 py-0.5 sm:py-1.5 rounded-md sm:rounded-lg border border-slate-800 shrink-0">
-                    <Gamepad2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5 text-cyan-500" />
-                    <span className="text-slate-200">{row.hanchanCount}</span>
-                  </span>
-                  <span className="flex items-center bg-abyss px-1.5 sm:px-3 py-0.5 sm:py-1.5 rounded-md sm:rounded-lg border border-slate-800 shrink-0">
-                    <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5 text-fuchsia-500" />
-                    <span className="text-slate-200">{row.avgRank !== null ? row.avgRank.toFixed(2) : '-'}</span>
-                  </span>
-                  <span className="flex items-center bg-abyss px-1.5 sm:px-3 py-0.5 sm:py-1.5 rounded-md sm:rounded-lg border border-slate-800 shrink-0">
-                    <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5 text-yellow-500" />
-                    <span className={(row.avgChips ?? 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
-                      {row.avgChips !== null ? `${row.avgChips > 0 ? '+' : ''}${row.avgChips.toFixed(2)}` : '-'}
-                    </span>
-                  </span>
-                </div>
-              </div>
-
-              <div className="text-right shrink-0">
-                <div className="text-[7px] sm:text-[10px] font-black text-slate-500 tracking-[0.15em] sm:tracking-[0.2em] uppercase">
-                  Total Profit
-                </div>
-                <div
-                  className={`font-mono text-sm sm:text-2xl md:text-4xl font-black ${
-                    row.totalProfitWithoutFee >= 0
-                      ? 'text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.6)]'
-                      : 'text-rose-500 drop-shadow-[0_0_12px_rgba(244,63,94,0.6)]'
-                  }`}
-                >
-                  {formatSignedYen(row.totalProfitWithoutFee)}
-                </div>
-                <div className="text-[7px] sm:text-[10px] text-slate-500 font-mono mt-0.5">
-                  場代込み {formatSignedYen(row.totalProfitWithFee)}
-                </div>
-              </div>
-            </button>
-          );
-        })}
+      <div className="section-kicker"><h3>すべての雀士</h3><span>タップして成績詳細へ</span></div>
+      <div className="leaderboard-list">
+        {rows.map((row, idx) => (
+          <button type="button" key={row.playerId} className="leaderboard-row" onClick={() => setSelectedPlayerId(row.playerId)}>
+            <span className={`leaderboard-place ${idx < 3 ? 'text-gold' : ''}`}>{String(idx + 1).padStart(2, '0')}</span>
+            <div className="leaderboard-person"><strong>{row.name}</strong>
+              {rankStatuses[row.playerId] && <RankBadge status={rankStatuses[row.playerId]!} />}
+              <small>{row.hanchanCount}半荘 · 平均 {row.avgRank?.toFixed(2) ?? '—'}位</small>
+            </div>
+            <div className="leaderboard-profit"><strong className={row.totalProfitWithoutFee >= 0 ? 'profit-positive' : 'profit-negative'}>{formatSignedYen(row.totalProfitWithoutFee)}</strong>
+              <small>場代込み {formatSignedYen(row.totalProfitWithFee)}</small>
+              <small>平均チップ {row.avgChips?.toFixed(2) ?? '—'}枚 / 日</small>
+            </div><ChevronRight size={15} className="text-slate-500 shrink-0" />
+          </button>
+        ))}
       </div>
 
       {selectedRow && (
@@ -169,3 +104,4 @@ export function RankingSection() {
     </div>
   );
 }
+
