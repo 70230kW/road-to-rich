@@ -1,6 +1,7 @@
+import type { ReactNode } from 'react';
 import { GlitchText } from '../common/GlitchText';
 
-export function Header() {
+export function Header({ playerSelect }: { playerSelect?: ReactNode }) {
   return (
     <header className="app-header">
       <div className="brand-lockup">
@@ -11,7 +12,7 @@ export function Header() {
           <GlitchText text="ROAD TO RICH" />
         </p>
       </div>
-      <span className="league-label"><span /> MAHJONG LEAGUE</span>
+      {playerSelect ?? <span className="league-label"><span /> MAHJONG LEAGUE</span>}
     </header>
   );
 }

@@ -93,9 +93,8 @@ function AppShell() {
       <div className="app-workspace relative z-10">
         <DesktopNav primary={PRIMARY_TABS} other={OTHER_TABS} activeTab={activeTab} onSelect={id => id === 'input' ? setIsRecordOpen(true) : selectTab(id)} />
         <div className="app-content">
-        <Header />
+        <Header playerSelect={<PlayerContext />} />
         <RoomBadge />
-        <PlayerContext onRank={() => selectTab('rank')} />
         <RankPromotion />
 
         <main className="min-h-[500px] pt-5">

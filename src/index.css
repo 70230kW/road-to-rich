@@ -408,12 +408,6 @@ button:focus-visible, select:focus-visible, summary:focus-visible, input:focus-v
 .app-workspace { max-width: 1060px; margin-inline: auto; padding: 16px 20px 120px; }
 .app-content { min-width: 0; }
 .desktop-nav { display: none; }
-.player-context { display: flex; align-items: center; gap: 12px; border-block: 1px solid var(--premium-line); padding: 12px 0; }
-.player-context label { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 6px; }
-.player-context label > span { color: var(--premium-muted); font-size: 10px; }
-.player-context select { color: #f1f3f7; font-size: 15px; font-weight: 600; max-width: 100%; background: #13161b; border: 0; padding: 5px 4px; border-radius: 5px; }
-.player-context > button { text-align: right; color: var(--premium-gold); font-size: 13px; padding: 8px 0 8px 8px; flex-shrink: 0; cursor: pointer; }
-.player-context > button > span { display: block; color: var(--premium-muted); font-size: 10px; margin-top: 5px; }
 .period-filter { width: 100%; }
 .period-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
 .period-buttons button { flex: 1; min-width: 45px; padding: 11px 8px; font-size: 12px; border-radius: 9px; border: 1px solid var(--premium-line); color: #a7b0bf; background: #13161b; white-space: nowrap; cursor: pointer; }
@@ -556,4 +550,9 @@ fieldset:has(.score-save-bar) { padding-bottom: 100px; }
   box-shadow: 0 8px 28px #0004, inset 0 1px 0 #ffffff05;
 }
 .app-content > .app-header .league-label { font-size: clamp(7px, 2vw, 9px); }
-.player-context label > span { line-height: 1.6; overflow-wrap: anywhere; }
+
+/* A single compact identity control in the floating header. */
+.header-player-select { display: flex; flex-direction: column; gap: 4px; width: 52%; max-width: 220px; min-width: 0; }
+.header-player-select > span { color: var(--premium-muted); font-size: 9px; line-height: 1.5; overflow-wrap: anywhere; }
+.header-player-select select { width: 100%; min-width: 0; min-height: 44px; padding: 8px 24px 8px 10px; border: 1px solid var(--premium-line); border-radius: 9px; background: #1b2028; color: #f1f3f7; font-size: 16px; font-weight: 600; text-overflow: ellipsis; }
+.header-player-select select:disabled { color: var(--premium-muted); }
