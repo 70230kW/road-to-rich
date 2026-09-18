@@ -14,6 +14,10 @@ export function MoreMenu({
   onSelect: (id: string) => void;
   onClose: () => void;
 }) {
+  const groups = [
+    { label: 'キャリア', ids: ['rank', 'simulator', 'trophies'] },
+    { label: 'リーグ管理', ids: ['players', 'rules', 'settings'] },
+  ];
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center animate-fade-in" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
@@ -32,8 +36,9 @@ export function MoreMenu({
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-3">
-          {tabs.map((tab) => {
+        <div className="space-y-6">
+          {groups.map((group) => <section key={group.label}><p className="more-menu-group-label">{group.label}</p><div className="grid grid-cols-3 gap-3">
+          {tabs.filter((tab) => group.ids.includes(tab.id)).map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
@@ -52,6 +57,7 @@ export function MoreMenu({
               </button>
             );
           })}
+          </div></section>)}
         </div>
       </div>
     </div>,
