@@ -33,7 +33,7 @@ export function SimulatorSection() {
           accent="fuchsia"
           trailing={fullHistory.length > 0 ? seasonSelect : undefined}
         />
-        <EmptyState icon={Telescope} message="No Data" hint="対局を記録して精算を保存すると、ここで今後の成績を予測できます。" />
+        <EmptyState icon={Telescope} message="予測データがありません" hint="対局を記録して精算を保存すると、ここで今後の成績を予測できます。" />
       </div>
     );
   }
@@ -124,7 +124,7 @@ export function SimulatorSection() {
           <Rocket className="w-5 h-5 mr-2" /> トップまでの道のり
         </h3>
         {catchUpRows.length === 0 ? (
-          <EmptyState icon={Rocket} message="Not Enough Data" hint="2人以上の対局実績が揃うと、首位までの試算が表示されます。" />
+          <EmptyState icon={Rocket} message="データが不足しています" hint="2人以上の対局実績が揃うと、首位までの試算が表示されます。" />
         ) : (
           <div className="space-y-3">
             {catchUpRows.map((row) => (
@@ -152,4 +152,3 @@ export function SimulatorSection() {
     </div>
   );
 }
-
