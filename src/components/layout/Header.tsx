@@ -1,9 +1,16 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { GlitchText } from '../common/GlitchText';
 
 export function Header({ playerSelect }: { playerSelect?: ReactNode }) {
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setCompact(window.scrollY > 72);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   return (
-    <header className="app-header">
+    <header className={`app-header ${compact ? 'is-compact' : ''}`}>
       <div className="brand-lockup">
         <h1 className="font-brand text-lg tracking-wider text-white">
           <GlitchText text="じゃんかね" />
