@@ -24,7 +24,7 @@ export function SettlementForm({
   initialChips?: Record<string, number>;
   saveLabel?: string;
   onCancel: () => void;
-  onSave: (day: Omit<DayRecord, 'id' | 'date'>) => void;
+  onSave: (day: Omit<DayRecord, 'id' | 'date'>) => void | Promise<void>;
 }) {
   const participantIds = useMemo(() => {
     const seen = new Set<string>();
@@ -37,6 +37,9 @@ export function SettlementForm({
   const [chipInputs, setChipInputs] = useState<Record<string, string>>(() =>
     Object.fromEntries(participantIds.map((id) => [id, initialChips?.[id] !== undefined ? String(initialChips[id]) : ''])),
   );
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [attemptedSave, setAttemptedSave] = useState(false);
   const tableFeeInputRef = useRef<HTMLInputElement>(null);
 
@@ -89,23 +92,30 @@ export function SettlementForm({
         ? 'チップの枚数が入力されていますが、チップレート（1枚あたりの金額）が未入力です。'
         : null;
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (savingRef.current) return;
     setAttemptedSave(true);
     if (!chipsBalanced || chipRateMissing) return;
-    onSave({
+    savingRef.current = true;
+    setSaving(true);
+    setSaveError(null);
+    try {
+    await onSave({
       games: currentDayGames,
       tableFee,
       chips,
       chipRate,
       settlement,
     });
+    } catch { setSaveError('保存できませんでした。入力内容を確認し、接続が戻ってから再試行してください。'); }
+    finally { savingRef.current = false; setSaving(false); }
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <fieldset disabled={saving} className="space-y-8 animate-fade-in border-0 p-0 min-w-0">
       <SectionHeader icon={DollarSign} title="本日の精算" />
 
-      <ErrorBanner message={errorMessage} />
+      <ErrorBanner message={saveError ?? errorMessage} />
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-6">
@@ -263,10 +273,10 @@ export function SettlementForm({
         </NeonButton>
         <NeonButton variant="success" onClick={handleSave} className="flex-1">
           <Save className="w-6 h-6 mr-3" />
-          {saveLabel}
+          {saving ? '保存中…' : saveLabel}
         </NeonButton>
       </div>
-    </div>
+    </fieldset>
   );
 }
 

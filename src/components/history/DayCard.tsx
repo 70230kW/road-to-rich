@@ -23,7 +23,7 @@ export function DayCard({
   settings: Settings;
   isExpanded: boolean;
   onToggle: () => void;
-  onUpdateDay: (dayId: string, patch: Omit<DayRecord, 'id' | 'date'>) => void;
+  onUpdateDay: (dayId: string, patch: Omit<DayRecord, 'id' | 'date'>) => void | Promise<void>;
   onDeleteDay: (dayId: string) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -67,8 +67,8 @@ export function DayCard({
         players={players}
         settings={settings}
         onCancel={() => setIsEditing(false)}
-        onSave={(patch) => {
-          onUpdateDay(day.id, patch);
+        onSave={async (patch) => {
+          await onUpdateDay(day.id, patch);
           setIsEditing(false);
         }}
       />
@@ -205,3 +205,4 @@ export function DayCard({
     </div>
   );
 }
+

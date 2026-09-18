@@ -1,3 +1,6 @@
+import { DesktopNav } from './components/layout/DesktopNav';
+import { PlayerContext } from './components/layout/PlayerContext';
+import { RankPromotion } from './components/layout/RankPromotion';
 import { lazy, Suspense, useState } from 'react';
 import { BarChart3, BookOpen, Crown, Gauge, History, Plus, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
@@ -87,12 +90,16 @@ function AppShell() {
     <div className="min-h-screen bg-abyss text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-hidden relative">
       <Background />
 
-      <div className="max-w-5xl mx-auto px-5 md:px-8 pt-4 pb-28 relative z-10">
+      <div className="app-workspace relative z-10">
+        <DesktopNav primary={PRIMARY_TABS} other={OTHER_TABS} activeTab={activeTab} onSelect={id => id === 'input' ? setIsRecordOpen(true) : selectTab(id)} />
+        <div className="app-content">
         <Header />
         <RoomBadge />
+        <PlayerContext onRank={() => selectTab('rank')} />
+        <RankPromotion />
 
         <main className="min-h-[500px] pt-5">
-          <div className="relative z-10">
+          <div key={activeTab} className="relative z-10 screen-transition">
             {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} />}
             <Suspense fallback={<TabLoading />}>
               {activeTab === 'dashboard' && <DashboardSection />}
@@ -111,6 +118,7 @@ function AppShell() {
         <footer className="text-center py-8 text-[10px] text-slate-700 font-mono tracking-[0.2em] uppercase">
           じゃんかね — Provided by K.Waga
         </footer>
+        </div>
       </div>
 
       <BottomNav

@@ -1,5 +1,7 @@
+import { RankEmblem } from '../common/RankEmblem';
+import { useViewContext } from '../../store/useViewPreferences';
 import { useMemo, useState } from 'react';
-import { ChevronDown, Gauge, Users, Gem } from 'lucide-react';
+import { ChevronDown, Gauge, Users } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { computePlayerRankStatuses, groupRankTiers, type RankGroup } from '../../lib/rankLevel';
 import { RANK_GROUP_THEME } from '../common/RankBadge';
@@ -11,8 +13,7 @@ import { EmptyState } from '../common/EmptyState';
 export function RankSection() {
   const players = useAppStore((s) => s.players);
   const history = useAppStore((s) => s.history);
-  const [playerId, setPlayerId] = useState('');
-  const activeId = players.some(p => p.id === playerId) ? playerId : players[0]?.id ?? '';
+  const { activeId, setPlayerId } = useViewContext();
   const statuses = useMemo(() => computePlayerRankStatuses(history, players), [history, players]);
   const groups = useMemo(() => groupRankTiers(), []);
   const [expandedGroups, setExpandedGroups] = useState<Set<RankGroup>>(new Set());
@@ -59,7 +60,7 @@ export function RankSection() {
         return <>
           <section className="rank-hero">
             <p className="eyebrow">YOUR MAHJONG CAREER</p>
-            <div className="rank-emblem" aria-hidden="true"><span /><Gem size={58} strokeWidth={1} /></div>
+            <RankEmblem status={status} />
             <p className="rank-title">{status.levelName}</p>
             <p className="muted text-xs mb-5">通算の累計収支で決まる、あなたの段位</p>
             <strong className="rank-total">{formatSignedYen(status.cumulativeProfit)}</strong>

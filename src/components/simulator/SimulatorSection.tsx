@@ -2,10 +2,11 @@ import { useMemo, useState } from 'react';
 import { Crown, Rocket, Telescope, TrendingUp } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { computeCatchUpToLeader, computeSimulatorRows } from '../../lib/simulator';
-import { filterHistoryBySeason, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
+import { filterHistoryBySeason } from '../../lib/season';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
-import { SeasonSelect } from '../common/SeasonSelect';
+import { PeriodFilter } from '../common/PeriodFilter';
+import { useViewContext } from '../../store/useViewPreferences';
 import { EmptyState } from '../common/EmptyState';
 
 const PRESET_HANCHAN_COUNTS = [10, 20, 50, 100];
@@ -13,12 +14,11 @@ const PRESET_HANCHAN_COUNTS = [10, 20, 50, 100];
 export function SimulatorSection() {
   const fullHistory = useAppStore((s) => s.history);
   const players = useAppStore((s) => s.players);
-  const [season, setSeason] = useState<SeasonFilter>('all');
-  const seasons = useMemo(() => getAvailableSeasons(fullHistory), [fullHistory]);
+  const { season } = useViewContext();
   const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
   const [futureHanchans, setFutureHanchans] = useState(20);
 
-  const seasonSelect = <SeasonSelect season={season} onChange={setSeason} seasons={seasons} accent="fuchsia" />;
+  const seasonSelect = <PeriodFilter />;
 
   const rows = useMemo(() => computeSimulatorRows(history, players, futureHanchans), [history, players, futureHanchans]);
   const catchUpRows = useMemo(() => computeCatchUpToLeader(history, players), [history, players]);
@@ -152,3 +152,4 @@ export function SimulatorSection() {
     </div>
   );
 }
+

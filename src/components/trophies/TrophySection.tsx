@@ -3,9 +3,10 @@ import { ChevronDown, Lock, Plus, Sparkles, Trash2, Trophy, Users } from 'lucide
 import { useAppStore } from '../../store/useAppStore';
 import { computePlayerTrophies, TROPHY_LIST, TROPHY_TIER_LABELS, TROPHY_TIERS, type TrophyTier } from '../../lib/trophies';
 import { computeCustomTrophyAchievements, CUSTOM_TROPHY_CONDITION_LABELS } from '../../lib/customTrophies';
-import { filterHistoryBySeason, getAvailableSeasons, type SeasonFilter } from '../../lib/season';
+import { filterHistoryBySeason } from '../../lib/season';
 import { SectionHeader } from '../common/SectionHeader';
-import { SeasonSelect } from '../common/SeasonSelect';
+import { PeriodFilter } from '../common/PeriodFilter';
+import { useViewContext } from '../../store/useViewPreferences';
 import { EmptyState } from '../common/EmptyState';
 import { CustomTrophyForm } from './CustomTrophyForm';
 
@@ -88,8 +89,7 @@ export function TrophySection() {
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>('');
   const [collapsedTiers, setCollapsedTiers] = useState<Set<TrophyTier>>(new Set());
   const [isCreatingTrophy, setIsCreatingTrophy] = useState(false);
-  const [season, setSeason] = useState<SeasonFilter>('all');
-  const seasons = useMemo(() => getAvailableSeasons(fullHistory), [fullHistory]);
+  const { season } = useViewContext();
   const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
 
   const trophiesByPlayer = useMemo(() => computePlayerTrophies(history, players, settings), [history, players, settings]);
@@ -97,7 +97,7 @@ export function TrophySection() {
   const customAchievements = useMemo(() => computeCustomTrophyAchievements(history, players, customTrophies), [history, players, customTrophies]);
   const earnedCustom = selectedPlayerId ? (customAchievements[selectedPlayerId] ?? new Set<string>()) : new Set<string>();
 
-  const seasonSelect = <SeasonSelect season={season} onChange={setSeason} seasons={seasons} accent="yellow" />;
+  const seasonSelect = <PeriodFilter />;
 
   const toggleTier = (tier: TrophyTier) => {
     setCollapsedTiers((prev) => {
@@ -288,3 +288,4 @@ export function TrophySection() {
     </div>
   );
 }
+
