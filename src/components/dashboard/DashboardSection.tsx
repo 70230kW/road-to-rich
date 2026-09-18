@@ -10,14 +10,13 @@ import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { PeriodFilter } from '../common/PeriodFilter';
 import { EmptyState } from '../common/EmptyState';
-import { PlayerSelect } from '../common/PlayerSelect';
 import { PersonalProfitChart } from './PersonalProfitChart';
 const LeagueAnalysis = lazy(() => import('./LeagueAnalysis').then(m => ({ default: m.LeagueAnalysis })));
 
 export function DashboardSection() {
   const history = useAppStore(s => s.history);
   const players = useAppStore(s => s.players);
-  const { season, activeId, setPlayerId } = useViewContext();
+  const { season, activeId } = useViewContext();
   const [showDetails, setShowDetails] = useState(false);
   const filtered = useMemo(() => filterHistoryBySeason(history, season), [history, season]);
   const rows = useMemo(() => computeRanking(filtered, players), [filtered, players]);
@@ -41,7 +40,6 @@ export function DashboardSection() {
     <SectionHeader icon={BarChart3} title="ダッシュボード" />
     <PeriodFilter />
     {players.length === 0 ? <EmptyState icon={BarChart3} message="最初の一戦から、キャリアが始まる。" hint="雀士を登録し、対局を記録すると個人成績が表示されます。" /> : <>
-      <PlayerSelect players={players} value={activeId} onChange={setPlayerId} />
       <section className="performance-hero player-career-card">
         <div className="career-card-heading">{status && <RankEmblem status={status} compact />}<div><p className="eyebrow">PLAYER PROFILE</p><h3>{players.find(p => p.id === activeId)?.name}</h3></div><span className="text-gold">{status?.levelName}</span></div>
         <div className="section-kicker"><span className="eyebrow">YOUR PERFORMANCE</span><span>{formatSeasonLabel(season)}</span></div>
