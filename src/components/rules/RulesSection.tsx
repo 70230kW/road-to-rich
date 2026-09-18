@@ -33,7 +33,7 @@ export function RulesSection() {
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={Search} message="No Results" hint="別のキーワードで検索してみてください。" />
+        <EmptyState icon={Search} message="該当するルールがありません" hint="別のキーワードで検索してみてください。" />
       ) : (
         <div className="space-y-4">
           {filtered.map((rule) => (
