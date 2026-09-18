@@ -540,3 +540,20 @@ fieldset:has(.score-save-bar) { padding-bottom: 100px; }
 @media (prefers-reduced-motion: reduce) {
   .screen-transition, .screen-transition .animate-fade-in, .promotion-banner, .save-receipt, .emblem-aura { animation: none !important; }
 }
+
+/* Keep the league header in normal flow, then float it above scrolling content. */
+.app-content > .app-header {
+  position: sticky;
+  top: calc(8px + env(safe-area-inset-top, 0px));
+  z-index: 30;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border: 1px solid var(--premium-line);
+  border-radius: 16px;
+  background: rgb(16 19 24 / .92);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 8px 28px #0004, inset 0 1px 0 #ffffff05;
+}
+.app-content > .app-header .league-label { font-size: clamp(7px, 2vw, 9px); }
+.player-context label > span { line-height: 1.6; overflow-wrap: anywhere; }

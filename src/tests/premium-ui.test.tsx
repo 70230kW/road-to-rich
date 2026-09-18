@@ -14,7 +14,7 @@ describe('premium league screens', () => {
   it('switches personal metrics without changing stored results, including empty seasons', () => {
     seed(); render(<DashboardSection />);
     expect(screen.getByText('100.0%')).toBeInTheDocument();
-    fireEvent.change(screen.getByRole('combobox', {name:/表示する雀士/}), {target:{value:'b'}});
+    fireEvent.change(screen.getByRole('combobox', {name:/自分の名前を選択してください/}), {target:{value:'b'}});
     expect(screen.getByText('0.0%')).toBeInTheDocument();
     expect(screen.getByText('2.00')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', {name:/年月指定/}));
@@ -35,7 +35,7 @@ describe('premium league screens', () => {
     useAppStore.setState({history:[{...history[0],settlement:{...history[0].settlement,a:{...history[0].settlement.a,totalWithoutFee:600000},b:{...history[0].settlement.b,totalWithoutFee:-200000}}}]});
     render(<RankSection />);
     expect(screen.getByText('最高段位に到達しました！')).toBeInTheDocument();
-    fireEvent.change(screen.getByRole('combobox',{name:/表示する雀士/}),{target:{value:'b'}});
+    fireEvent.change(screen.getByRole('combobox',{name:/自分の名前を選択してください/}),{target:{value:'b'}});
     expect(screen.getByText('¥120,000')).toBeInTheDocument();
     expect(screen.getByRole('progressbar').getAttribute('value')).toBe('0');
   });
