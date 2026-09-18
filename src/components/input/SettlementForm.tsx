@@ -1,3 +1,4 @@
+import { SectionHeader } from '../common/SectionHeader';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Activity, ChevronsRight, DollarSign, Save } from 'lucide-react';
 import type { DaySettlementEntry, DayRecord, Game, Player } from '../../types';
@@ -102,13 +103,7 @@ export function SettlementForm({
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="flex items-center justify-between border-b border-slate-700/50 pb-5 relative">
-        <h2 className="text-2xl md:text-3xl font-black font-display text-transparent bg-clip-text bg-gradient-to-r from-cyan-100 to-cyan-400 flex items-center tracking-wider">
-          <DollarSign className="w-7 h-7 md:w-8 md:h-8 mr-3 text-cyan-400 drop-shadow-[0_0_10px_rgb(var(--accent-rgb-400)/0.8)]" />
-          本日の精算
-        </h2>
-        <div className="absolute -bottom-[1px] left-0 w-32 h-[2px] bg-gradient-to-r from-cyan-400 to-transparent" />
-      </div>
+      <SectionHeader icon={DollarSign} title="本日の精算" />
 
       <ErrorBanner message={errorMessage} />
 
@@ -274,3 +269,4 @@ export function SettlementForm({
     </div>
   );
 }
+

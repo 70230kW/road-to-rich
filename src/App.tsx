@@ -45,8 +45,8 @@ function TabLoading() {
 
 // 画面下部の固定ナビゲーションに収まる主要4タブ。残りは「その他」メニューにまとめる。
 const PRIMARY_TABS: PrimaryTabDef[] = [
-  { id: 'ranking', name: '成績', icon: Crown },
-  { id: 'dashboard', name: '分析', icon: BarChart3 },
+  { id: 'ranking', name: '順位表', icon: Crown },
+  { id: 'dashboard', name: 'ダッシュボード', icon: BarChart3 },
   { id: 'input', name: '記録', icon: Plus },
   { id: 'history', name: '対戦履歴', icon: History },
 ];

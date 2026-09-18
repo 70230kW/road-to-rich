@@ -1,3 +1,4 @@
+import { SectionHeader } from '../common/SectionHeader';
 import { useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, ChevronDown, ChevronUp, Gamepad2, Plus, RotateCcw, Scale, Target, UserPlus } from 'lucide-react';
 import type { Game, Player, PlayerCount, Settings, YakumanEvent } from '../../types';
@@ -148,11 +149,7 @@ export function HanchanForm({
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="flex justify-between items-end border-b border-slate-700/50 pb-5 relative">
-        <h2 className="text-2xl md:text-3xl font-black font-display text-transparent bg-clip-text bg-gradient-to-r from-cyan-100 to-cyan-400 flex items-center tracking-wider">
-          <Gamepad2 className="w-7 h-7 md:w-8 md:h-8 mr-3 text-cyan-400 drop-shadow-[0_0_10px_rgb(var(--accent-rgb-400)/0.8)]" />
-          半荘成績入力
-        </h2>
+      <SectionHeader icon={Gamepad2} title="半荘成績入力" trailing={
         <button
           type="button"
           onClick={() => onSetPlayerCount(playerCount === 4 ? 3 : 4)}
@@ -166,8 +163,7 @@ export function HanchanForm({
         >
           {playerCount}人麻雀
         </button>
-        <div className="absolute -bottom-[1px] left-0 w-32 h-[2px] bg-gradient-to-r from-cyan-400 to-transparent" />
-      </div>
+      } />
 
       {notEnoughPlayers ? (
         <div className="flex flex-col items-center justify-center py-16 text-center gap-5 bg-panel-2/40 border border-slate-700/50 rounded-3xl">
@@ -412,3 +408,4 @@ export function HanchanForm({
     </div>
   );
 }
+

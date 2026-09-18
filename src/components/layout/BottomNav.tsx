@@ -44,7 +44,7 @@ export function BottomNav({
               <Icon
                 className="nav-icon"
               />
-              <span className="text-[10px] sm:text-xs font-bold tracking-wide">{tab.name}</span>
+              <span className="nav-label">{tab.name}</span>
             </button>
           );
         })}
@@ -59,7 +59,7 @@ export function BottomNav({
           <LayoutGrid
             className="nav-icon"
           />
-          <span className="text-[10px] sm:text-xs font-bold tracking-wide">その他</span>
+          <span className="nav-label">その他</span>
         </button>
       </div>
     </nav>
