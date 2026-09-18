@@ -133,13 +133,13 @@ export function RivalrySection({ history, players }: { history: DayRecord[]; pla
       {!allSelected ? (
         <EmptyState
           icon={Swords}
-          message="Select Players"
+          message="雀士を選択してください"
           hint={`${playerCount}人の雀士を選ぶと、同卓した対局だけの直接対決成績が表示されます。`}
         />
       ) : hasDuplicate ? (
-        <EmptyState icon={Swords} message="Duplicate Player" hint="同じ雀士を複数選ぶことはできません。それぞれ別の雀士を選んでください。" />
+        <EmptyState icon={Swords} message="同じ雀士が選択されています" hint="同じ雀士を複数選ぶことはできません。それぞれ別の雀士を選んでください。" />
       ) : stats!.sharedHanchanCount === 0 ? (
-        <EmptyState icon={Swords} message="No Shared Games" hint={`選択した${playerCount}人が同卓した対局はまだありません。`} />
+        <EmptyState icon={Swords} message="同卓した対局がありません" hint={`選択した${playerCount}人が同卓した対局はまだありません。`} />
       ) : (
         <div className="space-y-5">
           <div className={`grid ${gridColsClass} gap-4`}>
