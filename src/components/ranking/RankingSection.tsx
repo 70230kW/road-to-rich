@@ -18,6 +18,7 @@ import { useViewContext } from '../../store/useViewPreferences';
 import { EmptyState } from '../common/EmptyState';
 import { RankBadge } from '../common/RankBadge';
 import { PlayerDetailModal } from './PlayerDetailModal';
+import { ScrambleText } from '../common/ScrambleText';
 
 export function RankingSection() {
   const fullHistory = useAppStore((s) => s.history);
@@ -37,6 +38,7 @@ export function RankingSection() {
   // 段位は季節に関係なく、通算の累計ptで判定する（一時的な絞り込みで昇段・降段して見えないように）。
   const rankStatuses = useMemo(() => computePlayerRankStatuses(fullHistory, players), [fullHistory, players]);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [density, setDensity] = useState<'simple' | 'detail'>('simple');
 
   const seasonSelect = <PeriodFilter />;
 
@@ -44,7 +46,7 @@ export function RankingSection() {
     return (
       <div className="space-y-8">
         <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" trailing={seasonSelect} />
-        <EmptyState icon={Crown} message="No Ranking Data" hint="精算を保存すると、雀士ごとの累計成績が表示されます。" />
+        <EmptyState icon={Crown} message="ランキングデータがありません" hint="精算を保存すると、雀士ごとの累計成績が表示されます。" />
       </div>
     );
   }
@@ -57,7 +59,7 @@ export function RankingSection() {
     <div className="space-y-8 animate-fade-in">
       <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" trailing={seasonSelect} />
 
-      {activeRow && <section className="ranking-target"><div><span className="eyebrow">YOUR NEXT TARGET</span><h3>{activeRow.name} · {positions[activeId]}位</h3></div><p>{gap === null ? '現在トップの収支です' : <>上位の収支まで <strong>¥{Math.ceil(gap).toLocaleString()}</strong></>}</p></section>}
+      {activeRow && <section className="ranking-target"><div><span className="eyebrow">YOUR NEXT TARGET</span><h3>{activeRow.name} · <ScrambleText text={String(positions[activeId])} />位</h3></div><p>{gap === null ? '現在トップの収支です' : <>上位の収支まで <strong><ScrambleText text={`¥${Math.ceil(gap).toLocaleString()}`} /></strong></>}</p></section>}
       <div className="section-kicker"><span className="eyebrow">THE LEADERBOARD</span><span>{rows.length}人の雀士 · 場代抜き収支順（円）</span></div>
       <div className="podium" aria-label="上位3名">
         {rows.slice(0, 3).map((row, idx) => (
@@ -67,24 +69,24 @@ export function RankingSection() {
             <span className="player-avatar">{Array.from(row.name)[0]}</span>
             <strong className="podium-name">{row.name}</strong>
             <span className="podium-tier">{rankStatuses[row.playerId]?.levelName}</span>
-            <span className={`podium-profit ${row.totalProfitWithoutFee >= 0 ? 'profit-positive' : 'profit-negative'}`}>{formatSignedYen(row.totalProfitWithoutFee)}</span>
+            <span className={`podium-profit ${row.totalProfitWithoutFee >= 0 ? 'profit-positive' : 'profit-negative'}`}><ScrambleText text={formatSignedYen(row.totalProfitWithoutFee)} /></span>
             <span className="podium-base"><span>{String(positions[row.playerId]).padStart(2, '0')}</span><small>{row.hanchanCount} 半荘</small></span>
           </button>
         ))}
       </div>
-      <div className="section-kicker"><h3>すべての雀士</h3><span>{comparison.label} · ↑上昇 / ↓下降</span></div>
-      <div className="leaderboard-list">
+      <div className="section-kicker"><h3>すべての雀士</h3><div className="density-switch" role="group" aria-label="順位表の表示密度"><button type="button" aria-pressed={density === 'simple'} onClick={() => setDensity('simple')}>シンプル</button><button type="button" aria-pressed={density === 'detail'} onClick={() => setDensity('detail')}>詳細</button></div></div>
+      <div className={`leaderboard-list is-${density}`}>
         {rows.map((row, idx) => (
           <button type="button" key={row.playerId} className={`leaderboard-row ${row.playerId === activeId ? 'is-selected-player' : ''}`} onClick={() => setSelectedPlayerId(row.playerId)}>
             <span className={`leaderboard-place ${idx < 3 ? 'text-gold' : ''}`}>{String(positions[row.playerId]).padStart(2, '0')}</span>
             <div className="leaderboard-person"><strong>{row.name}</strong>
               {rankStatuses[row.playerId] && <RankBadge status={rankStatuses[row.playerId]!} />}
               <small className="rank-movement">{comparison.positions[row.playerId] == null ? '比較データなし' : (() => { const delta = comparison.positions[row.playerId] - positions[row.playerId]; return delta > 0 ? `↑ ${delta}位上昇` : delta < 0 ? `↓ ${Math.abs(delta)}位下降` : '→ 順位維持'; })()}</small>
-              <small>{row.hanchanCount}半荘 · 平均 {row.avgRank?.toFixed(2) ?? '—'}位</small>
+              <small className="leaderboard-detail">{row.hanchanCount}半荘 · 平均 {row.avgRank?.toFixed(2) ?? '—'}位</small>
             </div>
-            <div className="leaderboard-profit"><strong className={row.totalProfitWithoutFee >= 0 ? 'profit-positive' : 'profit-negative'}>{formatSignedYen(row.totalProfitWithoutFee)}</strong>
-              <small>場代込み {formatSignedYen(row.totalProfitWithFee)}</small>
-              <small>平均チップ {row.avgChips?.toFixed(2) ?? '—'}枚 / 日</small>
+            <div className="leaderboard-profit"><strong className={row.totalProfitWithoutFee >= 0 ? 'profit-positive' : 'profit-negative'}><ScrambleText text={formatSignedYen(row.totalProfitWithoutFee)} /></strong>
+              <small className="leaderboard-detail">場代込み {formatSignedYen(row.totalProfitWithFee)}</small>
+              <small className="leaderboard-detail">平均チップ {row.avgChips?.toFixed(2) ?? '—'}枚 / 日</small>
             </div><ChevronRight size={15} className="text-slate-500 shrink-0" />
           </button>
         ))}
@@ -111,4 +113,3 @@ export function RankingSection() {
     </div>
   );
 }
-
