@@ -186,8 +186,7 @@ button, select, summary { touch-action: manipulation; }
 button:focus-visible, select:focus-visible, summary:focus-visible, input:focus-visible { outline: 2px solid var(--premium-gold); outline-offset: 4px; }
 .premium-background { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 80% 0%, rgb(var(--accent-rgb-500) / .045), transparent 45%); }
 .app-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 0 22px; margin-bottom: 10px; border-bottom: 1px solid var(--premium-line); gap: 12px; }
-.brand-lockup { display: flex; align-items: center; gap: 11px; }
-.brand-mark { display: grid; place-items: center; width: 44px; height: 44px; background: #d9bd8210; border: 1px solid #d9bd823d; color: var(--premium-gold); border-radius: 13px; }
+.brand-lockup { min-width: 0; }
 .eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: .17em; font-weight: 500; color: var(--premium-muted); }
 .league-label { display: flex; align-items: center; gap: 7px; font: 9px var(--font-mono); letter-spacing: .12em; color: var(--premium-muted); }
 .league-label > span { width: 5px; height: 5px; border-radius: 50%; background: var(--color-cyan-400); }
@@ -309,3 +308,43 @@ button:focus-visible, select:focus-visible, summary:focus-visible, input:focus-v
 .record-option strong { display: block; font-size: 15px; font-weight: 600; }
 .record-option small { display: block; margin-top: 6px; font-size: 12px; color: var(--premium-muted); }
 .record-option:disabled { opacity: .45; cursor: default; }
+
+
+/* Short, synchronized glitches every six seconds; the text remains readable. */
+.brand-glitch {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  isolation: isolate;
+  animation: brand-glitch-shift 6s step-end infinite;
+}
+.brand-glitch-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  animation: brand-glitch-slice 6s step-end infinite;
+}
+.brand-glitch-layer-a {
+  --glitch-offset: -2px;
+  color: #78dfde;
+}
+.brand-glitch-layer-b {
+  --glitch-offset: 2px;
+  color: var(--premium-gold);
+}
+@keyframes brand-glitch-shift {
+  0%, 8%, 14%, 100% { transform: translateX(0); }
+  9%, 11% { transform: translateX(-1px); }
+  10%, 12% { transform: translateX(1px); }
+}
+@keyframes brand-glitch-slice {
+  0%, 8%, 14%, 100% { opacity: 0; transform: translateX(0); clip-path: inset(0); }
+  9%, 12% { opacity: .85; transform: translateX(var(--glitch-offset)); clip-path: inset(18% 0 57% 0); }
+  10%, 13% { opacity: .7; transform: translateX(calc(var(--glitch-offset) * -1)); clip-path: inset(62% 0 12% 0); }
+  11% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-glitch { animation: none; }
+  .brand-glitch-layer { display: none; animation: none; }
+}
