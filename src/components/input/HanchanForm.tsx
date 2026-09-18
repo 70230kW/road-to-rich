@@ -1,7 +1,8 @@
+import { SaveReceipt } from './SaveReceipt';
 import { SectionHeader } from '../common/SectionHeader';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, ChevronDown, ChevronUp, Gamepad2, Plus, RotateCcw, Scale, Target, UserPlus } from 'lucide-react';
-import type { Game, Player, PlayerCount, Settings, YakumanEvent } from '../../types';
+import type { Game, GameScore, Player, PlayerCount, Settings, YakumanEvent } from '../../types';
 import {
   calcGameSettlement,
   computeAutoLastScore,
@@ -26,17 +27,25 @@ export function HanchanForm({
   onStartSettling,
   onNavigateToPlayers,
   onSetPlayerCount,
+  receiptTitle = '半荘を保存しました',
 }: {
   players: Player[];
   settings: Settings;
   currentDayGames: Game[];
-  onAddGame: (game: Omit<Game, 'id'>) => void;
+  onAddGame: (game: Omit<Game, 'id'>) => void | Promise<void>;
+  receiptTitle?: string;
   onRemoveGame: (gameId: string) => void;
   onUpdateGameYakuman: (gameId: string, events: YakumanEvent[]) => void;
   onStartSettling: () => void;
   onNavigateToPlayers: () => void;
   onSetPlayerCount: (count: PlayerCount) => void;
 }) {
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
+  const scoreRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [savedScores, setSavedScores] = useState<GameScore[] | null>(null);
+  const [focusedSeat, setFocusedSeat] = useState(0);
   const playerCount = settings.playerCount;
   const lastIndex = playerCount - 1;
 
@@ -122,33 +131,56 @@ export function HanchanForm({
     setManualInputs(next);
   };
 
-  const handleRecord = () => {
+  const handleRecord = async () => {
+    if (savingRef.current) return;
     setAttemptedSubmit(true);
-    if (!validation.isValid) return;
+    if (!validation.isValid) {
+      const first = Array.from(validation.missingScoreIndices).find(i => i < lastIndex);
+      if (first !== undefined) scoreRefs.current[first]?.focus();
+      return;
+    }
+    savingRef.current = true;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const entries = selectedIds.map((id, i) => ({ playerId: id as string, rawScore: rawScores[i] as number }));
+      const settled = calcGameSettlement(entries, settings, tieBreakOrder, isRankPointsChanged ? activeRankPoints : undefined);
+      await onAddGame({
+        scores: settled,
+        ...(yakumanEvents.length > 0 ? { yakumanEvents } : {}),
+        ...(isRankPointsChanged ? { rankPointsUsed: [...activeRankPoints] } : {}),
+      });
 
-    const entries = selectedIds.map((id, i) => ({ playerId: id as string, rawScore: rawScores[i] as number }));
-    const settled = calcGameSettlement(entries, settings, tieBreakOrder, isRankPointsChanged ? activeRankPoints : undefined);
-    onAddGame({
-      scores: settled,
-      ...(yakumanEvents.length > 0 ? { yakumanEvents } : {}),
-      ...(isRankPointsChanged ? { rankPointsUsed: [...activeRankPoints] } : {}),
-    });
-
-    setManualInputs(Array(lastIndex).fill(''));
-    setAttemptedSubmit(false);
-    setTieOrderOverrides({});
-    setYakumanEvents([]);
-    setIsRankPointsOpen(false);
-    setRankPointsOverride(null);
-    // selectedIds intentionally preserved for the next hanchan
+      setManualInputs(Array(lastIndex).fill(''));
+      setAttemptedSubmit(false);
+      setTieOrderOverrides({});
+      setYakumanEvents([]);
+      setIsRankPointsOpen(false);
+      setRankPointsOverride(null);
+      setSavedScores(settled);
+      // selectedIds intentionally preserved for the next hanchan.
+    } catch {
+      setSaveError('保存できませんでした。入力内容は残っています。接続を確認して再試行してください。');
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
   };
 
   const participantIds = useMemo(() => selectedIds.filter((id): id is string => id !== null), [selectedIds]);
 
   const showBanner = attemptedSubmit && !validation.isValid ? validation.message : validation.totalMismatch ? validation.message : null;
 
+  const enteredTotal = otherRaw.reduce<number>((sum, value) => sum + (value ?? 0), 0);
+  const expectedTotal = settings.initialScore * playerCount;
+  const nextGame = () => {
+    setSavedScores(null);
+    requestAnimationFrame(() => scoreRefs.current[0]?.focus());
+  };
+  if (savedScores) return <SaveReceipt title={receiptTitle} detail="この半荘の結果 · チップ・場代を除く" rows={savedScores.map(score => ({ id: score.playerId, name: players.find(p => p.id === score.playerId)?.name ?? '不明', rank: score.rank, profit: score.point }))} onNext={nextGame} onSettle={onStartSettling} />;
+
   return (
-    <div className="space-y-8 animate-fade-in">
+    <fieldset disabled={saving} className="space-y-8 animate-fade-in min-w-0 border-0 p-0">
       <SectionHeader icon={Gamepad2} title="半荘成績入力" trailing={
         <button
           type="button"
@@ -182,11 +214,13 @@ export function HanchanForm({
         </div>
       ) : (
         <>
-          <ErrorBanner message={showBanner} />
+          <ErrorBanner message={saveError ?? showBanner} />
 
           <CurrentProfitsBar games={currentDayGames} players={players} />
 
-          <div className="space-y-4">
+          <p className="muted text-xs">素点は100点単位で入力（250 → 25,000点）。最後の1人は自動計算します。席番号は入力順で、起家順ではありません。</p>
+          <div className={`score-table score-table-${playerCount}`}>
+            <div className="score-table-center" aria-hidden="true"><span>第{currentDayGames.length + 1}半荘</span><strong>{playerCount}人麻雀</strong><small>{expectedTotal.toLocaleString()}点</small></div>
             {Array.from({ length: playerCount }).map((_, i) => {
               const isAuto = i === lastIndex;
               const selectInvalid =
@@ -204,14 +238,19 @@ export function HanchanForm({
               return (
                 <div
                   key={i}
-                  className={`flex items-center gap-2 sm:gap-4 p-2.5 sm:p-4 md:p-5 rounded-2xl border transition-all duration-300 ${
+                  onFocusCapture={() => setFocusedSeat(i)}
+                  className={`score-seat seat-${i} ${focusedSeat === i ? 'seat-focused' : ''} ${
                     isAuto
                       ? 'bg-cyan-950/20 border-cyan-800/50 shadow-[0_0_15px_rgb(var(--accent-rgb-500)/0.05)]'
                       : 'bg-panel-2/60 border-slate-700/50 hover:border-slate-500/50'
                   }`}
                 >
+                  <div className="score-seat-label"><span>席 {i + 1}</span><span>{isAuto ? '自動計算' : focusedSeat === i ? '入力中' : '素点入力'}</span></div>
                   <div className="relative flex-1 min-w-0">
                     <select
+                      aria-label={`席${i + 1}の雀士`}
+                      aria-invalid={selectInvalid}
+                      aria-describedby={selectInvalid ? `seat-${i}-player-error` : undefined}
                       value={selectedIds[i] ?? ''}
                       onChange={(e) => handleSelectChange(i, e.target.value)}
                       className={`w-full bg-abyss border rounded-xl pl-2.5 sm:pl-4 pr-7 sm:pr-10 py-2.5 sm:py-3.5 text-slate-100 focus:outline-none focus:ring-1 font-bold appearance-none transition-all cursor-pointer tracking-wide sm:tracking-wider shadow-inner text-xs sm:text-base ${
@@ -234,15 +273,21 @@ export function HanchanForm({
                     <ChevronDown className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-cyan-500/70 pointer-events-none" />
                   </div>
 
-                  <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-                    <div className="relative w-20 sm:w-32 md:w-48">
+                  {selectInvalid && <p id={`seat-${i}-player-error`} className="field-error">{validation.duplicatePlayerIds.has(selectedIds[i] ?? '') ? '同じ雀士は選べません' : '雀士を選択してください'}</p>}
+                  <div className="score-value-row">
+                    <div className="relative min-w-0 flex-1">
                       <input
+                        ref={node => { scoreRefs.current[i] = node; }}
                         type="number"
+                        inputMode="decimal"
+                        step="any"
+                        aria-invalid={scoreInvalid}
+                        aria-describedby={`seat-${i}-score-help`}
                         value={displayValue}
                         onChange={(e) => handleScoreChange(i, e.target.value)}
                         disabled={isAuto}
                         placeholder="0"
-                        aria-label={isAuto ? '自動計算される素点' : `素点 (百点単位)`}
+                        aria-label={isAuto ? '自動計算される素点' : `席${i + 1}の素点 (百点単位)`}
                         className={`w-full bg-abyss border rounded-xl px-2 sm:px-4 py-2.5 sm:py-3.5 focus:outline-none font-mono text-base sm:text-xl md:text-2xl text-right transition-all shadow-inner ${
                           isAuto
                             ? 'border-cyan-800/80 text-cyan-300 bg-cyan-950/30'
@@ -259,6 +304,9 @@ export function HanchanForm({
                     >
                       00
                     </span>
+                  </div>
+                  <div className="score-hint-row"><p id={`seat-${i}-score-help`} className={scoreInvalid ? 'field-error' : 'score-hint'}>{scoreInvalid ? '素点を入力してください' : rawScores[i] === null ? '入力待ち' : `${rawScores[i]!.toLocaleString()}点`}</p>
+                    {!isAuto && <button type="button" className="negative-score" aria-label={`席${i + 1}の素点の符号を切り替える`} onClick={() => handleScoreChange(i, manualInputs[i].startsWith('-') ? manualInputs[i].slice(1) : `-${manualInputs[i]}`)}>± 切替</button>}
                   </div>
                 </div>
               );
@@ -383,9 +431,10 @@ export function HanchanForm({
             />
           )}
 
-          <NeonButton variant="primary" onClick={handleRecord} className="w-full mt-6">
-            <Plus className="w-6 h-6 mr-2" /> この半荘を記録する
-          </NeonButton>
+          <div className="score-save-bar">
+            <div className="score-save-totals" aria-live="polite"><span>{autoRaw === null ? '入力済み' : '合計'} <strong>{(validation.scoreTotal ?? enteredTotal).toLocaleString()}</strong> / {expectedTotal.toLocaleString()}点</span><small>{autoRaw === null ? `未入力 ${otherRaw.filter(v => v === null).length}人 · 最後の1人は自動計算` : `最後の1人 ${autoRaw.toLocaleString()}点 · ${validation.totalMismatch ? '合計を確認' : '合計一致'}`}</small></div>
+            <button type="button" className="solid-action" onClick={handleRecord} disabled={saving}><Plus size={18}/>{saving ? '保存中…' : 'この半荘を記録する'}</button>
+          </div>
 
           {currentDayGames.length > 0 && (
             <RecordedGamesList
@@ -405,7 +454,7 @@ export function HanchanForm({
           </NeonButton>
         </div>
       )}
-    </div>
+    </fieldset>
   );
 }
 

@@ -21,7 +21,7 @@ export function DayEditor({
   players: Player[];
   settings: Settings;
   onCancel: () => void;
-  onSave: (patch: Omit<DayRecord, 'id' | 'date'>) => void;
+  onSave: (patch: Omit<DayRecord, 'id' | 'date'>) => void | Promise<void>;
 }) {
   const [games, setGames] = useState<Game[]>(day.games);
   const [step, setStep] = useState<'games' | 'settlement'>('games');
@@ -64,6 +64,7 @@ export function DayEditor({
         </NeonButton>
       </div>
       <HanchanForm
+        receiptTitle="編集中の対局に追加しました"
         players={players}
         settings={settings}
         currentDayGames={games}
@@ -77,3 +78,4 @@ export function DayEditor({
     </div>
   );
 }
+
