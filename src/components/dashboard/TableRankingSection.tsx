@@ -39,7 +39,7 @@ export function TableRankingSection({ history, players }: { history: DayRecord[]
       </div>
 
       {!targetId ? (
-        <EmptyState icon={Users} message="Select a Player" hint="雀士を選ぶと、同卓回数が多い順にランキングが表示されます。" />
+        <EmptyState icon={Users} message="雀士を選択してください" hint="雀士を選ぶと、同卓回数が多い順にランキングが表示されます。" />
       ) : (
         <div className="space-y-2">
           {rows.map((row, idx) => (
