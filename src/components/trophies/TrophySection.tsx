@@ -111,7 +111,7 @@ export function TrophySection() {
     return (
       <div className="space-y-8">
         <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" />
-        <EmptyState icon={Users} message="No Players" hint="「雀士登録」タブで雀士を登録すると、トロフィーの獲得状況を確認できます。" />
+        <EmptyState icon={Users} message="雀士が登録されていません" hint="「雀士登録」タブで雀士を登録すると、トロフィーの獲得状況を確認できます。" />
       </div>
     );
   }
