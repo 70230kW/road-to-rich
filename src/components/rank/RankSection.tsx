@@ -7,13 +7,12 @@ import { computePlayerRankStatuses, groupRankTiers, type RankGroup } from '../..
 import { RANK_GROUP_THEME } from '../common/RankBadge';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
-import { PlayerSelect } from '../common/PlayerSelect';
 import { EmptyState } from '../common/EmptyState';
 
 export function RankSection() {
   const players = useAppStore((s) => s.players);
   const history = useAppStore((s) => s.history);
-  const { activeId, setPlayerId } = useViewContext();
+  const { activeId } = useViewContext();
   const statuses = useMemo(() => computePlayerRankStatuses(history, players), [history, players]);
   const groups = useMemo(() => groupRankTiers(), []);
   const [expandedGroups, setExpandedGroups] = useState<Set<RankGroup>>(new Set());
@@ -53,7 +52,6 @@ export function RankSection() {
   return (
     <div className="space-y-8 animate-fade-in">
       <SectionHeader icon={Gauge} title="段位" accent="cyan" />
-      <PlayerSelect players={players} value={activeId} onChange={setPlayerId} />
       {statuses[activeId] && (() => {
         const status = statuses[activeId];
         const recentDays = [...history].filter(d => d.settlement[activeId]).sort((a,b) => Date.parse(b.date)-Date.parse(a.date)).slice(0,4);
@@ -165,4 +163,3 @@ export function RankSection() {
     </div>
   );
 }
-
