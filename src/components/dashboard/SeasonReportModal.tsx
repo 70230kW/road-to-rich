@@ -40,13 +40,13 @@ export function SeasonReportModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
+      className="mobile-sheet-dialog fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="season-report-title"
     >
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl shadow-[0_0_60px_rgba(232,121,249,0.2)]">
+      <div className="mobile-sheet relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl shadow-[0_0_60px_rgba(232,121,249,0.2)]">
         <button
           type="button"
           onClick={onClose}

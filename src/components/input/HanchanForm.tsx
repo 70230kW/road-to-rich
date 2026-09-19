@@ -173,6 +173,7 @@ export function HanchanForm({
 
   const enteredTotal = otherRaw.reduce<number>((sum, value) => sum + (value ?? 0), 0);
   const expectedTotal = settings.initialScore * playerCount;
+  const inputStep = validation.missingPlayerIndices.size > 0 ? 0 : validation.missingScoreIndices.size > 0 ? 1 : validation.isValid ? 3 : 2;
   const nextGame = () => {
     setSavedScores(null);
     requestAnimationFrame(() => scoreRefs.current[0]?.focus());
@@ -196,6 +197,10 @@ export function HanchanForm({
           {playerCount}人麻雀
         </button>
       } />
+
+      <ol className="input-progress" aria-label="対局入力の進行状況">
+        {['雀士選択', '点数入力', 'チップ・役満', '確認'].map((label, index) => <li key={label} className={index < inputStep ? 'is-complete' : index === inputStep ? 'is-current' : ''} aria-current={index === inputStep ? 'step' : undefined}><span>{index + 1}</span><small>{label}</small></li>)}
+      </ol>
 
       {notEnoughPlayers ? (
         <div className="flex flex-col items-center justify-center py-16 text-center gap-5 bg-panel-2/40 border border-slate-700/50 rounded-3xl">
@@ -457,4 +462,3 @@ export function HanchanForm({
     </fieldset>
   );
 }
-

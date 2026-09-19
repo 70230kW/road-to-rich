@@ -86,16 +86,15 @@ export function TrophySection() {
   const customTrophies = useAppStore((s) => s.customTrophies);
   const addCustomTrophy = useAppStore((s) => s.addCustomTrophy);
   const removeCustomTrophy = useAppStore((s) => s.removeCustomTrophy);
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string>('');
   const [collapsedTiers, setCollapsedTiers] = useState<Set<TrophyTier>>(new Set());
   const [isCreatingTrophy, setIsCreatingTrophy] = useState(false);
-  const { season } = useViewContext();
+  const { season, activeId } = useViewContext();
   const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
 
   const trophiesByPlayer = useMemo(() => computePlayerTrophies(history, players, settings), [history, players, settings]);
-  const earned = selectedPlayerId ? (trophiesByPlayer[selectedPlayerId] ?? new Set<string>()) : new Set<string>();
+  const earned = trophiesByPlayer[activeId] ?? new Set<string>();
   const customAchievements = useMemo(() => computeCustomTrophyAchievements(history, players, customTrophies), [history, players, customTrophies]);
-  const earnedCustom = selectedPlayerId ? (customAchievements[selectedPlayerId] ?? new Set<string>()) : new Set<string>();
+  const earnedCustom = customAchievements[activeId] ?? new Set<string>();
 
   const seasonSelect = <PeriodFilter />;
 
@@ -112,7 +111,7 @@ export function TrophySection() {
     return (
       <div className="space-y-8">
         <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" />
-        <EmptyState icon={Users} message="No Players" hint="「雀士登録」タブで雀士を登録すると、トロフィーの獲得状況を確認できます。" />
+        <EmptyState icon={Users} message="雀士が登録されていません" hint="「雀士登録」タブで雀士を登録すると、トロフィーの獲得状況を確認できます。" />
       </div>
     );
   }
@@ -121,29 +120,10 @@ export function TrophySection() {
     <div className="space-y-8 animate-fade-in">
       <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" trailing={seasonSelect} />
 
-      <div className="relative">
-        <select
-          value={selectedPlayerId}
-          onChange={(e) => setSelectedPlayerId(e.target.value)}
-          className="w-full bg-abyss border border-slate-700/80 rounded-xl pl-4 pr-10 py-3.5 text-slate-100 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/50 font-bold appearance-none transition-all cursor-pointer tracking-wide shadow-inner"
-        >
-          <option value="">雀士を選択してください</option>
-          {players.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-500/70 pointer-events-none" />
-      </div>
-
-      {!selectedPlayerId ? (
-        <EmptyState icon={Trophy} message="Select a Player" hint="プルダウンから雀士を選ぶと、獲得済み・未獲得のトロフィーが表示されます。" />
-      ) : (
-        <>
+      <>
           <div className="flex items-center justify-between bg-panel-2/70 border border-yellow-700/40 rounded-2xl px-5 py-4">
             <span className="font-black text-slate-100 tracking-wide">
-              {players.find((p) => p.id === selectedPlayerId)?.name}
+              {players.find((p) => p.id === activeId)?.name}
             </span>
             <span className="font-mono font-black text-yellow-300">
               {earned.size} <span className="text-slate-500 text-sm">/ {TROPHY_LIST.length}</span>
@@ -212,7 +192,6 @@ export function TrophySection() {
             })}
           </div>
         </>
-      )}
 
       <div className="rounded-2xl border border-fuchsia-700/40 bg-fuchsia-950/10 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4">
@@ -246,7 +225,7 @@ export function TrophySection() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               {customTrophies.map((trophy) => {
-                const isEarned = selectedPlayerId ? earnedCustom.has(trophy.id) : false;
+                const isEarned = earnedCustom.has(trophy.id);
                 return (
                   <div
                     key={trophy.id}
@@ -261,7 +240,7 @@ export function TrophySection() {
                         {trophy.name}
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        {selectedPlayerId && (isEarned ? <Trophy className="w-3.5 h-3.5 text-fuchsia-300" /> : <Lock className="w-3.5 h-3.5 text-slate-600" />)}
+                        {isEarned ? <Trophy className="w-3.5 h-3.5 text-fuchsia-300" /> : <Lock className="w-3.5 h-3.5 text-slate-600" />}
                         <button
                           type="button"
                           onClick={() => removeCustomTrophy(trophy.id)}
@@ -288,4 +267,3 @@ export function TrophySection() {
     </div>
   );
 }
-

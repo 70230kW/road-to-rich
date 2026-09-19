@@ -9,10 +9,10 @@ import { useAppStore } from './store/useAppStore';
 import { Header } from './components/layout/Header';
 import { BottomNav, type PrimaryTabDef } from './components/layout/BottomNav';
 import { MoreMenu } from './components/layout/MoreMenu';
-import { InputSection } from './components/input/InputSection';
 import { RoomGate } from './components/room/RoomGate';
 import { RoomBadge } from './components/room/RoomBadge';
 import { LoadingScreen } from './components/common/LoadingScreen';
+import { WelcomeGuide } from './components/layout/WelcomeGuide';
 
 
 // Secondary screens are loaded on demand.
@@ -41,9 +41,13 @@ const SimulatorSection = lazy(() =>
   import('./components/simulator/SimulatorSection').then((m) => ({ default: m.SimulatorSection })),
 );
 const RankSection = lazy(() => import('./components/rank/RankSection').then((m) => ({ default: m.RankSection })));
+const InputSection = lazy(() => import('./components/input/InputSection').then((m) => ({ default: m.InputSection })));
 
-function TabLoading() {
-  return <LoadingScreen label="読み込み中" />;
+function TabLoading({ tab }: { tab: string }) {
+  return <div className="tab-skeleton" role="status" aria-label="画面を読み込み中">
+    <div className="skeleton-line is-title" />
+    {(tab === 'dashboard' || tab === 'ranking' || tab === 'history') ? <><div className="skeleton-filters" /><div className="skeleton-hero" /><div className="skeleton-grid">{Array.from({ length: 4 }, (_, index) => <i key={index} />)}</div></> : <LoadingScreen label="読み込み中" />}
+  </div>;
 }
 
 // 画面下部の固定ナビゲーションに収まる主要4タブ。残りは「その他」メニューにまとめる。
@@ -78,6 +82,9 @@ function AppShell() {
   const [inputKey, setInputKey] = useState(0);
   const gameCount = useAppStore(s => s.currentDayGames.length);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [showGuide, setShowGuide] = useState(() => {
+    try { return localStorage.getItem('road-to-rich-welcome-v1') !== 'seen'; } catch { return false; }
+  });
   const isMoreActive = OTHER_TABS.some((t) => t.id === activeTab);
 
   const selectTab = (id: string) => {
@@ -99,8 +106,8 @@ function AppShell() {
 
         <main className="min-h-[500px] pt-5">
           <div key={activeTab} className="relative z-10 screen-transition">
-            {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} />}
-            <Suspense fallback={<TabLoading />}>
+            <Suspense fallback={<TabLoading tab={activeTab} />}>
+              {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} />}
               {activeTab === 'dashboard' && <DashboardSection />}
               {activeTab === 'history' && <HistorySection />}
               {activeTab === 'ranking' && <RankingSection />}
@@ -138,9 +145,9 @@ function AppShell() {
       {isMoreOpen && (
         <MoreMenu tabs={OTHER_TABS} activeTab={activeTab} onSelect={selectTab} onClose={() => setIsMoreOpen(false)} />
       )}
+      {showGuide && <WelcomeGuide onClose={() => { try { localStorage.setItem('road-to-rich-welcome-v1', 'seen'); } catch { /* non-persistent sessions remain usable */ } setShowGuide(false); }} />}
     </div>
   );
 }
 
 export default App;
-

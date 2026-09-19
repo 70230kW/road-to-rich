@@ -7,13 +7,13 @@ import { computePlayerRankStatuses, groupRankTiers, type RankGroup } from '../..
 import { RANK_GROUP_THEME } from '../common/RankBadge';
 import { formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
-import { PlayerSelect } from '../common/PlayerSelect';
 import { EmptyState } from '../common/EmptyState';
+import { ScrambleText } from '../common/ScrambleText';
 
 export function RankSection() {
   const players = useAppStore((s) => s.players);
   const history = useAppStore((s) => s.history);
-  const { activeId, setPlayerId } = useViewContext();
+  const { activeId } = useViewContext();
   const statuses = useMemo(() => computePlayerRankStatuses(history, players), [history, players]);
   const groups = useMemo(() => groupRankTiers(), []);
   const [expandedGroups, setExpandedGroups] = useState<Set<RankGroup>>(new Set());
@@ -45,7 +45,7 @@ export function RankSection() {
     return (
       <div className="space-y-8">
         <SectionHeader icon={Gauge} title="段位" accent="cyan" />
-        <EmptyState icon={Users} message="No Players" hint="「雀士登録」タブで雀士を登録すると、段位が表示されます。" />
+        <EmptyState icon={Users} message="雀士が登録されていません" hint="「雀士登録」タブで雀士を登録すると、段位が表示されます。" />
       </div>
     );
   }
@@ -53,7 +53,6 @@ export function RankSection() {
   return (
     <div className="space-y-8 animate-fade-in">
       <SectionHeader icon={Gauge} title="段位" accent="cyan" />
-      <PlayerSelect players={players} value={activeId} onChange={setPlayerId} />
       {statuses[activeId] && (() => {
         const status = statuses[activeId];
         const recentDays = [...history].filter(d => d.settlement[activeId]).sort((a,b) => Date.parse(b.date)-Date.parse(a.date)).slice(0,4);
@@ -63,14 +62,14 @@ export function RankSection() {
             <RankEmblem status={status} />
             <p className="rank-title">{status.levelName}</p>
             <p className="muted text-xs mb-5">通算の累計収支で決まる、あなたの段位</p>
-            <strong className="rank-total">{formatSignedYen(status.cumulativeProfit)}</strong>
+            <strong className="rank-total"><ScrambleText text={formatSignedYen(status.cumulativeProfit)} /></strong>
             <p className="eyebrow mt-2 mb-7">LIFETIME PROFIT · 場代抜き（円）</p>
             <div className="rank-next"><span>{status.levelName}</span><span>{status.nextLevelName ?? '最高段位'}</span></div>
             <progress className="rank-progress" value={status.progressRatio} max={1} aria-label="次の段位への進捗" />
-            <p className="rank-remaining">{status.nextLevelName ? <>昇段まであと <strong>¥{status.profitToNextLevel!.toLocaleString()}</strong></> : '最高段位に到達しました！'}</p>
+            <p className="rank-remaining">{status.nextLevelName ? <>昇段まであと <strong><ScrambleText text={`¥${status.profitToNextLevel!.toLocaleString()}`} /></strong></> : '最高段位に到達しました！'}</p>
           </section>
           <section className="premium-panel"><div className="section-kicker"><h3>直近の段位対象収支</h3><span>場代抜き（円）</span></div>
-            {recentDays.map(day => <div key={day.id} className="rank-day"><span>{new Date(day.date).toLocaleDateString('ja-JP')}</span><strong className={day.settlement[activeId].totalWithoutFee >= 0 ? 'profit-positive' : 'profit-negative'}>{formatSignedYen(day.settlement[activeId].totalWithoutFee)}</strong></div>)}
+            {recentDays.map(day => <div key={day.id} className="rank-day"><span>{new Date(day.date).toLocaleDateString('ja-JP')}</span><strong className={day.settlement[activeId].totalWithoutFee >= 0 ? 'profit-positive' : 'profit-negative'}><ScrambleText text={formatSignedYen(day.settlement[activeId].totalWithoutFee)} /></strong></div>)}
             {recentDays.length === 0 && <p className="muted py-4 text-sm">最初の精算を保存すると表示されます。</p>}
           </section>
         </>;
@@ -165,4 +164,3 @@ export function RankSection() {
     </div>
   );
 }
-

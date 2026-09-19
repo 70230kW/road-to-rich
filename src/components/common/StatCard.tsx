@@ -1,4 +1,5 @@
 import { cloneElement, type ReactElement } from 'react';
+import { ScrambleText } from './ScrambleText';
 
 type Color = 'sky' | 'fuchsia' | 'yellow' | 'emerald' | 'rose' | 'indigo';
 
@@ -49,10 +50,10 @@ export function StatCard({
         {title}
       </div>
       <div className={`text-base sm:text-xl md:text-3xl font-black font-mono z-10 leading-tight break-words ${textMap[color]}`}>
-        {value}
+        <ScrambleText text={value} />
       </div>
       {sub && (
-        <div className={`text-xs sm:text-base md:text-lg font-black mt-1 sm:mt-1.5 z-10 truncate ${textMap[color]}`}>{sub}</div>
+        <div className={`text-xs sm:text-base md:text-lg font-black mt-1 sm:mt-1.5 z-10 truncate ${textMap[color]}`}><ScrambleText text={sub} /></div>
       )}
     </>
   );
