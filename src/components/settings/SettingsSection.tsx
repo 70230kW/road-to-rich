@@ -29,14 +29,20 @@ export function SettingsSection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={SettingsIcon} title="計算設定" accent="cyan" />
+      <SectionHeader icon={SettingsIcon} title="計算設定" accent="cyan" description="対局形式・配給原点・順位点をリーグ運用に合わせて調整します。" />
+
+      <div className="page-overview page-overview-cyan">
+        <div><span>対局形式</span><strong>{settings.playerCount}人麻雀</strong></div>
+        <div><span>配給原点</span><strong>{settings.initialScore.toLocaleString()}点</strong></div>
+        <div><span>レート</span><strong>÷ {settings.divider.toLocaleString()}</strong></div>
+      </div>
 
       {hasUnsavedDay && (
         <ErrorBanner message="本日、未精算の半荘記録があるため「対局形式」は変更できません。先に精算を保存するか、記録を削除してください。" />
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-panel-2/60 p-6 rounded-[2rem] border border-slate-700/50 hover:border-cyan-800/80 transition-all duration-300 backdrop-blur-sm group">
+        <div className="setting-card group">
           <label className="block text-xs font-black text-slate-400 mb-3 tracking-[0.15em] uppercase group-hover:text-cyan-400 transition-colors">
             対局形式
           </label>
@@ -54,7 +60,7 @@ export function SettingsSection() {
           </div>
         </div>
 
-        <div className="bg-panel-2/60 p-6 rounded-[2rem] border border-slate-700/50 hover:border-cyan-800/80 transition-all duration-300 backdrop-blur-sm group">
+        <div className="setting-card group">
           <label className="block text-xs font-black text-slate-400 mb-3 tracking-[0.15em] uppercase group-hover:text-cyan-400 transition-colors">
             配給原点（返しの点）
           </label>
@@ -66,7 +72,7 @@ export function SettingsSection() {
           />
         </div>
 
-        <div className="bg-panel-2/60 p-6 rounded-[2rem] border border-slate-700/50 hover:border-cyan-800/80 transition-all duration-300 backdrop-blur-sm group">
+        <div className="setting-card group">
           <label className="block text-xs font-black text-slate-400 mb-3 tracking-[0.15em] uppercase group-hover:text-cyan-400 transition-colors">
             割る数（レート相当）
           </label>
@@ -79,7 +85,7 @@ export function SettingsSection() {
         </div>
       </div>
 
-      <div className="bg-panel-2/60 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 hover:border-cyan-800/80 transition-all duration-300 backdrop-blur-sm mt-8">
+      <div className="unified-panel unified-panel-cyan mt-8">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <label className="text-sm font-black text-cyan-400 tracking-[0.2em] uppercase flex items-center">
             <span className="w-2 h-2 rounded-full bg-cyan-400 mr-2 shadow-[0_0_8px_rgb(var(--accent-rgb-400)/1)]" />

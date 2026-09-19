@@ -9,6 +9,7 @@ import { PeriodFilter } from '../common/PeriodFilter';
 import { useViewContext } from '../../store/useViewPreferences';
 import { EmptyState } from '../common/EmptyState';
 import { CustomTrophyForm } from './CustomTrophyForm';
+import { ScrambleText } from '../common/ScrambleText';
 
 const TIER_THEME: Record<
   TrophyTier,
@@ -95,6 +96,7 @@ export function TrophySection() {
   const earned = trophiesByPlayer[activeId] ?? new Set<string>();
   const customAchievements = useMemo(() => computeCustomTrophyAchievements(history, players, customTrophies), [history, players, customTrophies]);
   const earnedCustom = customAchievements[activeId] ?? new Set<string>();
+  const earnedRatio = TROPHY_LIST.length > 0 ? earned.size / TROPHY_LIST.length : 0;
 
   const seasonSelect = <PeriodFilter />;
 
@@ -110,7 +112,7 @@ export function TrophySection() {
   if (players.length === 0) {
     return (
       <div className="space-y-8">
-        <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" />
+        <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" description="対局で達成した記録を、コレクションとして振り返ります。" />
         <EmptyState icon={Users} message="雀士が登録されていません" hint="「雀士登録」タブで雀士を登録すると、トロフィーの獲得状況を確認できます。" />
       </div>
     );
@@ -118,16 +120,13 @@ export function TrophySection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" trailing={seasonSelect} />
+      <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" description="対局で達成した記録を、コレクションとして振り返ります。" trailing={seasonSelect} />
 
       <>
-          <div className="flex items-center justify-between bg-panel-2/70 border border-yellow-700/40 rounded-2xl px-5 py-4">
-            <span className="font-black text-slate-100 tracking-wide">
-              {players.find((p) => p.id === activeId)?.name}
-            </span>
-            <span className="font-mono font-black text-yellow-300">
-              {earned.size} <span className="text-slate-500 text-sm">/ {TROPHY_LIST.length}</span>
-            </span>
+          <div className="trophy-overview">
+            <div><span className="eyebrow">COLLECTION PROGRESS</span><strong>{players.find((p) => p.id === activeId)?.name}</strong><small>この期間に獲得したトロフィー</small></div>
+            <div className="trophy-overview-score"><strong><ScrambleText text={String(earned.size)} /></strong><span>/ {TROPHY_LIST.length}</span></div>
+            <progress value={earnedRatio} max={1} aria-label="トロフィー獲得率" />
           </div>
 
           <div className="space-y-6">
@@ -138,7 +137,7 @@ export function TrophySection() {
               const isCollapsed = collapsedTiers.has(tier);
 
               return (
-                <div key={tier} className={`rounded-2xl border ${theme.chipBorder} ${theme.chipBg} overflow-hidden`}>
+                <div key={tier} className={`collection-card border ${theme.chipBorder} ${theme.chipBg}`}>
                   <button
                     type="button"
                     onClick={() => toggleTier(tier)}
@@ -193,7 +192,7 @@ export function TrophySection() {
           </div>
         </>
 
-      <div className="rounded-2xl border border-fuchsia-700/40 bg-fuchsia-950/10 overflow-hidden">
+      <div className="collection-card border border-fuchsia-700/40 bg-fuchsia-950/10">
         <div className="flex items-center justify-between px-5 py-4">
           <span className="font-black tracking-[0.2em] uppercase text-sm text-fuchsia-400 flex items-center">
             <Sparkles className="w-4 h-4 mr-2" /> 独自トロフィー

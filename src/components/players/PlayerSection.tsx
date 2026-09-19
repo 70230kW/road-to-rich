@@ -84,9 +84,17 @@ export function PlayerSection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={Users} title="雀士登録" accent="cyan" />
+      <SectionHeader icon={Users} title="雀士登録" accent="cyan" description="メンバーのプロフィールカラー・段位・目標を管理します。" />
 
-      <div className="flex flex-col sm:flex-row gap-4 bg-panel-2/60 p-6 rounded-[2rem] border border-slate-700/50 backdrop-blur-sm">
+      <div className="page-overview page-overview-cyan">
+        <div><span>登録雀士</span><strong>{players.length}人</strong></div>
+        <div><span>対局形式</span><strong>{settings.playerCount}人麻雀</strong></div>
+        <div><span>必要人数</span><strong>{players.length >= minRequired ? '準備完了' : `あと${minRequired - players.length}人`}</strong></div>
+      </div>
+
+      <div className="player-add-panel">
+        <div className="content-section-header"><div><span className="eyebrow">NEW PLAYER</span><h3>雀士を追加</h3></div><small>あとから名前・カラー・目標を変更できます</small></div>
+        <div className="flex flex-col sm:flex-row gap-3">
         <input
           type="text"
           value={newName}
@@ -98,18 +106,19 @@ export function PlayerSection() {
         <NeonButton variant="primary" onClick={handleAdd} disabled={!newName.trim()} className="sm:w-auto px-4">
           <Plus className="w-5 h-5 mr-2" /> 追加
         </NeonButton>
+        </div>
       </div>
 
       {players.length === 0 ? (
         <EmptyState icon={Users} message="雀士が登録されていません" hint="まずは雀士を登録しましょう。" />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <section className="unified-section"><div className="content-section-header"><div><span className="eyebrow">ROSTER</span><h3>登録メンバー</h3></div><small>{players.length}人のプロフィール</small></div><div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {players.map((p) => {
             const isPickingColor = colorPickerId === p.id;
             return (
               <div
                 key={p.id}
-                className="bg-panel-2/40 p-5 rounded-2xl border border-slate-700/50 group hover:border-cyan-500/50 transition-all duration-300 hover:bg-panel-2/80 backdrop-blur-sm"
+                className="player-roster-card group"
               >
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -214,7 +223,7 @@ export function PlayerSection() {
               </div>
             );
           })}
-        </div>
+        </div></section>
       )}
 
       {!canDelete && players.length > 0 && (

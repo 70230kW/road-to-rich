@@ -31,6 +31,7 @@ import { SeasonReportModal } from './SeasonReportModal';
 import { GoalProgressSection } from './GoalProgressSection';
 import { TableRankingSection } from './TableRankingSection';
 import { PlayerDetailModal } from '../ranking/PlayerDetailModal';
+import { ScrambleText } from '../common/ScrambleText';
 
 export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
   const fullHistory = useAppStore((s) => s.history);
@@ -69,11 +70,12 @@ export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
   const selectedIdx = rankingRows.findIndex((r) => r.playerId === selectedPlayerId);
   const selectedRow = selectedIdx >= 0 ? rankingRows[selectedIdx] : null;
   const selectedRadarRow = radarRows.find((r) => r.playerId === selectedPlayerId) ?? null;
+  const totalHanchans = history.reduce((sum, day) => sum + day.games.length, 0);
 
   if (history.length === 0) {
     return (
       <div className="space-y-8">
-        <SectionHeader icon={BarChart3} title="リーグ全体の分析" accent="cyan" trailing={fullHistory.length > 0 ? seasonSelect : undefined} />
+        <SectionHeader icon={BarChart3} title="リーグ全体の分析" accent="cyan" description="全雀士の戦績を、多角的な指標と推移で読み解きます。" trailing={fullHistory.length > 0 ? seasonSelect : undefined} />
         {fullHistory.length > 0 && <MilestoneBanner history={fullHistory} players={players} />}
         {fullHistory.length > 0 && <MonthlyHighlightsSection history={fullHistory} players={players} />}
         {fullHistory.length > 0 && <GoalProgressSection history={fullHistory} players={players} goals={goals} />}
@@ -87,7 +89,14 @@ export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={BarChart3} title="リーグ全体の分析" accent="cyan" trailing={seasonSelect} />
+      <SectionHeader icon={BarChart3} title="リーグ全体の分析" accent="cyan" description="全雀士の戦績を、多角的な指標と推移で読み解きます。" trailing={seasonSelect} />
+
+      <div className="page-overview page-overview-cyan">
+        <div><span>対象期間</span><strong>{seasonLabel}</strong></div>
+        <div><span>対局日数</span><strong><ScrambleText text={`${history.length}日`} /></strong></div>
+        <div><span>総半荘数</span><strong><ScrambleText text={`${totalHanchans}半荘`} /></strong></div>
+        <div><span>登録雀士</span><strong><ScrambleText text={`${players.length}人`} /></strong></div>
+      </div>
 
       <MilestoneBanner history={fullHistory} players={players} />
 
@@ -95,7 +104,7 @@ export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
 
       <GoalProgressSection history={fullHistory} players={players} goals={goals} />
 
-      <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+      <section className="unified-section"><div className="content-section-header"><div><span className="eyebrow">LEAGUE LEADERS</span><h3>リーグトップ指標</h3></div><small>カードをタップして詳細を表示</small></div><div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
         <StatCard
           title="参加半荘数1位"
           value={stats.mostHanchansPlayed ? `${stats.mostHanchansPlayed.value} GAMES` : '-'}
@@ -144,9 +153,9 @@ export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
           color="rose"
           onClick={stats.bestDailyChips ? () => setSelectedPlayerId(stats.bestDailyChips!.playerId) : undefined}
         />
-      </div>
+      </div></section>
 
-      <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-cyan-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
+      <div className="unified-panel unified-panel-cyan">
         <h3 className="text-sm font-black text-cyan-400 mb-8 flex items-center tracking-[0.2em] uppercase">
           <TrendingUp className="w-5 h-5 mr-2" /> 累計収支推移
           <span className="text-slate-500 ml-2 font-normal text-xs normal-case">(場代込み・リーグ全体)</span>
@@ -155,7 +164,7 @@ export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
       </div>
 
       {rankRaceSeries.activePlayers.length > 0 && (
-        <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-fuchsia-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
+        <div className="unified-panel unified-panel-fuchsia">
           <h3 className="text-sm font-black text-fuchsia-400 mb-8 flex items-center tracking-[0.2em] uppercase">
             <ListOrdered className="w-5 h-5 mr-2" /> 順位レース
             <span className="text-slate-500 ml-2 font-normal text-xs normal-case">(Rank Race)</span>
@@ -165,7 +174,7 @@ export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
       )}
 
       {radarRows.length > 0 && (
-        <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-cyan-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
+        <div className="unified-panel unified-panel-cyan">
           <h3 className="text-sm font-black text-cyan-400 mb-8 flex items-center tracking-[0.2em] uppercase">
             <Radar className="w-5 h-5 mr-2" /> 能力レーダー
             <span className="text-slate-500 ml-2 font-normal text-xs normal-case">(平均着順は良いほど外側)</span>

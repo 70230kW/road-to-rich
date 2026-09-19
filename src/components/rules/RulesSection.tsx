@@ -15,13 +15,15 @@ export function RulesSection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={BookOpen} title="ルール" accent="emerald" />
+      <SectionHeader icon={BookOpen} title="ルール" accent="emerald" description="対局前でも迷わず確認できる、リーグ共通のルールブックです。" />
 
-      <p className="text-xs md:text-sm text-slate-500 leading-relaxed">
-        Mリーグの対局ルールを掲載しています（点数計算はこのアプリ独自の「計算設定」で運用するため含みません）。
-      </p>
+      <div className="page-overview page-overview-emerald">
+        <div><span>収録ルール</span><strong>{RULES.length}項目</strong></div>
+        <div><span>準拠</span><strong>Mリーグ</strong></div>
+        <p>Mリーグの対局ルールを掲載しています。点数計算は、このアプリ独自の「計算設定」で管理します。</p>
+      </div>
 
-      <div className="relative">
+      <div className="rule-search">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
         <input
           type="text"
@@ -35,17 +37,21 @@ export function RulesSection() {
       {filtered.length === 0 ? (
         <EmptyState icon={Search} message="該当するルールがありません" hint="別のキーワードで検索してみてください。" />
       ) : (
-        <div className="space-y-4">
-          {filtered.map((rule) => (
+        <section className="unified-section">
+          <div className="content-section-header"><div><span className="eyebrow">RULE BOOK</span><h3>ルール一覧</h3></div><small>{filtered.length}件を表示</small></div>
+          <div className="rules-grid">
+          {filtered.map((rule, index) => (
             <div
               key={rule.id}
-              className="bg-panel-2/60 p-5 md:p-6 rounded-2xl border border-slate-700/50 hover:border-emerald-800/60 transition-colors backdrop-blur-sm"
+              className="rule-card"
             >
+              <span className="rule-index">{String(index + 1).padStart(2, '0')}</span>
               <h3 className="font-black text-slate-100 text-base md:text-lg tracking-wide mb-2">{rule.title}</h3>
               <p className="text-sm text-slate-400 leading-relaxed">{rule.description}</p>
             </div>
           ))}
-        </div>
+          </div>
+        </section>
       )}
     </div>
   );
