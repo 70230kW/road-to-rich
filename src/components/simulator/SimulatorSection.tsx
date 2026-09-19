@@ -8,6 +8,7 @@ import { SectionHeader } from '../common/SectionHeader';
 import { PeriodFilter } from '../common/PeriodFilter';
 import { useViewContext } from '../../store/useViewPreferences';
 import { EmptyState } from '../common/EmptyState';
+import { ScrambleText } from '../common/ScrambleText';
 
 const PRESET_HANCHAN_COUNTS = [10, 20, 50, 100];
 
@@ -31,6 +32,7 @@ export function SimulatorSection() {
           icon={Telescope}
           title="成績予想"
           accent="fuchsia"
+          description="現在の平均ペースから、未来の収支と首位までの距離を試算します。"
           trailing={fullHistory.length > 0 ? seasonSelect : undefined}
         />
         <EmptyState icon={Telescope} message="予測データがありません" hint="対局を記録して精算を保存すると、ここで今後の成績を予測できます。" />
@@ -40,9 +42,15 @@ export function SimulatorSection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={Telescope} title="成績予想" accent="fuchsia" trailing={seasonSelect} />
+      <SectionHeader icon={Telescope} title="成績予想" accent="fuchsia" description="現在の平均ペースから、未来の収支と首位までの距離を試算します。" trailing={seasonSelect} />
 
-      <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
+      <div className="page-overview page-overview-fuchsia">
+        <div><span>現在の首位</span><strong>{leaderName ?? '-'}</strong></div>
+        <div><span>予測期間</span><strong><ScrambleText text={`${futureHanchans}半荘`} /></strong></div>
+        <div><span>分析対象</span><strong><ScrambleText text={`${rows.length}人`} /></strong></div>
+      </div>
+
+      <div className="unified-panel unified-panel-fuchsia">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <h3 className="text-sm font-black text-fuchsia-400 flex items-center tracking-[0.2em] uppercase">
             <TrendingUp className="w-5 h-5 mr-2" /> 今後の予測
@@ -93,10 +101,10 @@ export function SimulatorSection() {
                     {row.name}
                   </td>
                   <td className={`py-3 pr-3 text-right ${row.currentProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {formatSignedYen(row.currentProfit)}
+                    <ScrambleText text={formatSignedYen(row.currentProfit)} />
                   </td>
                   <td className="py-3 pr-3 text-right text-slate-400">
-                    {row.avgProfitPerHanchan !== null ? formatSignedYen(Math.round(row.avgProfitPerHanchan)) : '-'}
+                    {row.avgProfitPerHanchan !== null ? <ScrambleText text={formatSignedYen(Math.round(row.avgProfitPerHanchan))} /> : '-'}
                   </td>
                   <td
                     className={`py-3 text-right font-black ${
@@ -107,7 +115,7 @@ export function SimulatorSection() {
                           : 'text-rose-300'
                     }`}
                   >
-                    {row.projectedProfit !== null ? formatSignedYen(Math.round(row.projectedProfit)) : '-'}
+                    {row.projectedProfit !== null ? <ScrambleText text={formatSignedYen(Math.round(row.projectedProfit))} /> : '-'}
                   </td>
                 </tr>
               ))}
@@ -119,7 +127,7 @@ export function SimulatorSection() {
         </p>
       </div>
 
-      <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
+      <div className="unified-panel unified-panel-fuchsia">
         <h3 className="text-sm font-black text-fuchsia-400 mb-6 flex items-center tracking-[0.2em] uppercase">
           <Rocket className="w-5 h-5 mr-2" /> トップまでの道のり
         </h3>
@@ -141,7 +149,7 @@ export function SimulatorSection() {
                   <span className="text-sm font-black text-yellow-300">現在ほぼ横並び！</span>
                 ) : (
                   <span className="text-sm font-black text-fuchsia-300">
-                    あと約 <span className="text-lg">{row.hanchansNeeded}</span> 半荘で追いつけるかも
+                    あと約 <span className="text-lg"><ScrambleText text={String(row.hanchansNeeded)} /></span> 半荘で追いつけるかも
                   </span>
                 )}
               </div>
