@@ -30,19 +30,19 @@ describe('computePlayerRankStatuses', () => {
     expect(result.a.levelName).toBe('雀士1');
     expect(result.a.group).toBe('雀士');
     expect(result.a.cumulativeProfit).toBe(0);
-    expect(result.a.profitToNextLevel).toBe(10000);
+    expect(result.a.profitToNextLevel).toBe(11250);
   });
 
   it('promotes a player once their cumulative profit crosses a tier threshold', () => {
-    const history = [day('d1', { a: 50000, b: -5000 })];
+    const history = [day('d1', { a: 63750, b: -5000 })];
     const result = computePlayerRankStatuses(history, players);
     expect(result.a.levelName).toBe('雀傑1');
-    expect(result.a.cumulativeProfit).toBe(50000);
+    expect(result.a.cumulativeProfit).toBe(63750);
   });
 
   it('demotes a player when their cumulative profit drops back below a threshold (not permanent like trophies)', () => {
-    // Get Alice to 雀傑1 (50000), then a bad day drags her back down.
-    const history = [day('d1', { a: 50000, b: -5000 }), day('d2', { a: -30000, b: 30000 })];
+    // Get Alice to 雀傑1 (63750), then a bad day drags her back down.
+    const history = [day('d1', { a: 63750, b: -5000 }), day('d2', { a: -43750, b: 43750 })];
     const result = computePlayerRankStatuses(history, players);
     expect(result.a.cumulativeProfit).toBe(20000);
     expect(result.a.levelName).toBe('雀士2');
@@ -94,6 +94,12 @@ describe('computePlayerRankStatuses', () => {
 });
 
 describe('groupRankTiers', () => {
+  it('uses an equal ¥26,250 step from 雀士1 through 魂天', () => {
+    const ladder = RANK_TIERS.filter((tier) => tier.group !== '地底人');
+    const steps = ladder.slice(1).map((tier, index) => tier.minProfit - ladder[index].minProfit);
+    expect(new Set(steps)).toEqual(new Set([26250]));
+  });
+
   it('collapses consecutive same-group tiers into one summary each, in ascending order', () => {
     const groups = groupRankTiers();
     expect(groups.map((g) => g.group)).toEqual(['地底人', '雀士', '雀傑', '雀豪', '雀聖', '魂天']);
