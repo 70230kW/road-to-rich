@@ -12,6 +12,7 @@ import { PeriodFilter } from '../common/PeriodFilter';
 import { EmptyState } from '../common/EmptyState';
 import { PersonalProfitChart } from './PersonalProfitChart';
 import { ScrambleText } from '../common/ScrambleText';
+import { TabSkeleton } from '../common/TabSkeleton';
 const LeagueAnalysis = lazy(() => import('./LeagueAnalysis').then(m => ({ default: m.LeagueAnalysis })));
 
 export function DashboardSection() {
@@ -68,6 +69,6 @@ export function DashboardSection() {
       </div> : <EmptyState icon={BarChart3} message="この期間の成績はありません" hint="期間または雀士を切り替えると、ほかの記録を確認できます。" />}
     </>}
     <button type="button" className="details-toggle" aria-expanded={showDetails} aria-controls="league-analysis" onClick={() => setShowDetails(!showDetails)}>リーグ全体の分析 {showDetails ? 'を閉じる' : 'を見る'}<ChevronDown size={18} className={showDetails ? 'rotate-180' : ''} /></button>
-    {showDetails && <div id="league-analysis"><Suspense fallback={<p className="muted">分析を読み込み中…</p>}><LeagueAnalysis season={season} /></Suspense></div>}
+    {showDetails && <div id="league-analysis"><Suspense fallback={<TabSkeleton tab="dashboard" compact label="リーグ分析を読み込み中" />}><LeagueAnalysis season={season} /></Suspense></div>}
   </div>;
 }
