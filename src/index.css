@@ -646,3 +646,26 @@ button, select, summary { min-height: 44px; }
 @media (prefers-reduced-motion: reduce) {
   .career-emblem > svg { animation: none; }
 }
+
+/* Rank ladder descends visually from the summit to the underground. */
+.rank-ladder-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 10px; }
+.rank-ladder-heading h3 { margin-top: 6px; color: #eef1f6; font-size: 20px; font-weight: 800; letter-spacing: .08em; }
+.rank-ladder-direction { display: flex; align-items: center; gap: 7px; color: var(--premium-gold); font: 10px var(--font-mono); }
+.rank-ladder { position: relative; display: grid; gap: 10px; padding-left: 14px; }
+.rank-ladder::before { content: ''; position: absolute; top: 22px; bottom: 22px; left: 3px; width: 1px; background: linear-gradient(#f4d68b, #a58a5c 45%, #713547); box-shadow: 0 0 8px #d9bd8250; }
+.rank-ladder-card { position: relative; overflow: hidden; border-width: 1px; border-style: solid; border-radius: 14px; }
+.rank-ladder-card::before { content: ''; position: absolute; top: 25px; left: -16px; width: 9px; height: 9px; border: 2px solid #16191e; border-radius: 50%; background: #8993a2; box-shadow: 0 0 0 1px #46505d; }
+.rank-ladder-card.is-top { border-color: #e9c76899; box-shadow: 0 0 22px #e9c76818, inset 0 1px 0 #fff2b820; }
+.rank-ladder-card.is-top::before { background: #f1d486; box-shadow: 0 0 11px #f1d486, 0 0 0 1px #f1d486; }
+.rank-ladder-card.is-bottom::before { background: #a64f67; box-shadow: 0 0 9px #a64f6766, 0 0 0 1px #a64f67; }
+.rank-ladder-index { position: absolute; right: 52px; top: 17px; color: #ffffff10; font: 26px var(--font-mono); pointer-events: none; }
+.rank-ladder-toggle { position: relative; display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 18px; text-align: left; }
+.rank-ladder-name { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; font-size: 14px; font-weight: 900; letter-spacing: .12em; }
+.rank-ladder-card.is-top .rank-ladder-name { font-size: 16px; text-shadow: 0 0 13px #f4cf7770; }
+
+@media (max-width: 520px) {
+  .rank-ladder-heading { align-items: start; }
+  .rank-ladder-toggle { align-items: flex-start; flex-direction: column; }
+  .rank-ladder-toggle > div { width: 100%; }
+  .rank-ladder-index { top: 10px; right: 48px; }
+}
