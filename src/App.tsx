@@ -11,7 +11,7 @@ import { BottomNav, type PrimaryTabDef } from './components/layout/BottomNav';
 import { MoreMenu } from './components/layout/MoreMenu';
 import { RoomGate } from './components/room/RoomGate';
 import { RoomBadge } from './components/room/RoomBadge';
-import { LoadingScreen } from './components/common/LoadingScreen';
+import { TabSkeleton } from './components/common/TabSkeleton';
 import { WelcomeGuide } from './components/layout/WelcomeGuide';
 
 
@@ -42,13 +42,6 @@ const SimulatorSection = lazy(() =>
 );
 const RankSection = lazy(() => import('./components/rank/RankSection').then((m) => ({ default: m.RankSection })));
 const InputSection = lazy(() => import('./components/input/InputSection').then((m) => ({ default: m.InputSection })));
-
-function TabLoading({ tab }: { tab: string }) {
-  return <div className="tab-skeleton" role="status" aria-label="画面を読み込み中">
-    <div className="skeleton-line is-title" />
-    {(tab === 'dashboard' || tab === 'ranking' || tab === 'history') ? <><div className="skeleton-filters" /><div className="skeleton-hero" /><div className="skeleton-grid">{Array.from({ length: 4 }, (_, index) => <i key={index} />)}</div></> : <LoadingScreen label="読み込み中" />}
-  </div>;
-}
 
 // 画面下部の固定ナビゲーションに収まる主要4タブ。残りは「その他」メニューにまとめる。
 const PRIMARY_TABS: PrimaryTabDef[] = [
@@ -106,7 +99,7 @@ function AppShell() {
 
         <main className="min-h-[500px] pt-5">
           <div key={activeTab} className="relative z-10 screen-transition">
-            <Suspense fallback={<TabLoading tab={activeTab} />}>
+            <Suspense fallback={<TabSkeleton tab={activeTab} />}>
               {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} />}
               {activeTab === 'dashboard' && <DashboardSection />}
               {activeTab === 'history' && <HistorySection />}
