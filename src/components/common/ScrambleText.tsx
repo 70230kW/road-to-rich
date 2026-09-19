@@ -1,8 +1,28 @@
 import { useEffect, useRef, useState } from 'react';
 
-const DIGIT = /\d/;
+const NUMBER_TOKEN = /-?\d[\d,]*(?:\.\d+)?/g;
+const easeOutCubic = (value: number) => 1 - Math.pow(1 - value, 3);
 
-/** Briefly scrambles digits whenever the rendered value changes, then lands on the exact value. */
+function formatProgressValue(token: string, progress: number) {
+  const target = Number(token.replaceAll(',', ''));
+  if (!Number.isFinite(target)) return token;
+  const decimals = token.includes('.') ? token.split('.')[1].length : 0;
+  const current = progress === 0 ? 0 : target * easeOutCubic(progress);
+  const normalized = Math.abs(current) < Math.pow(10, -decimals) / 2 ? 0 : current;
+  if (token.includes(',')) {
+    return normalized.toLocaleString('ja-JP', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+  }
+  return decimals > 0 ? normalized.toFixed(decimals) : String(Math.round(normalized));
+}
+
+function renderProgress(text: string, progress: number) {
+  return text.replace(NUMBER_TOKEN, (token) => formatProgressValue(token, progress));
+}
+
+/** Counts every numeric token from zero to its exact value when the rendered value changes. */
 export function ScrambleText({ text, className = '', duration = 700 }: { text: string; className?: string; duration?: number }) {
   const [display, setDisplay] = useState(text);
   const previous = useRef(text);
@@ -22,7 +42,7 @@ export function ScrambleText({ text, className = '', duration = 700 }: { text: s
         setDisplay(text);
         return;
       }
-      setDisplay(Array.from(text, (char) => DIGIT.test(char) ? String(Math.floor(Math.random() * 10)) : char).join(''));
+      setDisplay(renderProgress(text, progress));
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);

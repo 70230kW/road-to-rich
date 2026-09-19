@@ -628,3 +628,21 @@ button, select, summary { min-height: 44px; }
 .skeleton-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-top: 16px; }
 .skeleton-grid > i { height: 72px; border-radius: 10px; }
 @keyframes skeleton-sweep { to { background-position: -240% 0; } }
+
+/* Restrained bloom: concentrated on active controls and key performance moments. */
+.hero-number .scramble-text { text-shadow: 0 0 12px color-mix(in srgb, currentColor 42%, transparent), 0 0 30px color-mix(in srgb, currentColor 18%, transparent); }
+.kpi > strong .scramble-text { text-shadow: 0 0 15px #d9bd8224; }
+.section-heading h2 > svg { filter: drop-shadow(0 0 7px currentColor); }
+.nav-item.is-active .nav-icon, .desktop-nav button[aria-current="page"] svg { filter: drop-shadow(0 0 7px #d9bd8299); }
+.period-buttons button[aria-pressed="true"], .density-switch button[aria-pressed="true"] { box-shadow: 0 0 12px #d9bd8238, 0 0 28px #d9bd8215; }
+.rank-progress-card { position: relative; overflow: hidden; box-shadow: inset 0 1px 0 #ffffff08, 0 0 24px #d9bd820e; }
+.rank-progress-card::after { content: ''; position: absolute; width: 120px; height: 70px; right: -38px; top: -30px; border-radius: 50%; background: #d9bd8224; filter: blur(28px); pointer-events: none; }
+.rank-progress::-webkit-progress-value { box-shadow: 0 0 10px #d9bd8290, 0 0 20px #d9bd8240; }
+.solid-action { box-shadow: 0 0 14px #d9bd8230; }
+.solid-action:hover { box-shadow: 0 0 18px #d9bd8260, 0 0 34px #d9bd8224; }
+.career-emblem > svg { animation: emblem-bloom 4.2s ease-in-out infinite; }
+@keyframes emblem-bloom { 0%,100% { filter: drop-shadow(0 0 8px color-mix(in srgb, var(--emblem-color), transparent 76%)); } 50% { filter: drop-shadow(0 0 15px color-mix(in srgb, var(--emblem-color), transparent 52%)); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .career-emblem > svg { animation: none; }
+}
