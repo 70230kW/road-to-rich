@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { CustomTrophyDef, DayRecord, Game, Player, PlayerCount, PlayerGoal, Settings, YakumanEvent } from '../types';
+import type { CustomTrophyDef, DayRecord, Game, LeagueSeason, MatchSession, Player, PlayerCount, PlayerGoal, Settings, YakumanEvent } from '../types';
 import { defaultSettings } from '../lib/defaults';
 import { ensureAnonymousAuth } from '../lib/firebase';
 import { ensurePlayerColors, pickPlayerColor } from '../lib/playerColors';
@@ -9,15 +9,18 @@ import {
   finalizeDay as finalizeDayRepo,
   saveCurrentDay,
   saveCustomTrophies,
+  saveCurrentSession,
   saveGoals,
   savePlayers,
   saveSettings,
+  saveSeasons,
   subscribeCurrentDay,
   subscribeCustomTrophies,
   subscribeGoals,
   subscribeHistory,
   subscribePlayers,
   subscribeSettings,
+  subscribeSeasons,
   updateDay as updateDayRepo,
 } from '../lib/roomRepo';
 
@@ -43,9 +46,12 @@ interface AppState {
   players: Player[];
   settings: Settings;
   currentDayGames: Game[];
+  currentSession: MatchSession | null;
   history: DayRecord[];
   goals: Record<string, PlayerGoal>;
   customTrophies: CustomTrophyDef[];
+  seasons: LeagueSeason[];
+  activeSeasonId: string | null;
 
   _unsubscribeAll: (() => void) | null;
 
@@ -60,7 +66,7 @@ interface AppState {
   updateSettings: (patch: Partial<Settings>) => Promise<void>;
   setPlayerCount: (count: PlayerCount) => Promise<void>;
 
-  addGame: (game: Omit<Game, 'id'>) => Promise<void>;
+  addGame: (game: Omit<Game, 'id'>) => Promise<string | undefined>;
   removeGame: (gameId: string) => Promise<void>;
   updateGameYakuman: (gameId: string, yakumanEvents: YakumanEvent[]) => Promise<void>;
 
@@ -71,6 +77,11 @@ interface AppState {
   setPlayerGoal: (playerId: string, goal: PlayerGoal | null) => Promise<void>;
   addCustomTrophy: (trophy: Omit<CustomTrophyDef, 'id'>) => Promise<void>;
   removeCustomTrophy: (trophyId: string) => Promise<void>;
+  startSession: (title: string, participantIds: string[]) => Promise<void>;
+  clearSession: () => Promise<void>;
+  createSeason: (name: string, startDate: string) => Promise<void>;
+  archiveSeason: (seasonId: string, endDate: string) => Promise<void>;
+  setActiveSeason: (seasonId: string | null) => Promise<void>;
 }
 
 export const useAppStore = create<AppState>()((set, get) => ({
@@ -81,9 +92,12 @@ export const useAppStore = create<AppState>()((set, get) => ({
   players: [],
   settings: defaultSettings,
   currentDayGames: [],
+  currentSession: null,
   history: [],
   goals: {},
   customTrophies: [],
+  seasons: [],
+  activeSeasonId: null,
 
   _unsubscribeAll: null,
 
@@ -96,16 +110,19 @@ export const useAppStore = create<AppState>()((set, get) => ({
       players: [],
       settings: defaultSettings,
       currentDayGames: [],
+      currentSession: null,
       history: [],
       goals: {},
       customTrophies: [],
+      seasons: [],
+      activeSeasonId: null,
     });
 
     try {
       await ensureAnonymousAuth();
 
       // Only mark "synced" once every slice has delivered its first snapshot.
-      const pending = new Set(['players', 'settings', 'currentDay', 'history', 'goals', 'customTrophies']);
+      const pending = new Set(['players', 'settings', 'currentDay', 'history', 'goals', 'customTrophies', 'seasons']);
       const markReady = (slice: string) => {
         pending.delete(slice);
         if (pending.size === 0 && get().roomCode === roomCode) {
@@ -130,8 +147,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
           set({ settings });
           markReady('settings');
         }),
-        subscribeCurrentDay(roomCode, (currentDayGames) => {
-          set({ currentDayGames });
+        subscribeCurrentDay(roomCode, ({ games, session }) => {
+          set({ currentDayGames: games, currentSession: session });
           markReady('currentDay');
         }),
         subscribeHistory(roomCode, (history) => {
@@ -145,6 +162,10 @@ export const useAppStore = create<AppState>()((set, get) => ({
         subscribeCustomTrophies(roomCode, (customTrophies) => {
           set({ customTrophies });
           markReady('customTrophies');
+        }),
+        subscribeSeasons(roomCode, ({ list, activeId }) => {
+          set({ seasons: list, activeSeasonId: activeId });
+          markReady('seasons');
         }),
       ];
       set({ _unsubscribeAll: () => unsubs.forEach((u) => u()) });
@@ -171,9 +192,12 @@ export const useAppStore = create<AppState>()((set, get) => ({
       players: [],
       settings: defaultSettings,
       currentDayGames: [],
+      currentSession: null,
       history: [],
       goals: {},
       customTrophies: [],
+      seasons: [],
+      activeSeasonId: null,
       _unsubscribeAll: null,
     });
   },
@@ -225,7 +249,9 @@ export const useAppStore = create<AppState>()((set, get) => ({
   addGame: async (game) => {
     const { roomCode, currentDayGames } = get();
     if (!roomCode) return;
-    await saveCurrentDay(roomCode, [...currentDayGames, { ...game, id: uid() }]);
+    const id = uid();
+    await saveCurrentDay(roomCode, [...currentDayGames, { ...game, id }]);
+    return id;
   },
 
   removeGame: async (gameId) => {
@@ -251,9 +277,14 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   finalizeDay: async (day) => {
-    const { roomCode } = get();
+    const { roomCode, currentSession, activeSeasonId } = get();
     if (!roomCode) return;
-    await finalizeDayRepo(roomCode, { ...day, date: new Date().toISOString() });
+    await finalizeDayRepo(roomCode, {
+      ...day,
+      date: new Date().toISOString(),
+      ...(currentSession ? { session: currentSession } : {}),
+      ...(activeSeasonId ? { seasonId: activeSeasonId } : {}),
+    });
   },
 
   updateDay: async (dayId, patch) => {
@@ -290,5 +321,50 @@ export const useAppStore = create<AppState>()((set, get) => ({
       roomCode,
       customTrophies.filter((t) => t.id !== trophyId),
     );
+  },
+
+  startSession: async (title, participantIds) => {
+    const { roomCode } = get();
+    if (!roomCode || !title.trim()) return;
+    await saveCurrentSession(roomCode, {
+      id: uid(),
+      title: title.trim(),
+      participantIds,
+      startedAt: new Date().toISOString(),
+    });
+  },
+
+  clearSession: async () => {
+    const { roomCode } = get();
+    if (!roomCode) return;
+    await saveCurrentSession(roomCode, null);
+  },
+
+  createSeason: async (name, startDate) => {
+    const { roomCode, seasons } = get();
+    if (!roomCode || !name.trim()) return;
+    const id = uid();
+    const next = seasons.map((season) => season.status === 'active'
+      ? { ...season, status: 'archived' as const, endDate: startDate, archivedAt: new Date().toISOString() }
+      : season);
+    next.push({ id, name: name.trim(), startDate, status: 'active', createdAt: new Date().toISOString() });
+    await saveSeasons(roomCode, { list: next, activeId: id });
+  },
+
+  archiveSeason: async (seasonId, endDate) => {
+    const { roomCode, seasons, activeSeasonId } = get();
+    if (!roomCode) return;
+    await saveSeasons(roomCode, {
+      list: seasons.map((season) => season.id === seasonId
+        ? { ...season, status: 'archived' as const, endDate, archivedAt: new Date().toISOString() }
+        : season),
+      activeId: activeSeasonId === seasonId ? null : activeSeasonId,
+    });
+  },
+
+  setActiveSeason: async (seasonId) => {
+    const { roomCode, seasons } = get();
+    if (!roomCode) return;
+    await saveSeasons(roomCode, { list: seasons, activeId: seasonId });
   },
 }));

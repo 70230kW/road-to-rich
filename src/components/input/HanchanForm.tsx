@@ -16,6 +16,21 @@ import { NeonButton } from '../common/NeonButton';
 import { CurrentProfitsBar } from './CurrentProfitsBar';
 import { RecordedGamesList } from './RecordedGamesList';
 import { YakumanInput } from './YakumanInput';
+import { haptic } from '../../lib/haptics';
+
+interface HanchanDraft {
+  playerCount: number;
+  selectedIds: (string | null)[];
+  manualInputs: string[];
+}
+
+function readDraft(key: string | undefined, playerCount: number): HanchanDraft | null {
+  if (!key) return null;
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key) ?? 'null') as HanchanDraft | null;
+    return parsed?.playerCount === playerCount ? parsed : null;
+  } catch { return null; }
+}
 
 export function HanchanForm({
   players,
@@ -28,17 +43,21 @@ export function HanchanForm({
   onNavigateToPlayers,
   onSetPlayerCount,
   receiptTitle = '半荘を保存しました',
+  eligiblePlayerIds,
+  draftKey,
 }: {
   players: Player[];
   settings: Settings;
   currentDayGames: Game[];
-  onAddGame: (game: Omit<Game, 'id'>) => void | Promise<void>;
+  onAddGame: (game: Omit<Game, 'id'>) => void | string | Promise<void | string | undefined>;
   receiptTitle?: string;
-  onRemoveGame: (gameId: string) => void;
+  onRemoveGame: (gameId: string) => void | Promise<void>;
   onUpdateGameYakuman: (gameId: string, events: YakumanEvent[]) => void;
   onStartSettling: () => void;
   onNavigateToPlayers: () => void;
   onSetPlayerCount: (count: PlayerCount) => void;
+  eligiblePlayerIds?: string[];
+  draftKey?: string;
 }) {
   const [saving, setSaving] = useState(false);
   const savingRef = useRef(false);
@@ -48,17 +67,22 @@ export function HanchanForm({
   const [focusedSeat, setFocusedSeat] = useState(0);
   const playerCount = settings.playerCount;
   const lastIndex = playerCount - 1;
+  const [initialDraft] = useState(() => readDraft(draftKey, playerCount));
 
-  const [selectedIds, setSelectedIds] = useState<(string | null)[]>(Array(playerCount).fill(null));
-  const [manualInputs, setManualInputs] = useState<string[]>(Array(lastIndex).fill(''));
+  const [selectedIds, setSelectedIds] = useState<(string | null)[]>(initialDraft?.selectedIds ?? Array(playerCount).fill(null));
+  const [manualInputs, setManualInputs] = useState<string[]>(initialDraft?.manualInputs ?? Array(lastIndex).fill(''));
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [tieOrderOverrides, setTieOrderOverrides] = useState<Record<number, string[]>>({});
   const [yakumanEvents, setYakumanEvents] = useState<YakumanEvent[]>([]);
   const [isRankPointsOpen, setIsRankPointsOpen] = useState(false);
   // null = 通常の設定通り。値を編集した半荘だけ、この配列を使う。
   const [rankPointsOverride, setRankPointsOverride] = useState<number[] | null>(null);
+  const [savedGameId, setSavedGameId] = useState<string | null>(null);
+  const previousPlayerCount = useRef(playerCount);
 
   useEffect(() => {
+    if (previousPlayerCount.current === playerCount) return;
+    previousPlayerCount.current = playerCount;
     setSelectedIds(Array(playerCount).fill(null));
     setManualInputs(Array(playerCount - 1).fill(''));
     setAttemptedSubmit(false);
@@ -67,6 +91,16 @@ export function HanchanForm({
     setIsRankPointsOpen(false);
     setRankPointsOverride(null);
   }, [playerCount]);
+
+  useEffect(() => {
+    if (!draftKey) return;
+    try { localStorage.setItem(draftKey, JSON.stringify({ playerCount, selectedIds, manualInputs } satisfies HanchanDraft)); } catch { /* in-memory input remains available */ }
+  }, [draftKey, manualInputs, playerCount, selectedIds]);
+
+  useEffect(() => {
+    if (!eligiblePlayerIds) return;
+    setSelectedIds((current) => current.map((id) => id && eligiblePlayerIds.includes(id) ? id : null));
+  }, [eligiblePlayerIds]);
 
   const defaultRankPoints = useMemo(() => getRankPoints(settings), [settings]);
   const activeRankPoints = rankPointsOverride ?? defaultRankPoints;
@@ -117,7 +151,7 @@ export function HanchanForm({
     setTieOrderOverrides((prev) => ({ ...prev, [score]: next }));
   };
 
-  const notEnoughPlayers = players.length < playerCount;
+  const notEnoughPlayers = (eligiblePlayerIds ? players.filter((player) => eligiblePlayerIds.includes(player.id)).length : players.length) < playerCount;
 
   const handleSelectChange = (index: number, value: string) => {
     const next = [...selectedIds];
@@ -145,7 +179,7 @@ export function HanchanForm({
     try {
       const entries = selectedIds.map((id, i) => ({ playerId: id as string, rawScore: rawScores[i] as number }));
       const settled = calcGameSettlement(entries, settings, tieBreakOrder, isRankPointsChanged ? activeRankPoints : undefined);
-      await onAddGame({
+      const id = await onAddGame({
         scores: settled,
         ...(yakumanEvents.length > 0 ? { yakumanEvents } : {}),
         ...(isRankPointsChanged ? { rankPointsUsed: [...activeRankPoints] } : {}),
@@ -158,6 +192,8 @@ export function HanchanForm({
       setIsRankPointsOpen(false);
       setRankPointsOverride(null);
       setSavedScores(settled);
+      setSavedGameId(typeof id === 'string' ? id : null);
+      haptic('success');
       // selectedIds intentionally preserved for the next hanchan.
     } catch {
       setSaveError('保存できませんでした。入力内容は残っています。接続を確認して再試行してください。');
@@ -168,6 +204,9 @@ export function HanchanForm({
   };
 
   const participantIds = useMemo(() => selectedIds.filter((id): id is string => id !== null), [selectedIds]);
+  const eligiblePlayers = useMemo(() => eligiblePlayerIds
+    ? players.filter((player) => eligiblePlayerIds.includes(player.id))
+    : players, [eligiblePlayerIds, players]);
 
   const showBanner = attemptedSubmit && !validation.isValid ? validation.message : validation.totalMismatch ? validation.message : null;
 
@@ -178,7 +217,7 @@ export function HanchanForm({
     setSavedScores(null);
     requestAnimationFrame(() => scoreRefs.current[0]?.focus());
   };
-  if (savedScores) return <SaveReceipt title={receiptTitle} detail="この半荘の結果 · チップ・場代を除く" rows={savedScores.map(score => ({ id: score.playerId, name: players.find(p => p.id === score.playerId)?.name ?? '不明', rank: score.rank, profit: score.point }))} onNext={nextGame} onSettle={onStartSettling} />;
+  if (savedScores) return <SaveReceipt title={receiptTitle} detail="この半荘の結果 · チップ・場代を除く" rows={savedScores.map(score => ({ id: score.playerId, name: players.find(p => p.id === score.playerId)?.name ?? '不明', rank: score.rank, profit: score.point }))} onNext={nextGame} onSettle={onStartSettling} onUndo={savedGameId ? async () => { await onRemoveGame(savedGameId); haptic('warning'); setSavedScores(null); setSavedGameId(null); } : undefined} />;
 
   return (
     <fieldset disabled={saving} className="space-y-8 animate-fade-in min-w-0 border-0 p-0">
@@ -265,7 +304,7 @@ export function HanchanForm({
                       }`}
                     >
                       <option value="">雀士を選択</option>
-                      {players.map((p) => {
+                      {eligiblePlayers.map((p) => {
                         const isSelectedElsewhere = selectedIds.includes(p.id) && selectedIds[i] !== p.id;
                         if (isSelectedElsewhere) return null;
                         return (

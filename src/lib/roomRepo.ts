@@ -13,13 +13,24 @@ import {
 } from 'firebase/firestore';
 import { getFirebaseDb } from './firebase';
 import { defaultSettings } from './defaults';
-import type { CustomTrophyDef, DayRecord, Game, Player, PlayerGoal, Settings } from '../types';
+import type { CustomTrophyDef, DayRecord, Game, LeagueSeason, MatchSession, Player, PlayerGoal, Settings } from '../types';
 
 const PLAYERS_PATH = ['state', 'players'] as const;
 const SETTINGS_PATH = ['state', 'settings'] as const;
 const CURRENT_DAY_PATH = ['state', 'currentDay'] as const;
 const GOALS_PATH = ['state', 'goals'] as const;
 const CUSTOM_TROPHIES_PATH = ['state', 'customTrophies'] as const;
+const SEASONS_PATH = ['state', 'seasons'] as const;
+
+export interface CurrentDayState {
+  games: Game[];
+  session: MatchSession | null;
+}
+
+export interface SeasonsState {
+  list: LeagueSeason[];
+  activeId: string | null;
+}
 
 function roomDoc(roomCode: string, segments: readonly string[]) {
   return doc(getFirebaseDb(), 'rooms', roomCode, ...segments);
@@ -45,6 +56,7 @@ export async function ensureRoomInitialized(roomCode: string): Promise<void> {
     setDoc(roomDoc(roomCode, CURRENT_DAY_PATH), { games: [] as Game[] }),
     setDoc(roomDoc(roomCode, GOALS_PATH), { byPlayer: {} as Record<string, PlayerGoal> }),
     setDoc(roomDoc(roomCode, CUSTOM_TROPHIES_PATH), { list: [] as CustomTrophyDef[] }),
+    setDoc(roomDoc(roomCode, SEASONS_PATH), { list: [] as LeagueSeason[], activeId: null }),
   ]);
 }
 
@@ -61,10 +73,17 @@ export function subscribeSettings(roomCode: string, cb: (settings: Settings) => 
   });
 }
 
-export function subscribeCurrentDay(roomCode: string, cb: (games: Game[]) => void): Unsubscribe {
+export function subscribeCurrentDay(roomCode: string, cb: (state: CurrentDayState) => void): Unsubscribe {
   return onSnapshot(roomDoc(roomCode, CURRENT_DAY_PATH), (snap) => {
-    const data = snap.data() as { games?: Game[] } | undefined;
-    cb(data?.games ?? []);
+    const data = snap.data() as { games?: Game[]; session?: MatchSession | null } | undefined;
+    cb({ games: data?.games ?? [], session: data?.session ?? null });
+  });
+}
+
+export function subscribeSeasons(roomCode: string, cb: (state: SeasonsState) => void): Unsubscribe {
+  return onSnapshot(roomDoc(roomCode, SEASONS_PATH), (snap) => {
+    const data = snap.data() as { list?: LeagueSeason[]; activeId?: string | null } | undefined;
+    cb({ list: data?.list ?? [], activeId: data?.activeId ?? null });
   });
 }
 
@@ -98,7 +117,15 @@ export async function saveSettings(roomCode: string, settings: Settings): Promis
 }
 
 export async function saveCurrentDay(roomCode: string, games: Game[]): Promise<void> {
-  await setDoc(roomDoc(roomCode, CURRENT_DAY_PATH), { games });
+  await setDoc(roomDoc(roomCode, CURRENT_DAY_PATH), { games }, { merge: true });
+}
+
+export async function saveCurrentSession(roomCode: string, session: MatchSession | null): Promise<void> {
+  await setDoc(roomDoc(roomCode, CURRENT_DAY_PATH), { session }, { merge: true });
+}
+
+export async function saveSeasons(roomCode: string, state: SeasonsState): Promise<void> {
+  await setDoc(roomDoc(roomCode, SEASONS_PATH), state);
 }
 
 export async function saveGoals(roomCode: string, goals: Record<string, PlayerGoal>): Promise<void> {
@@ -111,7 +138,7 @@ export async function saveCustomTrophies(roomCode: string, trophies: CustomTroph
 
 export async function finalizeDay(roomCode: string, day: Omit<DayRecord, 'id'>): Promise<void> {
   await addDoc(historyCollection(roomCode), day);
-  await saveCurrentDay(roomCode, []);
+  await setDoc(roomDoc(roomCode, CURRENT_DAY_PATH), { games: [], session: null }, { merge: true });
 }
 
 export async function updateDay(roomCode: string, dayId: string, patch: Omit<DayRecord, 'id' | 'date'>): Promise<void> {

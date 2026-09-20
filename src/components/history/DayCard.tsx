@@ -8,6 +8,7 @@ import { MatrixTable } from './MatrixTable';
 import { PointMatrixTable } from './PointMatrixTable';
 import { HanchanNotes } from './HanchanNotes';
 import { DayVotes } from './DayVotes';
+import { ResultShareButton } from '../share/ResultShareButton';
 
 export function DayCard({
   day,
@@ -118,6 +119,7 @@ export function DayCard({
       {isExpanded && (
         <div className="p-5 md:p-8 border-t border-slate-700/50 bg-panel-3/80 relative animate-fade-in">
           <div className="flex justify-end gap-2 mb-6 relative z-10">
+            <ResultShareButton title={day.session?.title ?? `${formatDate(day.date)}の対局`} date={formatDate(day.date)} hanchanCount={day.games.length} rows={participantIds.map((id) => ({ id, name: name(id), profit: day.settlement[id]?.totalWithFee ?? 0, color: players.find((player) => player.id === id)?.color }))} />
             <button
               type="button"
               onClick={() => setIsEditing(true)}
@@ -205,4 +207,3 @@ export function DayCard({
     </div>
   );
 }
-

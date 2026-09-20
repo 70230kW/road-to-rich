@@ -839,3 +839,121 @@ button, select, summary { min-height: 44px; }
   .rank-ladder-toggle > div { width: 100%; }
   .rank-ladder-index { top: 10px; right: 48px; }
 }
+
+/* Match night, seasons and shareable result cards. */
+.offline-status { position: fixed; z-index: 70; top: env(safe-area-inset-top, 0); left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; width: min(94%, 620px); padding: 9px 14px; border: 1px solid #e7b85d55; border-radius: 0 0 12px 12px; background: #251d10f2; color: #f0cf8e; font-size: 10px; box-shadow: 0 8px 24px #0006; backdrop-filter: blur(12px); }
+.receipt-undo { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 42px; margin-top: 10px; color: #aeb6c2; font-size: 11px; }
+.receipt-undo:hover { color: #f0cf8e; }
+.match-session-setup, .match-session-live { position: relative; overflow: hidden; padding: 20px; border: 1px solid #d9bd8238; border-radius: 19px; background: linear-gradient(140deg, #201c15, #13171c 62%); box-shadow: inset 0 1px 0 #ffffff08, 0 0 30px #d9bd820b; }
+.match-session-setup::after, .match-session-live::after { content: ''; position: absolute; top: -50px; right: -30px; width: 160px; height: 110px; border-radius: 50%; background: #d9bd821b; filter: blur(34px); pointer-events: none; }
+.match-session-setup h3 { display: flex; align-items: center; gap: 8px; margin-top: 5px; color: #f1e4c8; font-size: 17px; font-weight: 800; }
+.session-title-field { display: block; margin-bottom: 14px; }
+.session-title-field > span, .season-create-card label > span { display: block; margin-bottom: 7px; color: #928d84; font-size: 9px; letter-spacing: .12em; }
+.session-title-field input, .season-create-card input { width: 100%; min-height: 48px; padding: 11px 14px; border: 1px solid #3a3936; border-radius: 11px; background: #0e1115; color: #edf1f5; font-weight: 700; }
+.session-player-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.session-player-grid button { display: inline-flex; align-items: center; gap: 8px; min-height: 41px; padding: 8px 11px; border: 1px solid #343941; border-radius: 10px; background: #11151a; color: #9099a6; font-size: 11px; }
+.session-player-grid button[aria-pressed="true"] { border-color: #d9bd8266; background: #d9bd820e; color: #f0dfbb; box-shadow: 0 0 14px #d9bd8212; }
+.session-player-grid button > span { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 7px currentColor; }
+.session-setup-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 17px; }
+.session-setup-footer small { color: #747d89; font-size: 9px; }
+.session-live-heading, .session-live-heading > div, .session-live-meta, .session-live-actions { display: flex; align-items: center; }
+.session-live-heading { position: relative; z-index: 1; justify-content: space-between; gap: 16px; }
+.session-live-heading > div { gap: 11px; min-width: 0; }
+.session-live-heading h3 { overflow-wrap: anywhere; margin-top: 4px; color: #f4e4c2; font-size: 18px; font-weight: 850; }
+.session-live-heading > strong { color: #f1d696; font: 28px var(--font-mono); text-shadow: 0 0 15px #d9bd8245; }
+.session-live-heading > strong small { margin-left: 4px; color: #8e8778; font-size: 9px; }
+.session-live-dot { width: 9px; height: 9px; flex: 0 0 auto; border-radius: 50%; background: #68d5a3; box-shadow: 0 0 10px #68d5a3; animation: session-live-pulse 2s ease-in-out infinite; }
+.session-live-meta { gap: 16px; margin-top: 13px; color: #8f98a5; font-size: 9px; }
+.session-live-meta span { display: inline-flex; align-items: center; gap: 5px; }
+.session-standings { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 7px; margin-top: 16px; }
+.session-standings > div { display: grid; grid-template-columns: 22px minmax(0,1fr) auto; align-items: center; gap: 7px; padding: 10px 11px; border: 1px solid #30343b; border-radius: 10px; background: #0e1115aa; }
+.session-standings span { color: #aa9263; font: 10px var(--font-mono); }
+.session-standings strong { overflow: hidden; color: #d7dce3; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.session-standings em { font: 10px var(--font-mono); font-style: normal; }
+.session-live-actions { justify-content: flex-end; gap: 10px; margin-top: 16px; }
+.session-live-actions > button:first-child { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; color: #7f8895; font-size: 10px; }
+@keyframes session-live-pulse { 0%,100% { opacity: .55; } 50% { opacity: 1; transform: scale(1.12); } }
+
+.season-active-card { position: relative; overflow: hidden; padding: 24px; border: 1px solid #d9bd8250; border-radius: 21px; background: radial-gradient(circle at 90% 0%, #d9bd8218, transparent 36%), linear-gradient(140deg, #252015, #111419 60%); box-shadow: 0 0 34px #d9bd8210, inset 0 1px 0 #fff1c512; }
+.season-active-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; color: #d9bd82; }
+.season-status { display: inline-flex; align-items: center; gap: 6px; color: #7ee2b5; font-size: 9px; letter-spacing: .12em; }
+.season-status i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.season-active-heading h3 { margin-top: 8px; color: #f4e6c8; font-size: clamp(21px,4vw,30px); font-weight: 850; letter-spacing: .04em; }
+.season-active-heading p { margin-top: 6px; color: #8e887e; font: 9px var(--font-mono); }
+.season-overview-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 1px; overflow: hidden; margin-top: 23px; border: 1px solid #d9bd8225; border-radius: 14px; background: #34302a; }
+.season-overview-grid > div { padding: 14px; background: #111419; }
+.season-overview-grid span { display: block; color: #777f8b; font-size: 8px; }
+.season-overview-grid strong { display: block; margin-top: 7px; overflow-wrap: anywhere; color: #ecdfc4; font-size: 13px; }
+.season-mini-ranking { margin-top: 18px; border-top: 1px solid #d9bd8223; }
+.season-mini-ranking > div { display: grid; grid-template-columns: 28px minmax(0,1fr) auto; gap: 10px; padding: 12px 3px; border-bottom: 1px solid #282c32; }
+.season-mini-ranking span { color: #bda067; font: 11px var(--font-mono); }
+.season-mini-ranking strong { color: #dfe3e8; font-size: 12px; }
+.season-mini-ranking em { font: 12px var(--font-mono); font-style: normal; }
+.season-archive-action { display: inline-flex; align-items: center; gap: 7px; margin-top: 18px; padding: 9px 12px; color: #9ba3af; font-size: 10px; }
+.season-create-card { display: grid; grid-template-columns: minmax(200px,1fr) minmax(150px,.7fr) minmax(145px,.55fr) auto; align-items: end; gap: 14px; padding: 22px; border: 1px solid #d9bd8235; border-radius: 19px; background: linear-gradient(140deg,#1e1a13,#111419 58%); }
+.season-create-card h3 { margin-top: 5px; color: #f0e1c2; font-size: 18px; font-weight: 800; }
+.season-create-card p { margin-top: 7px; color: #818996; font-size: 10px; line-height: 1.6; }
+.season-empty { padding: 25px 0; color: #737c88; font-size: 11px; text-align: center; }
+.season-archive-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.season-archive-grid article { padding: 18px; border: 1px solid #35383d; border-radius: 16px; background: linear-gradient(145deg,#191b1f,#101318); }
+.season-archive-title { display: flex; align-items: center; gap: 10px; color: #c9ae76; }
+.season-archive-title strong, .season-archive-title small { display: block; }
+.season-archive-title strong { color: #e5e8ec; font-size: 13px; }
+.season-archive-title small { margin-top: 4px; color: #727b87; font: 8px var(--font-mono); }
+.season-champion { margin-top: 18px; padding: 14px; border: 1px solid #d9bd8225; border-radius: 12px; background: #d9bd8208; }
+.season-champion span { display: block; color: #a58c5e; font: 8px var(--font-mono); letter-spacing: .15em; }
+.season-champion strong { display: block; margin-top: 6px; color: #f0dfbd; font-size: 17px; }
+.season-champion em { display: block; margin-top: 5px; color: #72d3a7; font: 12px var(--font-mono); font-style: normal; }
+.season-archive-grid footer { display: flex; justify-content: space-between; margin-top: 13px; color: #7a838f; font-size: 9px; }
+.season-archive-grid footer span { display: inline-flex; align-items: center; gap: 4px; }
+
+.share-result-trigger { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; padding: 8px 12px; border: 1px solid #d9bd8240; border-radius: 10px; background: #d9bd820c; color: #e1c88f; font-size: 10px; }
+.share-result-overlay { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 16px; }
+.share-result-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #050607df; backdrop-filter: blur(12px); }
+.share-result-dialog { position: relative; width: min(100%, 560px); max-height: 94dvh; overflow-y: auto; padding: 20px; border: 1px solid #d9bd823b; border-radius: 21px; background: #12151a; box-shadow: 0 28px 80px #000b; }
+.share-result-dialog > header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.share-result-dialog > header h3 { margin-top: 4px; color: #f0e1c2; font-size: 17px; font-weight: 800; }
+.share-result-dialog > header button { display: grid; place-items: center; width: 40px; height: 40px; color: #8d96a3; }
+.share-format-switch { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; padding: 4px; margin-bottom: 14px; border: 1px solid #2c3037; border-radius: 11px; background: #0c0f12; }
+.share-format-switch button { min-height: 35px; border-radius: 8px; color: #747e8b; font: 10px var(--font-mono); }
+.share-format-switch button[aria-pressed="true"] { background: #d9bd82; color: #171713; }
+.result-share-card { position: relative; display: flex; flex-direction: column; overflow: hidden; width: 100%; padding: clamp(18px,5vw,32px); border: 1px solid #d9bd8245; background: radial-gradient(circle at 88% 4%,#d9bd8224,transparent 34%),linear-gradient(145deg,#181b20,#090b0e 72%); color: #f1f3f6; isolation: isolate; }
+.result-share-card-square { aspect-ratio: 1; }
+.result-share-card-portrait { aspect-ratio: 4 / 5; }
+.result-share-card-wide { aspect-ratio: 16 / 9; }
+.share-card-aura { position: absolute; z-index: -1; left: -18%; bottom: -30%; width: 70%; height: 65%; border-radius: 50%; background: #d9bd8212; filter: blur(40px); }
+.share-card-brand { display: flex; align-items: baseline; justify-content: space-between; }
+.share-card-brand strong { font-family: var(--font-brand); font-size: clamp(13px,3.4vw,21px); letter-spacing: .1em; }
+.share-card-brand span { color: #9b865d; font: clamp(5px,1.7vw,9px) var(--font-mono); letter-spacing: .22em; }
+.share-card-title { margin-top: auto; }
+.share-card-title > span { color: #b69b66; font: clamp(6px,1.8vw,9px) var(--font-mono); letter-spacing: .18em; }
+.share-card-title h2 { margin-top: 7px; overflow-wrap: anywhere; font-size: clamp(18px,5vw,31px); font-weight: 850; }
+.share-card-title p { margin-top: 6px; color: #7e8793; font: clamp(6px,1.8vw,9px) var(--font-mono); }
+.share-card-ranking { margin-top: clamp(12px,4vw,24px); border-top: 1px solid #d9bd8235; }
+.share-card-ranking > div { display: grid; grid-template-columns: 25px 5px minmax(0,1fr) auto; align-items: center; gap: 9px; padding: clamp(7px,2.4vw,13px) 0; border-bottom: 1px solid #ffffff0c; }
+.share-card-place { color: #a58d60; font: clamp(8px,2.3vw,12px) var(--font-mono); }
+.share-card-ranking i { width: 5px; height: 18px; border-radius: 3px; }
+.share-card-ranking strong { overflow: hidden; font-size: clamp(9px,2.7vw,14px); text-overflow: ellipsis; white-space: nowrap; }
+.share-card-ranking em { font: 700 clamp(9px,2.7vw,15px) var(--font-mono); font-style: normal; }
+.share-card-ranking em.is-positive { color: #73d9ab; }
+.share-card-ranking em.is-negative { color: #ff8b99; }
+.result-share-card footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 13px; color: #8b929c; font: clamp(6px,1.7vw,8px) var(--font-mono); letter-spacing: .12em; }
+.result-share-card footer strong { color: #d9bd82; }
+.share-result-export { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; margin-top: 14px; border-radius: 11px; background: #d9bd82; color: #181713; font-size: 12px; font-weight: 800; box-shadow: 0 0 20px #d9bd8228; }
+.share-result-export:disabled { opacity: .55; }
+.share-result-hint { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 9px; color: #6e7783; font-size: 8px; }
+.share-result-error { margin-top: 9px; color: #ff8b99; font-size: 10px; text-align: center; }
+
+@media (max-width: 700px) {
+  .season-create-card { grid-template-columns: 1fr; }
+  .season-overview-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .season-archive-grid { grid-template-columns: 1fr; }
+  .session-setup-footer { align-items: stretch; flex-direction: column; }
+}
+@media (max-width: 430px) {
+  .session-standings { grid-template-columns: 1fr; }
+  .share-result-dialog { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .session-live-dot { animation: none; }
+}

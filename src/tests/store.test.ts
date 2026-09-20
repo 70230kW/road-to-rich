@@ -6,6 +6,8 @@ const mocks = vi.hoisted(() => ({
   savePlayers: vi.fn(),
   saveSettings: vi.fn(),
   saveCurrentDay: vi.fn(),
+  saveCurrentSession: vi.fn(),
+  saveSeasons: vi.fn(),
   finalizeDay: vi.fn(),
   updateDay: vi.fn(),
   deleteDay: vi.fn(),
@@ -13,10 +15,11 @@ const mocks = vi.hoisted(() => ({
   saveCustomTrophies: vi.fn(),
   playersCb: null as ((players: unknown[]) => void) | null,
   settingsCb: null as ((settings: unknown) => void) | null,
-  currentDayCb: null as ((games: unknown[]) => void) | null,
+  currentDayCb: null as ((state: { games: unknown[]; session: unknown }) => void) | null,
   historyCb: null as ((history: unknown[]) => void) | null,
   goalsCb: null as ((goals: unknown) => void) | null,
   customTrophiesCb: null as ((trophies: unknown[]) => void) | null,
+  seasonsCb: null as ((state: { list: unknown[]; activeId: string | null }) => void) | null,
   unsubscribers: [] as ReturnType<typeof vi.fn>[],
 }));
 
@@ -39,7 +42,7 @@ vi.mock('../lib/roomRepo', () => ({
     mocks.unsubscribers.push(unsub);
     return unsub;
   },
-  subscribeCurrentDay: (_roomCode: string, cb: (games: unknown[]) => void) => {
+  subscribeCurrentDay: (_roomCode: string, cb: (state: { games: unknown[]; session: unknown }) => void) => {
     mocks.currentDayCb = cb;
     const unsub = vi.fn();
     mocks.unsubscribers.push(unsub);
@@ -63,9 +66,17 @@ vi.mock('../lib/roomRepo', () => ({
     mocks.unsubscribers.push(unsub);
     return unsub;
   },
+  subscribeSeasons: (_roomCode: string, cb: (state: { list: unknown[]; activeId: string | null }) => void) => {
+    mocks.seasonsCb = cb;
+    const unsub = vi.fn();
+    mocks.unsubscribers.push(unsub);
+    return unsub;
+  },
   savePlayers: mocks.savePlayers,
   saveSettings: mocks.saveSettings,
   saveCurrentDay: mocks.saveCurrentDay,
+  saveCurrentSession: mocks.saveCurrentSession,
+  saveSeasons: mocks.saveSeasons,
   finalizeDay: mocks.finalizeDay,
   updateDay: mocks.updateDay,
   deleteDay: mocks.deleteDay,
@@ -83,14 +94,17 @@ function flushInitialSnapshots(
     history: unknown[];
     goals: unknown;
     customTrophies: unknown[];
+    seasons: unknown[];
+    activeSeasonId: string | null;
   }> = {},
 ) {
   mocks.playersCb?.(overrides.players ?? []);
   mocks.settingsCb?.(overrides.settings ?? defaultSettings);
-  mocks.currentDayCb?.(overrides.currentDayGames ?? []);
+  mocks.currentDayCb?.({ games: overrides.currentDayGames ?? [], session: null });
   mocks.historyCb?.(overrides.history ?? []);
   mocks.goalsCb?.(overrides.goals ?? {});
   mocks.customTrophiesCb?.(overrides.customTrophies ?? []);
+  mocks.seasonsCb?.({ list: overrides.seasons ?? [], activeId: overrides.activeSeasonId ?? null });
 }
 
 beforeEach(() => {
@@ -100,6 +114,8 @@ beforeEach(() => {
   mocks.savePlayers.mockResolvedValue(undefined);
   mocks.saveSettings.mockResolvedValue(undefined);
   mocks.saveCurrentDay.mockResolvedValue(undefined);
+  mocks.saveCurrentSession.mockResolvedValue(undefined);
+  mocks.saveSeasons.mockResolvedValue(undefined);
   mocks.finalizeDay.mockResolvedValue(undefined);
   mocks.updateDay.mockResolvedValue(undefined);
   mocks.deleteDay.mockResolvedValue(undefined);
@@ -111,6 +127,7 @@ beforeEach(() => {
   mocks.historyCb = null;
   mocks.goalsCb = null;
   mocks.customTrophiesCb = null;
+  mocks.seasonsCb = null;
   mocks.unsubscribers = [];
   localStorage.clear();
   useAppStore.setState({
@@ -120,9 +137,12 @@ beforeEach(() => {
     players: [],
     settings: defaultSettings,
     currentDayGames: [],
+    currentSession: null,
     history: [],
     goals: {},
     customTrophies: [],
+    seasons: [],
+    activeSeasonId: null,
     _unsubscribeAll: null,
   });
 });
@@ -140,13 +160,15 @@ describe('connectToRoom', () => {
     mocks.playersCb?.([{ id: 'p1', name: 'Alice' }]);
     expect(useAppStore.getState().connectionStatus).toBe('connecting');
     mocks.settingsCb?.(defaultSettings);
-    mocks.currentDayCb?.([]);
+    mocks.currentDayCb?.({ games: [], session: null });
     expect(useAppStore.getState().connectionStatus).toBe('connecting');
     mocks.historyCb?.([]);
     expect(useAppStore.getState().connectionStatus).toBe('connecting');
     mocks.goalsCb?.({});
     expect(useAppStore.getState().connectionStatus).toBe('connecting');
     mocks.customTrophiesCb?.([]);
+    expect(useAppStore.getState().connectionStatus).toBe('connecting');
+    mocks.seasonsCb?.({ list: [], activeId: null });
     expect(useAppStore.getState().connectionStatus).toBe('synced');
     expect(useAppStore.getState().players).toEqual([{ id: 'p1', name: 'Alice', color: '#06b6d4' }]);
   });
@@ -337,6 +359,46 @@ describe('goal and custom trophy actions', () => {
     });
     await useAppStore.getState().removeCustomTrophy('t1');
     expect(mocks.saveCustomTrophies).toHaveBeenCalledWith('room-h', []);
+  });
+});
+
+describe('match session and season actions', () => {
+  beforeEach(async () => {
+    await useAppStore.getState().connectToRoom('room-season');
+    flushInitialSnapshots();
+  });
+
+  it('starts a named match session with selected participants', async () => {
+    await useAppStore.getState().startSession('週末対局会', ['p1', 'p2', 'p3', 'p4']);
+    expect(mocks.saveCurrentSession).toHaveBeenCalledWith('room-season', expect.objectContaining({
+      id: expect.any(String),
+      title: '週末対局会',
+      participantIds: ['p1', 'p2', 'p3', 'p4'],
+      startedAt: expect.any(String),
+    }));
+  });
+
+  it('adds the active session and season to a finalized day', async () => {
+    useAppStore.setState({
+      currentSession: { id: 'session-1', title: '定例会', participantIds: ['p1'], startedAt: '2026-09-20T10:00:00.000Z' },
+      activeSeasonId: 'season-1',
+    });
+    const day = { games: [], tableFee: 0, chips: {}, chipRate: 100, settlement: {} };
+    await useAppStore.getState().finalizeDay(day);
+    expect(mocks.finalizeDay).toHaveBeenCalledWith('room-season', expect.objectContaining({
+      ...day,
+      session: expect.objectContaining({ id: 'session-1' }),
+      seasonId: 'season-1',
+      date: expect.any(String),
+    }));
+  });
+
+  it('creates and activates a new official season', async () => {
+    await useAppStore.getState().createSeason('2026 AUTUMN', '2026-09-20');
+    expect(mocks.saveSeasons).toHaveBeenCalledWith('room-season', {
+      list: [expect.objectContaining({ name: '2026 AUTUMN', startDate: '2026-09-20', status: 'active' })],
+      activeId: expect.any(String),
+    });
   });
 });
 
