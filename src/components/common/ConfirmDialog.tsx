@@ -1,4 +1,5 @@
 import { AlertTriangle } from 'lucide-react';
+import { createPortal } from 'react-dom';
 
 export function ConfirmDialog({
   open,
@@ -21,9 +22,9 @@ export function ConfirmDialog({
 }) {
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div
-      className="mobile-sheet-dialog fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
+      className="mobile-sheet-dialog fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-dialog-title"
@@ -67,6 +68,7 @@ export function ConfirmDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
