@@ -1,7 +1,7 @@
 type SkeletonLayout = 'data' | 'collection' | 'form';
 
 const DATA_TABS = new Set(['dashboard', 'ranking', 'history', 'rank', 'simulator']);
-const COLLECTION_TABS = new Set(['trophies', 'rules', 'seasons']);
+const COLLECTION_TABS = new Set(['trophies', 'rules', 'seasons', 'updates']);
 
 function getLayout(tab: string): SkeletonLayout {
   if (DATA_TABS.has(tab)) return 'data';

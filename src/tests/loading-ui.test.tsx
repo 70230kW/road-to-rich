@@ -17,6 +17,7 @@ describe('loading UI', () => {
   it.each([
     ['dashboard', 'data'],
     ['trophies', 'collection'],
+    ['updates', 'collection'],
     ['settings', 'form'],
   ])('uses the %s screen skeleton layout', (tab, layout) => {
     const { container } = render(<TabSkeleton tab={tab} />);

@@ -2,7 +2,7 @@ import { DesktopNav } from './components/layout/DesktopNav';
 import { PlayerContext } from './components/layout/PlayerContext';
 import { RankPromotion } from './components/layout/RankPromotion';
 import { lazy, Suspense, useState } from 'react';
-import { BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, Plus, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
+import { BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, Plus, ScrollText, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { RecordSheet } from './components/layout/RecordSheet';
 import { useAppStore } from './store/useAppStore';
@@ -44,6 +44,7 @@ const SimulatorSection = lazy(() =>
 const RankSection = lazy(() => import('./components/rank/RankSection').then((m) => ({ default: m.RankSection })));
 const InputSection = lazy(() => import('./components/input/InputSection').then((m) => ({ default: m.InputSection })));
 const SeasonArchiveSection = lazy(() => import('./components/seasons/SeasonArchiveSection').then((m) => ({ default: m.SeasonArchiveSection })));
+const UpdateHistorySection = lazy(() => import('./components/updates/UpdateHistorySection').then((m) => ({ default: m.UpdateHistorySection })));
 
 // 画面下部の固定ナビゲーションに収まる主要4タブ。残りは「その他」メニューにまとめる。
 const PRIMARY_TABS: PrimaryTabDef[] = [
@@ -58,6 +59,7 @@ const OTHER_TABS: PrimaryTabDef[] = [
   { id: 'simulator', name: '成績予想', icon: Telescope },
   { id: 'trophies', name: '実績', icon: Trophy },
   { id: 'seasons', name: 'シーズン', icon: CalendarRange },
+  { id: 'updates', name: 'アプデ', icon: ScrollText },
   { id: 'rules', name: 'ルール', icon: BookOpen },
   { id: 'players', name: '雀士登録', icon: Users },
   { id: 'settings', name: '計算設定', icon: SettingsIcon },
@@ -112,6 +114,7 @@ function AppShell() {
               {activeTab === 'simulator' && <SimulatorSection />}
               {activeTab === 'trophies' && <TrophySection />}
               {activeTab === 'seasons' && <SeasonArchiveSection />}
+              {activeTab === 'updates' && <UpdateHistorySection />}
               {activeTab === 'settings' && <SettingsSection />}
               {activeTab === 'players' && <PlayerSection />}
               {activeTab === 'rules' && <RulesSection />}
