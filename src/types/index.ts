@@ -7,6 +7,25 @@ export interface Player {
   color: string;
 }
 
+/** 現在進行中、または精算済みの1回の対局会。 */
+export interface MatchSession {
+  id: string;
+  title: string;
+  participantIds: string[];
+  startedAt: string;
+}
+
+/** リーグ内で任意に区切る公式シーズン。 */
+export interface LeagueSeason {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate?: string;
+  status: 'active' | 'archived';
+  createdAt: string;
+  archivedAt?: string;
+}
+
 /** All persisted calculation settings. */
 export interface Settings {
   playerCount: PlayerCount;
@@ -111,4 +130,8 @@ export interface DayRecord {
   chipRate: number;
   settlement: Record<string, DaySettlementEntry>;
   votes?: DayVotes;
+  /** 対局会モードで記録された場合の情報。旧データでは未指定。 */
+  session?: MatchSession;
+  /** この記録が属する公式シーズン。旧データでは未指定。 */
+  seasonId?: string;
 }

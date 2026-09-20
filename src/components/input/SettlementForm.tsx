@@ -6,6 +6,7 @@ import { calcDaySettlement, isChipTotalBalanced } from '../../lib/calc';
 import { formatSignedYen, formatYen } from '../../lib/format';
 import { ErrorBanner } from '../common/ErrorBanner';
 import { NeonButton } from '../common/NeonButton';
+import { ConfirmDialog } from '../common/ConfirmDialog';
 
 export function SettlementForm({
   players,
@@ -41,6 +42,7 @@ export function SettlementForm({
   const savingRef = useRef(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [attemptedSave, setAttemptedSave] = useState(false);
+  const [confirmingSave, setConfirmingSave] = useState(false);
   const tableFeeInputRef = useRef<HTMLInputElement>(null);
 
   // 半荘の記録が終わってこの画面に遷移したとき、場代の入力欄まで自動でスクロールする。
@@ -107,8 +109,15 @@ export function SettlementForm({
       chipRate,
       settlement,
     });
+    setConfirmingSave(false);
     } catch { setSaveError('保存できませんでした。入力内容を確認し、接続が戻ってから再試行してください。'); }
     finally { savingRef.current = false; setSaving(false); }
+  };
+
+  const requestSave = () => {
+    setAttemptedSave(true);
+    if (!chipsBalanced || chipRateMissing) return;
+    setConfirmingSave(true);
   };
 
   return (
@@ -271,12 +280,12 @@ export function SettlementForm({
         <NeonButton variant="ghost" onClick={onCancel} className="sm:w-1/3 text-lg">
           戻る
         </NeonButton>
-        <NeonButton variant="success" onClick={handleSave} className="flex-1">
+        <NeonButton variant="success" onClick={requestSave} className="flex-1">
           <Save className="w-6 h-6 mr-3" />
           {saving ? '保存中…' : saveLabel}
         </NeonButton>
       </div>
+      <ConfirmDialog open={confirmingSave} title="対局会を精算" message="表示中の場代・チップ・最終収支で対局会を確定し、履歴へ保存します。よろしいですか？" confirmLabel="精算を保存" onCancel={() => setConfirmingSave(false)} onConfirm={handleSave} />
     </fieldset>
   );
 }
-

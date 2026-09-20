@@ -2,7 +2,7 @@ import { DesktopNav } from './components/layout/DesktopNav';
 import { PlayerContext } from './components/layout/PlayerContext';
 import { RankPromotion } from './components/layout/RankPromotion';
 import { lazy, Suspense, useState } from 'react';
-import { BarChart3, BookOpen, Crown, Gauge, History, Plus, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
+import { BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, Plus, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { RecordSheet } from './components/layout/RecordSheet';
 import { useAppStore } from './store/useAppStore';
@@ -13,6 +13,7 @@ import { RoomGate } from './components/room/RoomGate';
 import { RoomBadge } from './components/room/RoomBadge';
 import { TabSkeleton } from './components/common/TabSkeleton';
 import { WelcomeGuide } from './components/layout/WelcomeGuide';
+import { OnlineStatusBar } from './components/layout/OnlineStatusBar';
 
 
 // Secondary screens are loaded on demand.
@@ -42,6 +43,7 @@ const SimulatorSection = lazy(() =>
 );
 const RankSection = lazy(() => import('./components/rank/RankSection').then((m) => ({ default: m.RankSection })));
 const InputSection = lazy(() => import('./components/input/InputSection').then((m) => ({ default: m.InputSection })));
+const SeasonArchiveSection = lazy(() => import('./components/seasons/SeasonArchiveSection').then((m) => ({ default: m.SeasonArchiveSection })));
 
 // 画面下部の固定ナビゲーションに収まる主要4タブ。残りは「その他」メニューにまとめる。
 const PRIMARY_TABS: PrimaryTabDef[] = [
@@ -55,6 +57,7 @@ const OTHER_TABS: PrimaryTabDef[] = [
   { id: 'rank', name: '段位', icon: Gauge },
   { id: 'simulator', name: '成績予想', icon: Telescope },
   { id: 'trophies', name: '実績', icon: Trophy },
+  { id: 'seasons', name: 'シーズン', icon: CalendarRange },
   { id: 'rules', name: 'ルール', icon: BookOpen },
   { id: 'players', name: '雀士登録', icon: Users },
   { id: 'settings', name: '計算設定', icon: SettingsIcon },
@@ -89,6 +92,7 @@ function AppShell() {
   return (
     <div className="min-h-screen bg-abyss text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-clip relative">
       <Background />
+      <OnlineStatusBar />
 
       <div className="app-workspace relative z-10">
         <DesktopNav primary={PRIMARY_TABS} other={OTHER_TABS} activeTab={activeTab} onSelect={id => id === 'input' ? setIsRecordOpen(true) : selectTab(id)} />
@@ -107,6 +111,7 @@ function AppShell() {
               {activeTab === 'rank' && <RankSection />}
               {activeTab === 'simulator' && <SimulatorSection />}
               {activeTab === 'trophies' && <TrophySection />}
+              {activeTab === 'seasons' && <SeasonArchiveSection />}
               {activeTab === 'settings' && <SettingsSection />}
               {activeTab === 'players' && <PlayerSection />}
               {activeTab === 'rules' && <RulesSection />}
