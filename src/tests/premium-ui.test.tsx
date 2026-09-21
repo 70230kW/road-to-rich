@@ -28,6 +28,10 @@ describe('premium league screens', () => {
     expect(screen.getByRole('button',{name:'1位 春樹の成績詳細'})).toBeInTheDocument();
     expect(screen.getByRole('button',{name:'2位 直人の成績詳細'})).toBeInTheDocument();
     expect(screen.queryByRole('button',{name:/3位 .*の成績詳細/})).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', {name:'差額'}));
+    expect(screen.getAllByText('2位との差').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('1位との差').length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole('button', {name:'収支額'}));
     fireEvent.click(screen.getByRole('button',{name:'1位 春樹の成績詳細'}));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });

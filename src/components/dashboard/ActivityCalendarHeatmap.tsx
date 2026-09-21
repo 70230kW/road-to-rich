@@ -61,7 +61,7 @@ export function ActivityCalendarHeatmap({
   const weeks = useMemo(() => buildWeeks(year, activity), [year, activity]);
 
   return (
-    <div className="overflow-x-auto pb-2">
+    <div className="activity-calendar-scroll overflow-x-auto pb-2">
       <div className="inline-flex gap-[3px]">
         <div className="flex flex-col gap-[3px] mr-1 pt-[18px] shrink-0">
           {DAY_LABELS.map((label, i) => (
@@ -86,13 +86,13 @@ export function ActivityCalendarHeatmap({
                     type="button"
                     onClick={() => onSelectDate(d.key)}
                     title={`${d.key}: ${d.count}半荘`}
-                    className={`w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-[2px] cursor-pointer ring-offset-1 ring-offset-panel-2 hover:ring-2 hover:ring-cyan-300 transition-shadow ${intensityClass(d.count)}`}
+                    className={`activity-calendar-cell min-h-0 shrink-0 w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-[2px] cursor-pointer ring-offset-1 ring-offset-panel-2 hover:ring-2 hover:ring-cyan-300 transition-shadow ${intensityClass(d.count)}`}
                   />
                 ) : (
                   <div
                     key={d.key}
                     title={d.inYear ? `${d.key}: 0半荘` : undefined}
-                    className={`w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-[2px] ${d.inYear ? intensityClass(0) : 'bg-transparent'}`}
+                    className={`activity-calendar-cell shrink-0 w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-[2px] ${d.inYear ? intensityClass(0) : 'bg-transparent'}`}
                   />
                 ),
               )}

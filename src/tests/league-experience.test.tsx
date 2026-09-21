@@ -5,7 +5,7 @@ import { PeriodFilter } from '../components/common/PeriodFilter';
 import { RankPromotion } from '../components/layout/RankPromotion';
 import { useViewPreferences, readViewPreferences, resolvePeriod, VIEW_STORAGE_KEY } from '../store/useViewPreferences';
 import { useAppStore } from '../store/useAppStore';
-import { gapToHigher, rankPositions, rankingComparison } from '../lib/rankingMovement';
+import { adjacentProfitGap, gapToHigher, rankPositions, rankingComparison } from '../lib/rankingMovement';
 import { computeRanking } from '../lib/stats';
 import type { DayRecord, PlayerCount } from '../types';
 const players = ['a','b','c','d'].map(id => ({id,name:id,color:'#aaaaaa'}));
@@ -36,6 +36,8 @@ describe('personal league context', () => {
     expect(rankPositions(rows)).toEqual({a:1,b:1,c:3,d:4});
     expect(gapToHigher(rows,'c')).toBe(150);
     expect(gapToHigher(rows,'a')).toBeNull();
+    expect(adjacentProfitGap(rows, 0)).toEqual({amount:0,referencePlayerId:'b'});
+    expect(adjacentProfitGap(rows, 2)).toEqual({amount:-150,referencePlayerId:'b'});
     expect(rankingComparison(history,players,{year:2026,month:1})).toEqual({positions:{a:1,b:1,c:3,d:4},label:'2025年12月の順位比'});
     expect(rankingComparison([],players,'all').positions).toEqual({});
   });
