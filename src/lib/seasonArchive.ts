@@ -15,16 +15,21 @@ export function computeSeasonSnapshot(history: DayRecord[], players: Player[], s
   const days = getSeasonDays(history, season);
   const ranking = computeRanking(days, players);
   const hanchanCount = days.reduce((sum, day) => sum + day.games.length, 0);
-  const topCounts = new Map<string, number>();
+  const records = new Map<string, { topCount: number; hanchanCount: number }>();
   days.forEach((day) => day.games.forEach((game) => game.scores.forEach((score) => {
-    if (score.rank === 1) topCounts.set(score.playerId, (topCounts.get(score.playerId) ?? 0) + 1);
+    const record = records.get(score.playerId) ?? { topCount: 0, hanchanCount: 0 };
+    record.hanchanCount += 1;
+    if (score.rank === 1) record.topCount += 1;
+    records.set(score.playerId, record);
   })));
-  const topHunter = [...topCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+  const topRateLeader = [...records.entries()]
+    .map(([playerId, record]) => ({ playerId, ...record, rate: record.topCount / record.hanchanCount }))
+    .sort((a, b) => b.rate - a.rate || b.hanchanCount - a.hanchanCount || b.topCount - a.topCount || a.playerId.localeCompare(b.playerId))[0];
   return {
     days,
     ranking,
     hanchanCount,
     champion: ranking[0] ?? null,
-    topHunter: topHunter ? { playerId: topHunter[0], count: topHunter[1], name: players.find((player) => player.id === topHunter[0])?.name ?? '不明' } : null,
+    topRateLeader: topRateLeader ? { ...topRateLeader, name: players.find((player) => player.id === topRateLeader.playerId)?.name ?? '不明' } : null,
   };
 }
