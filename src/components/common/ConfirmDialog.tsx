@@ -24,13 +24,13 @@ export function ConfirmDialog({
 
   return createPortal(
     <div
-      className="mobile-sheet-dialog fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in"
+      className="confirm-dialog fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-dialog-title"
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onCancel} />
-      <div className="mobile-sheet relative w-full max-w-md bg-panel border border-rose-500/40 rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(244,63,94,0.2)] overflow-hidden">
+      <div className="confirm-dialog-panel relative w-full max-w-md bg-panel border border-rose-500/40 rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(244,63,94,0.2)] overflow-hidden">
         <div className="absolute -top-16 -right-16 w-40 h-40 bg-rose-500/10 blur-[60px] rounded-full pointer-events-none" />
         <div className="relative z-10 flex items-start gap-4">
           <div

@@ -15,6 +15,16 @@ export function gapToHigher(rows: RankingRow[], playerId: string): number | null
   const higher = rows.filter(r => r.totalProfitWithoutFee > row.totalProfitWithoutFee).at(-1);
   return higher ? higher.totalProfitWithoutFee - row.totalProfitWithoutFee : null;
 }
+
+/** Difference from the adjacent rank: the leader compares with second place, everyone else with the row directly above. */
+export function adjacentProfitGap(rows: RankingRow[], index: number): { amount: number; referencePlayerId: string } | null {
+  if (rows.length < 2 || index < 0 || index >= rows.length) return null;
+  const referenceIndex = index === 0 ? 1 : index - 1;
+  return {
+    amount: rows[index].totalProfitWithoutFee - rows[referenceIndex].totalProfitWithoutFee,
+    referencePlayerId: rows[referenceIndex].playerId,
+  };
+}
 export function rankingComparison(history: DayRecord[], players: Player[], season: SeasonFilter, now = new Date()) {
   let previous: DayRecord[];
   let label: string;

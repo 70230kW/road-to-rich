@@ -24,6 +24,8 @@ describe('ConfirmDialog', () => {
     expect(container.contains(dialog)).toBe(false);
     expect(dialog.parentElement).toBe(document.body);
     expect(dialog).toHaveClass('z-[100]');
+    expect(dialog).toHaveClass('confirm-dialog');
+    expect(dialog).not.toHaveClass('mobile-sheet-dialog');
 
     fireEvent.click(screen.getByRole('button', { name: '設定を解除' }));
     expect(onConfirm).toHaveBeenCalledOnce();
