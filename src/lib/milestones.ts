@@ -62,7 +62,7 @@ export function computeLatestMilestones(history: DayRecord[], players: Player[])
           id: `${player.id}:top-rate-50`,
           playerId: player.id,
           type: 'top-rate-50',
-          message: `${player.name} のトップ率が50%を突破！`,
+          message: `${player.name} のトップ率が50.0%を突破！`,
         });
       }
     }

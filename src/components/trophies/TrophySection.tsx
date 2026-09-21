@@ -254,7 +254,7 @@ export function TrophySection() {
                       {trophy.description || CUSTOM_TROPHY_CONDITION_LABELS[trophy.conditionType]}
                     </div>
                     <div className="text-[10px] font-mono text-fuchsia-500/70 mt-1.5">
-                      {CUSTOM_TROPHY_CONDITION_LABELS[trophy.conditionType].replace('◯', String(trophy.threshold))}
+                      {CUSTOM_TROPHY_CONDITION_LABELS[trophy.conditionType].replace('◯', trophy.conditionType === 'topRateAtLeast' ? trophy.threshold.toFixed(1) : String(trophy.threshold))}
                     </div>
                   </div>
                 );

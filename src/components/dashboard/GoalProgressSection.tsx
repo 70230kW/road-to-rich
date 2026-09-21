@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Target } from 'lucide-react';
 import type { DayRecord, Player, PlayerGoal } from '../../types';
 import { computeGoalProgress } from '../../lib/goals';
-import { formatSignedYen } from '../../lib/format';
+import { formatPercentage, formatSignedYen } from '../../lib/format';
 
 /** history には全期間（シーズン絞り込み前）の history を渡すこと。「今月」は常に実際の現在日基準。 */
 export function GoalProgressSection({
@@ -28,8 +28,8 @@ export function GoalProgressSection({
         {withGoals.map((p) => {
           const gp = progress[p.id]!;
           const pct = Math.min(1, gp.progressRatio) * 100;
-          const targetLabel = gp.goal.type === 'profit' ? `${formatSignedYen(gp.goal.target)}` : `${gp.goal.target}%`;
-          const currentLabel = gp.goal.type === 'profit' ? formatSignedYen(gp.currentValue) : `${gp.currentValue.toFixed(1)}%`;
+          const targetLabel = gp.goal.type === 'profit' ? `${formatSignedYen(gp.goal.target)}` : formatPercentage(gp.goal.target);
+          const currentLabel = gp.goal.type === 'profit' ? formatSignedYen(gp.currentValue) : formatPercentage(gp.currentValue);
           return (
             <div key={p.id} className="bg-abyss/70 p-4 rounded-2xl border border-slate-800/80">
               <div className="flex items-center justify-between mb-2">
