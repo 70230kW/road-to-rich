@@ -17,6 +17,7 @@ export function MoreMenu({
   const groups = [
     { label: 'キャリア', ids: ['rank', 'simulator', 'trophies'] },
     { label: 'リーグ管理', ids: ['seasons', 'players', 'rules', 'settings'] },
+    { label: 'アプリ情報', ids: ['updates'] },
   ];
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center animate-fade-in" role="dialog" aria-modal="true">
