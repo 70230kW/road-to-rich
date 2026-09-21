@@ -34,11 +34,12 @@ describe('season archive', () => {
     expect(getSeasonDays(history, season).map((record) => record.id)).toEqual(['explicit', 'legacy-in-range']);
   });
 
-  it('computes champion, hanchan count and top-rate leader', () => {
+  it('computes champion, hanchan count and percentage leaders', () => {
     const snapshot = computeSeasonSnapshot([day('d1', '2026-10-10T00:00:00.000Z')], players, season);
     expect(snapshot.champion?.name).toBe('Alice');
     expect(snapshot.hanchanCount).toBe(1);
     expect(snapshot.topRateLeader).toMatchObject({ name: 'Alice', topCount: 1, hanchanCount: 1, rate: 1 });
+    expect(snapshot.lastAvoidanceLeader).toMatchObject({ name: 'Alice', lastCount: 0, hanchanCount: 1, rate: 1 });
   });
 
   it('ranks top rate instead of the raw number of first-place finishes', () => {
@@ -51,5 +52,6 @@ describe('season archive', () => {
 
     const snapshot = computeSeasonSnapshot([aliceWin, bobWin], players, season);
     expect(snapshot.topRateLeader).toMatchObject({ name: 'Alice', topCount: 1, hanchanCount: 1, rate: 1 });
+    expect(snapshot.lastAvoidanceLeader).toMatchObject({ name: 'Alice', lastCount: 0, hanchanCount: 1, rate: 1 });
   });
 });

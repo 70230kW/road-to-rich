@@ -880,7 +880,7 @@ button, select, summary { min-height: 44px; }
 .season-status i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
 .season-active-heading h3 { margin-top: 8px; color: #f4e6c8; font-size: clamp(21px,4vw,30px); font-weight: 850; letter-spacing: .04em; }
 .season-active-heading p { margin-top: 6px; color: #8e887e; font: 9px var(--font-mono); }
-.season-overview-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 1px; overflow: hidden; margin-top: 23px; border: 1px solid #d9bd8225; border-radius: 14px; background: #34302a; }
+.season-overview-grid { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 1px; overflow: hidden; margin-top: 23px; border: 1px solid #d9bd8225; border-radius: 14px; background: #34302a; }
 .season-overview-grid > div { padding: 14px; background: #111419; }
 .season-overview-grid span { display: block; color: #777f8b; font-size: 8px; }
 .season-overview-grid strong { display: block; margin-top: 7px; overflow-wrap: anywhere; color: #ecdfc4; font-size: 13px; }
@@ -947,6 +947,7 @@ button, select, summary { min-height: 44px; }
 @media (max-width: 700px) {
   .season-create-card { grid-template-columns: 1fr; }
   .season-overview-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .season-overview-grid > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .season-archive-grid { grid-template-columns: 1fr; }
   .session-setup-footer { align-items: stretch; flex-direction: column; }
 }
