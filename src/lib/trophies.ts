@@ -770,7 +770,7 @@ export const TROPHY_LIST: TrophyDef[] = [
   { id: 'g16', tier: 'gold', name: 'センチュリー・クラブ', description: '累計100半荘の対局結果を記録する' },
   { id: 'g17', tier: 'gold', name: 'ハーフ・ミリオネア', description: '累計獲得ポイントが＋500.0の大台を突破する' },
   { id: 'g18', tier: 'gold', name: 'トップランカー', description: '累計30試合以上プレイした時点で、通算の平均順位が2.00以下をキープしている' },
-  { id: 'g19', tier: 'gold', name: '勝率5割の壁', description: '累計20試合以上プレイした時点で、通算の1着獲得率（トップ率）が50%以上ある' },
+  { id: 'g19', tier: 'gold', name: '勝率5割の壁', description: '累計20試合以上プレイした時点で、通算の1着獲得率（トップ率）が50.0%以上ある' },
 
   // === Platinum ===
   { id: 'p01', tier: 'platinum', name: '四神降臨', description: '4試合連続で1着を獲得する' },
@@ -781,8 +781,8 @@ export const TROPHY_LIST: TrophyDef[] = [
   { id: 'p06', tier: 'platinum', name: '異次元の大勝', description: '2着に60,000点以上の絶望的な大差をつけて1着になる' },
   { id: 'p07', tier: 'platinum', name: '絶対王者の証明', description: '累計で100回、1着を獲得する' },
   { id: 'p08', tier: 'platinum', name: '麻雀の申し子', description: '累計300半荘の対局結果を記録する' },
-  { id: 'p09', tier: 'platinum', name: 'グランドマスター', description: '累計100試合以上プレイした時点で、通算の1着獲得率（トップ率）が40%以上ある' },
-  { id: 'p10', tier: 'platinum', name: '鉄壁の防空壕', description: '累計100半荘以上プレイした時点で、通算のラス率が10%以下をキープしている' },
+  { id: 'p09', tier: 'platinum', name: 'グランドマスター', description: '累計100試合以上プレイした時点で、通算の1着獲得率（トップ率）が40.0%以上ある' },
+  { id: 'p10', tier: 'platinum', name: '鉄壁の防空壕', description: '累計100半荘以上プレイした時点で、通算のラス率が10.0%以下をキープしている' },
   { id: 'p11', tier: 'platinum', name: '雲の上の存在', description: '累計の合計獲得スコア（ポイント）が＋1,000.0を突破する' },
   {
     id: 'p12',

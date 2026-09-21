@@ -6,7 +6,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { computeRanking, computePlayerRateStats } from '../../lib/stats';
 import { computePlayerRankStatuses } from '../../lib/rankLevel';
 import { filterHistoryBySeason, formatSeasonLabel } from '../../lib/season';
-import { formatSignedYen } from '../../lib/format';
+import { formatRatePercentage, formatSignedYen } from '../../lib/format';
 import { SectionHeader } from '../common/SectionHeader';
 import { PeriodFilter } from '../common/PeriodFilter';
 import { EmptyState } from '../common/EmptyState';
@@ -36,7 +36,6 @@ export function DashboardSection() {
   const previous = games.slice(-20, -10);
   const topRateChange = recent.length === 10 && previous.length === 10
     ? (recent.filter(g => g.rank === 1).length - previous.filter(g => g.rank === 1).length) * 10 : null;
-  const percent = (n: number | null | undefined) => n == null ? '—' : `${(n * 100).toFixed(1)}%`;
 
   return <div className="space-y-7 animate-fade-in">
     <SectionHeader icon={BarChart3} title="ダッシュボード" />
@@ -51,7 +50,7 @@ export function DashboardSection() {
         <div className="recent-form"><span>直近5戦</span>{games.slice(-5).map(game => <span key={game.id} className={`placement placement-${game.rank}`} title={`${new Date(game.date).toLocaleDateString('ja-JP')} 第${game.number}半荘`}>{game.rank}<span className="sr-only">位</span></span>)}{games.length === 0 && <small>記録待ち</small>}<small>古い → 新しい</small></div>
       </section>
       <div className="kpi-grid">
-        {[['平均順位', row?.avgRank?.toFixed(2) ?? '—'], ['トップ率', percent(rate?.topRate)], ['ラス率', percent(rate?.lastRate)], ['半荘数', String(row?.hanchanCount ?? 0)]].map(([label, value]) => <div key={label} className="kpi"><span>{label}</span><strong><ScrambleText text={value} /></strong></div>)}
+        {[['平均順位', row?.avgRank?.toFixed(2) ?? '—'], ['トップ率', formatRatePercentage(rate?.topRate)], ['ラス率', formatRatePercentage(rate?.lastRate)], ['半荘数', String(row?.hanchanCount ?? 0)]].map(([label, value]) => <div key={label} className="kpi"><span>{label}</span><strong><ScrambleText text={value} /></strong></div>)}
       </div>
       {status && <section className="rank-progress-card"><div><span className="eyebrow">CAREER RANK</span><strong className="text-gold">{status.levelName}</strong></div>
         <progress className="rank-progress" value={status.progressRatio} max={1} aria-label="次の段位への進捗" />
@@ -64,7 +63,7 @@ export function DashboardSection() {
           {games.slice(-5).reverse().map(game => <div key={game.id} className="recent-row"><span className={`placement placement-${game.rank}`}>{game.rank}<small>位</small></span><div><strong>第{game.number}半荘</strong><small>{new Date(game.date).toLocaleDateString('ja-JP')}</small></div><strong className={`ml-auto font-mono ${game.point >= 0 ? 'profit-positive' : 'profit-negative'}`}>{formatSignedYen(game.point)}</strong></div>)}
           {games.length === 0 && <p className="muted text-sm py-5">この期間の半荘記録はありません。</p>}
         </section>
-        <section className="insight-panel"><Sparkles size={19} className="text-gold shrink-0" /><div><p className="eyebrow mb-2">PERFORMANCE NOTE</p><p>{topRateChange !== null ? `直近10半荘のトップ率は、その前の10半荘と比べて${topRateChange > 0 ? '+' : ''}${topRateChange}ポイント${topRateChange === 0 ? 'で変化なしです。' : '変化しています。'}` : `この期間に${games.length}半荘を記録。20半荘以上になると、直近のトップ率の変化を比較できます。`}</p></div><ArrowUpRight size={18} className="text-gold shrink-0" /></section>
+        <section className="insight-panel"><Sparkles size={19} className="text-gold shrink-0" /><div><p className="eyebrow mb-2">PERFORMANCE NOTE</p><p>{topRateChange !== null ? `直近10半荘のトップ率は、その前の10半荘と比べて${topRateChange > 0 ? '+' : ''}${topRateChange.toFixed(1)}ポイント${topRateChange === 0 ? 'で変化なしです。' : '変化しています。'}` : `この期間に${games.length}半荘を記録。20半荘以上になると、直近のトップ率の変化を比較できます。`}</p></div><ArrowUpRight size={18} className="text-gold shrink-0" /></section>
         </aside>
       </div> : <EmptyState icon={BarChart3} message="この期間の成績はありません" hint="期間または雀士を切り替えると、ほかの記録を確認できます。" />}
     </>}

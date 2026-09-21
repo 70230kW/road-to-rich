@@ -77,7 +77,7 @@ describe('computeLatestMilestones', () => {
       id: 'a:top-rate-50',
       playerId: 'a',
       type: 'top-rate-50',
-      message: 'Alice のトップ率が50%を突破！',
+      message: 'Alice のトップ率が50.0%を突破！',
     });
   });
 
