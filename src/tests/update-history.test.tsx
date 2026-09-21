@@ -18,7 +18,7 @@ describe('update history', () => {
   it('selects past releases from the update side menu', () => {
     render(<UpdateHistorySection />);
 
-    expect(screen.getByRole('heading', { name: 'Ver. 2.3.0' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Ver. 2.4.0' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Ver. 1.0.0/ }));
 
     expect(screen.getByRole('heading', { name: 'Ver. 1.0.0' })).toBeInTheDocument();
