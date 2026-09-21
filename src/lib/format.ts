@@ -9,6 +9,16 @@ export function formatYen(value: number): string {
   return Math.round(value).toLocaleString('ja-JP');
 }
 
+/** Formats a 0-1 ratio as a percentage with exactly one decimal place. */
+export function formatRatePercentage(value: number | null | undefined, fallback = '—'): string {
+  return value == null ? fallback : `${(value * 100).toFixed(1)}%`;
+}
+
+/** Formats an already percentage-scaled value with exactly one decimal place. */
+export function formatPercentage(value: number | null | undefined, fallback = '—'): string {
+  return value == null ? fallback : `${value.toFixed(1)}%`;
+}
+
 export function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('ja-JP', {
     year: 'numeric',
