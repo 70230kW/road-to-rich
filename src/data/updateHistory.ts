@@ -1,3 +1,5 @@
+import generatedUpdateData from './generatedUpdates.json';
+
 export interface UpdateItem {
   target: string;
   change: string;
@@ -11,7 +13,17 @@ export interface AppUpdate {
   items: UpdateItem[];
 }
 
-export const APP_UPDATES: AppUpdate[] = [
+const MANUAL_UPDATES: AppUpdate[] = [
+  {
+    version: '2.4.0', date: '2026.09.21', title: 'アップデート履歴を自動化', summary: 'PRのマージ内容を、アプリ内のアプデページへ自動で追加できるようにしました。',
+    items: [
+      { target: 'アプデ', change: 'PRがマージされたときにアップデート履歴を自動生成するようにしました。' },
+      { target: 'バージョン', change: '通常はパッチ番号を自動で1つ進めるようにしました。' },
+      { target: 'バージョン', change: 'PRラベルや本文からメジャー、マイナー、パッチを指定できるようにしました。' },
+      { target: 'PRテンプレート', change: '対象と変更内容を表形式で記入できるアプデ欄を追加しました。' },
+      { target: '自動補完', change: 'アプデ欄がない場合はPRタイトルと変更内容から履歴を作成するようにしました。' },
+    ],
+  },
   {
     version: '2.3.0', date: '2026.09.21', title: 'アップデート履歴を追加', summary: 'じゃんかねのこれまでの進化を、アプリ内から振り返れるようにしました。',
     items: [
@@ -192,4 +204,9 @@ export const APP_UPDATES: AppUpdate[] = [
       { target: '開発支援', change: 'デモ用の対局データを作成できるようにしました。' },
     ],
   },
+];
+
+export const APP_UPDATES: AppUpdate[] = [
+  ...(generatedUpdateData.updates as AppUpdate[]),
+  ...MANUAL_UPDATES,
 ];

@@ -12,6 +12,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:changelog": "node --test scripts/update-changelog.node-test.mjs",
     "test:watch": "vitest",
     "prepare": "husky"
   },
