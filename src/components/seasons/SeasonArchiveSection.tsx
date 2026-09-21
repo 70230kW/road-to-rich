@@ -14,6 +14,8 @@ function today() {
   return `${now.getFullYear()}-${month}-${day}`;
 }
 
+const percentFormatter = new Intl.NumberFormat('ja-JP', { style: 'percent', maximumFractionDigits: 1 });
+
 export function SeasonArchiveSection() {
   const seasons = useAppStore((s) => s.seasons);
   const activeSeasonId = useAppStore((s) => s.activeSeasonId);
@@ -37,7 +39,7 @@ export function SeasonArchiveSection() {
       {active && activeSnapshot ? (
         <section className="season-active-card">
           <div className="season-active-heading"><div><span className="season-status"><i />開催中</span><h3>{active.name}</h3><p>{active.startDate.replaceAll('-', '.')} — NOW</p></div><Crown size={42} /></div>
-          <div className="season-overview-grid"><div><span>対局日数</span><strong>{activeSnapshot.days.length}日</strong></div><div><span>総半荘数</span><strong>{activeSnapshot.hanchanCount}半荘</strong></div><div><span>暫定首位</span><strong>{activeSnapshot.champion?.name ?? '記録待ち'}</strong></div><div><span>最多トップ</span><strong>{activeSnapshot.topHunter ? `${activeSnapshot.topHunter.name} ${activeSnapshot.topHunter.count}回` : '記録待ち'}</strong></div></div>
+          <div className="season-overview-grid"><div><span>対局日数</span><strong>{activeSnapshot.days.length}日</strong></div><div><span>総半荘数</span><strong>{activeSnapshot.hanchanCount}半荘</strong></div><div><span>暫定首位</span><strong>{activeSnapshot.champion?.name ?? '記録待ち'}</strong></div><div><span>トップ率1位</span><strong>{activeSnapshot.topRateLeader ? `${activeSnapshot.topRateLeader.name} ${percentFormatter.format(activeSnapshot.topRateLeader.rate)}` : '記録待ち'}</strong></div><div><span>ラス回避率1位</span><strong>{activeSnapshot.lastAvoidanceLeader ? `${activeSnapshot.lastAvoidanceLeader.name} ${percentFormatter.format(activeSnapshot.lastAvoidanceLeader.rate)}` : '記録待ち'}</strong></div></div>
           {activeSnapshot.ranking.length > 0 && <div className="season-mini-ranking">{activeSnapshot.ranking.slice(0, 5).map((row, index) => <div key={row.playerId}><span>{index + 1}</span><strong>{row.name}</strong><em className={row.totalProfitWithoutFee >= 0 ? 'profit-positive' : 'profit-negative'}>{formatSignedYen(row.totalProfitWithoutFee)}</em></div>)}</div>}
           <button type="button" className="season-archive-action" onClick={() => setConfirmingArchive(true)}><Archive size={16} />シーズンを終了して保存</button>
           <ConfirmDialog open={confirmingArchive} title="シーズンを終了" message={`${active.name}を本日付で終了し、最終順位をアーカイブします。以降の対局は新しいシーズンを作るまで通算記録のみに反映されます。`} confirmLabel="シーズンを終了" onCancel={() => setConfirmingArchive(false)} onConfirm={async () => { await archiveSeason(active.id, today()); setConfirmingArchive(false); }} />
