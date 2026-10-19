@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { LayoutGrid } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 export interface PrimaryTabDef {
   id: string;
@@ -12,12 +12,14 @@ export function BottomNav({
   tabs,
   activeTab,
   isMoreActive,
+  isMenuOpen,
   onChange,
   onOpenMore,
 }: {
   tabs: PrimaryTabDef[];
   activeTab: string;
   isMoreActive: boolean;
+  isMenuOpen: boolean;
   onChange: (id: string) => void;
   onOpenMore: () => void;
 }) {
@@ -51,15 +53,16 @@ export function BottomNav({
         <button
           type="button"
           aria-haspopup="dialog"
+          aria-expanded={isMenuOpen}
           onClick={onOpenMore}
           className={`nav-item ${
             isMoreActive ? 'is-active' : ''
           }`}
         >
-          <LayoutGrid
+          <Menu
             className="nav-icon"
           />
-          <span className="nav-label">その他</span>
+          <span className="nav-label">メニュー</span>
         </button>
       </div>
     </nav>

@@ -1,7 +1,7 @@
 import { DesktopNav } from './components/layout/DesktopNav';
 import { PlayerContext } from './components/layout/PlayerContext';
 import { RankPromotion } from './components/layout/RankPromotion';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useCallback, useState } from 'react';
 import { BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, Plus, ScrollText, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { RecordSheet } from './components/layout/RecordSheet';
@@ -14,6 +14,7 @@ import { RoomBadge } from './components/room/RoomBadge';
 import { TabSkeleton } from './components/common/TabSkeleton';
 import { WelcomeGuide } from './components/layout/WelcomeGuide';
 import { OnlineStatusBar } from './components/layout/OnlineStatusBar';
+import { PullToRefresh } from './components/layout/PullToRefresh';
 
 
 // Secondary screens are loaded on demand.
@@ -46,7 +47,7 @@ const InputSection = lazy(() => import('./components/input/InputSection').then((
 const SeasonArchiveSection = lazy(() => import('./components/seasons/SeasonArchiveSection').then((m) => ({ default: m.SeasonArchiveSection })));
 const UpdateHistorySection = lazy(() => import('./components/updates/UpdateHistorySection').then((m) => ({ default: m.UpdateHistorySection })));
 
-// 画面下部の固定ナビゲーションに収まる主要4タブ。残りは「その他」メニューにまとめる。
+// 画面下部の固定ナビゲーションに収まる主要4タブ。全画面は共通メニューからも移動できる。
 const PRIMARY_TABS: PrimaryTabDef[] = [
   { id: 'ranking', name: '順位表', icon: Crown },
   { id: 'dashboard', name: 'ダッシュボード', icon: BarChart3 },
@@ -65,6 +66,8 @@ const OTHER_TABS: PrimaryTabDef[] = [
   { id: 'settings', name: '計算設定', icon: SettingsIcon },
 ];
 
+const ALL_TABS: PrimaryTabDef[] = [...PRIMARY_TABS, ...OTHER_TABS];
+
 function App() {
   return (
     <RoomGate>
@@ -79,75 +82,88 @@ function AppShell() {
   const [startSettling, setStartSettling] = useState(false);
   const [inputKey, setInputKey] = useState(0);
   const gameCount = useAppStore(s => s.currentDayGames.length);
+  const refreshRoom = useAppStore(s => s.refreshRoom);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [showGuide, setShowGuide] = useState(() => {
     try { return localStorage.getItem('road-to-rich-welcome-v1') !== 'seen'; } catch { return false; }
   });
   const isMoreActive = OTHER_TABS.some((t) => t.id === activeTab);
 
-  const selectTab = (id: string) => {
+  const selectTab = useCallback((id: string) => {
     setActiveTab(id);
     setIsMoreOpen(false);
     window.scrollTo({ top: 0, behavior: 'instant' });
-  };
+  }, []);
+  const closeMenu = useCallback(() => setIsMoreOpen(false), []);
+  const selectMenuTab = useCallback((id: string) => {
+    if (id === 'input') {
+      setIsMoreOpen(false);
+      setIsRecordOpen(true);
+      return;
+    }
+    selectTab(id);
+  }, [selectTab]);
 
   return (
-    <div className="min-h-screen bg-abyss text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-clip relative">
-      <Background />
-      <OnlineStatusBar />
+    <PullToRefresh onRefresh={refreshRoom}>
+      <div className="min-h-screen bg-abyss text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-clip relative">
+        <Background />
+        <OnlineStatusBar />
 
-      <div className="app-workspace relative z-10">
-        <DesktopNav primary={PRIMARY_TABS} other={OTHER_TABS} activeTab={activeTab} onSelect={id => id === 'input' ? setIsRecordOpen(true) : selectTab(id)} />
-        <div className="app-content">
-        <Header playerSelect={<PlayerContext />} />
-        <RoomBadge />
-        <RankPromotion />
+        <div className="app-workspace relative z-10">
+          <DesktopNav primary={PRIMARY_TABS} other={OTHER_TABS} activeTab={activeTab} onSelect={id => id === 'input' ? setIsRecordOpen(true) : selectTab(id)} />
+          <div className="app-content">
+            <Header playerSelect={<PlayerContext />} onOpenMenu={() => setIsMoreOpen(true)} />
+            <RoomBadge />
+            <RankPromotion />
 
-        <main className="min-h-[500px] pt-5">
-          <div key={activeTab} className="relative z-10 screen-transition">
-            <Suspense fallback={<TabSkeleton tab={activeTab} />}>
-              {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} />}
-              {activeTab === 'dashboard' && <DashboardSection />}
-              {activeTab === 'history' && <HistorySection />}
-              {activeTab === 'ranking' && <RankingSection />}
-              {activeTab === 'rank' && <RankSection />}
-              {activeTab === 'simulator' && <SimulatorSection />}
-              {activeTab === 'trophies' && <TrophySection />}
-              {activeTab === 'seasons' && <SeasonArchiveSection />}
-              {activeTab === 'updates' && <UpdateHistorySection />}
-              {activeTab === 'settings' && <SettingsSection />}
-              {activeTab === 'players' && <PlayerSection />}
-              {activeTab === 'rules' && <RulesSection />}
-            </Suspense>
+            <main className="min-h-[500px] pt-5">
+              <div key={activeTab} className="relative z-10 screen-transition">
+                <Suspense fallback={<TabSkeleton tab={activeTab} />}>
+                  {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} />}
+                  {activeTab === 'dashboard' && <DashboardSection />}
+                  {activeTab === 'history' && <HistorySection />}
+                  {activeTab === 'ranking' && <RankingSection />}
+                  {activeTab === 'rank' && <RankSection />}
+                  {activeTab === 'simulator' && <SimulatorSection />}
+                  {activeTab === 'trophies' && <TrophySection />}
+                  {activeTab === 'seasons' && <SeasonArchiveSection />}
+                  {activeTab === 'updates' && <UpdateHistorySection />}
+                  {activeTab === 'settings' && <SettingsSection />}
+                  {activeTab === 'players' && <PlayerSection />}
+                  {activeTab === 'rules' && <RulesSection />}
+                </Suspense>
+              </div>
+            </main>
+
+            <footer className="text-center py-8 text-[10px] text-slate-700 font-mono tracking-[0.2em] uppercase">
+              じゃんかね — Provided by K.Waga
+            </footer>
           </div>
-        </main>
-
-        <footer className="text-center py-8 text-[10px] text-slate-700 font-mono tracking-[0.2em] uppercase">
-          じゃんかね — Provided by K.Waga
-        </footer>
         </div>
+
+        <BottomNav
+          tabs={PRIMARY_TABS}
+          activeTab={activeTab}
+          isMoreActive={isMoreActive}
+          isMenuOpen={isMoreOpen}
+          onChange={id => id === 'input' ? setIsRecordOpen(true) : selectTab(id)}
+          onOpenMore={() => setIsMoreOpen(true)}
+        />
+
+        {isRecordOpen && <RecordSheet gameCount={gameCount} onClose={() => setIsRecordOpen(false)} onSelect={settle => {
+          setStartSettling(settle);
+          setInputKey(key => key + 1);
+          setIsRecordOpen(false);
+          selectTab('input');
+        }} />}
+
+        {isMoreOpen && (
+          <MoreMenu tabs={ALL_TABS} activeTab={activeTab} onSelect={selectMenuTab} onRefresh={refreshRoom} onClose={closeMenu} />
+        )}
+        {showGuide && <WelcomeGuide onClose={() => { try { localStorage.setItem('road-to-rich-welcome-v1', 'seen'); } catch { /* non-persistent sessions remain usable */ } setShowGuide(false); }} />}
       </div>
-
-      <BottomNav
-        tabs={PRIMARY_TABS}
-        activeTab={activeTab}
-        isMoreActive={isMoreActive}
-        onChange={id => id === 'input' ? setIsRecordOpen(true) : selectTab(id)}
-        onOpenMore={() => setIsMoreOpen(true)}
-      />
-
-      {isRecordOpen && <RecordSheet gameCount={gameCount} onClose={() => setIsRecordOpen(false)} onSelect={settle => {
-        setStartSettling(settle);
-        setInputKey(key => key + 1);
-        setIsRecordOpen(false);
-        selectTab('input');
-      }} />}
-
-      {isMoreOpen && (
-        <MoreMenu tabs={OTHER_TABS} activeTab={activeTab} onSelect={selectTab} onClose={() => setIsMoreOpen(false)} />
-      )}
-      {showGuide && <WelcomeGuide onClose={() => { try { localStorage.setItem('road-to-rich-welcome-v1', 'seen'); } catch { /* non-persistent sessions remain usable */ } setShowGuide(false); }} />}
-    </div>
+    </PullToRefresh>
   );
 }
 
