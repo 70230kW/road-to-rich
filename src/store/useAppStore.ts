@@ -6,6 +6,7 @@ import { ensurePlayerColors, pickPlayerColor } from '../lib/playerColors';
 import {
   deleteDay as deleteDayRepo,
   ensureRoomInitialized,
+  fetchRoomSnapshot,
   finalizeDay as finalizeDayRepo,
   saveCurrentDay,
   saveCustomTrophies,
@@ -56,6 +57,7 @@ interface AppState {
   _unsubscribeAll: (() => void) | null;
 
   connectToRoom: (roomCode: string) => Promise<void>;
+  refreshRoom: () => Promise<void>;
   leaveRoom: () => void;
 
   addPlayer: (name: string) => Promise<void>;
@@ -179,6 +181,42 @@ export const useAppStore = create<AppState>()((set, get) => ({
       });
     } catch (err) {
       set({ connectionStatus: 'error', connectionError: err instanceof Error ? err.message : String(err) });
+    }
+  },
+
+  refreshRoom: async () => {
+    const { roomCode } = get();
+    if (!roomCode) return;
+
+    try {
+      await ensureAnonymousAuth();
+      const snapshot = await fetchRoomSnapshot(roomCode);
+      if (get().roomCode !== roomCode) return;
+
+      const healedPlayers = ensurePlayerColors(snapshot.players);
+      set({
+        players: healedPlayers,
+        settings: snapshot.settings,
+        currentDayGames: snapshot.currentDay.games,
+        currentSession: snapshot.currentDay.session,
+        history: snapshot.history,
+        goals: snapshot.goals,
+        customTrophies: snapshot.customTrophies,
+        seasons: snapshot.seasons.list,
+        activeSeasonId: snapshot.seasons.activeId,
+        connectionError: null,
+      });
+
+      if (healedPlayers.some((player, index) => player.color !== snapshot.players[index]?.color)) {
+        savePlayers(roomCode, healedPlayers).catch((err) => {
+          console.error('Failed to backfill missing player colors:', err);
+        });
+      }
+    } catch (err) {
+      if (get().roomCode === roomCode) {
+        set({ connectionError: err instanceof Error ? err.message : String(err) });
+      }
+      throw err;
     }
   },
 

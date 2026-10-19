@@ -1,7 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { Menu } from 'lucide-react';
 import { GlitchText } from '../common/GlitchText';
 
-export function Header({ playerSelect }: { playerSelect?: ReactNode }) {
+export function Header({ playerSelect, onOpenMenu }: { playerSelect?: ReactNode; onOpenMenu?: () => void }) {
   const [compact, setCompact] = useState(false);
   useEffect(() => {
     const onScroll = () => setCompact(window.scrollY > 72);
@@ -19,7 +20,20 @@ export function Header({ playerSelect }: { playerSelect?: ReactNode }) {
           <GlitchText text="ROAD TO RICH" />
         </p>
       </div>
-      {playerSelect ?? <span className="league-label"><span /> MAHJONG LEAGUE</span>}
+      <div className="header-actions">
+        {playerSelect ?? <span className="league-label"><span /> MAHJONG LEAGUE</span>}
+        {onOpenMenu && (
+          <button
+            type="button"
+            className="header-menu-button"
+            onClick={onOpenMenu}
+            aria-label="メニューを開く"
+            aria-haspopup="dialog"
+          >
+            <Menu aria-hidden="true" />
+          </button>
+        )}
+      </div>
     </header>
   );
 }

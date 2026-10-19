@@ -1,66 +1,120 @@
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Check, RefreshCw, X } from 'lucide-react';
 import type { PrimaryTabDef } from './BottomNav';
 
-/** 「その他」ボタンから開く、主要4タブに収まらない残りのタブ一覧。 */
+const MENU_GROUPS = [
+  { label: 'メイン', ids: ['ranking', 'dashboard', 'input', 'history'] },
+  { label: 'キャリア', ids: ['rank', 'simulator', 'trophies'] },
+  { label: 'リーグ管理', ids: ['seasons', 'players', 'rules', 'settings'] },
+  { label: 'アプリ情報', ids: ['updates'] },
+] as const;
+
+type RefreshState = 'idle' | 'refreshing' | 'success' | 'error';
+
+/** 全ページへ移動できる、共通のハンバーガーメニュー。 */
 export function MoreMenu({
   tabs,
   activeTab,
   onSelect,
+  onRefresh,
   onClose,
 }: {
   tabs: PrimaryTabDef[];
   activeTab: string;
   onSelect: (id: string) => void;
+  onRefresh: () => Promise<void>;
   onClose: () => void;
 }) {
-  const groups = [
-    { label: 'キャリア', ids: ['rank', 'simulator', 'trophies'] },
-    { label: 'リーグ管理', ids: ['seasons', 'players', 'rules', 'settings'] },
-    { label: 'アプリ情報', ids: ['updates'] },
-  ];
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const [refreshState, setRefreshState] = useState<RefreshState>('idle');
+
+  useEffect(() => {
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus();
+    };
+  }, [onClose]);
+
+  const handleRefresh = async () => {
+    if (refreshState === 'refreshing') return;
+    setRefreshState('refreshing');
+    try {
+      await onRefresh();
+      setRefreshState('success');
+      window.setTimeout(() => setRefreshState('idle'), 900);
+    } catch {
+      setRefreshState('error');
+    }
+  };
+
+  const RefreshIcon = refreshState === 'success' ? Check : RefreshCw;
+  const refreshLabel = refreshState === 'refreshing'
+    ? 'データを同期中…'
+    : refreshState === 'success'
+      ? '最新の状態です'
+      : refreshState === 'error'
+        ? '再試行する'
+        : 'データを更新';
+
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center animate-fade-in" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div
-        className="relative w-full sm:max-w-lg bg-panel border border-cyan-900/40 rounded-t-[2rem] sm:rounded-[2rem] p-6"
-        style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-sm font-black text-cyan-400 tracking-[0.2em] uppercase">その他のメニュー</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="閉じる"
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-          >
-            <X className="w-5 h-5" />
+    <div className="navigation-menu-overlay">
+      <button type="button" className="navigation-menu-backdrop" onClick={onClose} aria-label="メニューを閉じる" />
+      <aside className="navigation-menu-panel" role="dialog" aria-modal="true" aria-labelledby="navigation-menu-title">
+        <header className="navigation-menu-header">
+          <div>
+            <p className="eyebrow">ROAD TO RICH</p>
+            <h2 id="navigation-menu-title">メニュー</h2>
+          </div>
+          <button ref={closeButtonRef} type="button" className="icon-button" onClick={onClose} aria-label="メニューを閉じる">
+            <X aria-hidden="true" />
           </button>
-        </div>
-        <div className="space-y-6">
-          {groups.map((group) => <section key={group.label}><p className="more-menu-group-label">{group.label}</p><div className="grid grid-cols-3 gap-3">
-          {tabs.filter((tab) => group.ids.includes(tab.id)).map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => onSelect(tab.id)}
-                className={`flex flex-col items-center justify-center gap-2 py-5 rounded-2xl border transition-colors ${
-                  isActive
-                    ? 'bg-cyan-500/10 border-cyan-400/50 text-cyan-300'
-                    : 'bg-abyss/60 border-slate-800 text-slate-300 hover:border-slate-600'
-                }`}
-              >
-                <Icon className="w-6 h-6" />
-                <span className="text-xs font-bold tracking-wide">{tab.name}</span>
-              </button>
-            );
-          })}
-          </div></section>)}
-        </div>
-      </div>
+        </header>
+
+        <nav className="navigation-menu-scroll" aria-label="全画面ナビゲーション">
+          {MENU_GROUPS.map((group) => (
+            <section className="navigation-menu-group" key={group.label}>
+              <p className="more-menu-group-label">{group.label}</p>
+              <div className="navigation-menu-grid">
+                {tabs.filter((tab) => group.ids.some((id) => id === tab.id)).map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      aria-current={isActive ? 'page' : undefined}
+                      onClick={() => onSelect(tab.id)}
+                    >
+                      <Icon className="navigation-menu-icon" />
+                      <span>{tab.id === 'input' ? '対局を記録' : tab.name}</span>
+                      {isActive && <i>表示中</i>}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
+        </nav>
+
+        <footer className="navigation-menu-footer">
+          <button type="button" onClick={() => void handleRefresh()} disabled={refreshState === 'refreshing'}>
+            <RefreshIcon className={refreshState === 'refreshing' ? 'is-spinning' : ''} aria-hidden="true" />
+            <span>{refreshLabel}</span>
+          </button>
+          <small>画面上端から下に引いても更新できます</small>
+        </footer>
+      </aside>
     </div>,
     document.body,
   );

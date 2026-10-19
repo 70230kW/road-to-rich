@@ -4,6 +4,7 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
@@ -32,6 +33,16 @@ export interface SeasonsState {
   activeId: string | null;
 }
 
+export interface RoomSnapshot {
+  players: Player[];
+  settings: Settings;
+  currentDay: CurrentDayState;
+  history: DayRecord[];
+  goals: Record<string, PlayerGoal>;
+  customTrophies: CustomTrophyDef[];
+  seasons: SeasonsState;
+}
+
 function roomDoc(roomCode: string, segments: readonly string[]) {
   return doc(getFirebaseDb(), 'rooms', roomCode, ...segments);
 }
@@ -58,6 +69,44 @@ export async function ensureRoomInitialized(roomCode: string): Promise<void> {
     setDoc(roomDoc(roomCode, CUSTOM_TROPHIES_PATH), { list: [] as CustomTrophyDef[] }),
     setDoc(roomDoc(roomCode, SEASONS_PATH), { list: [] as LeagueSeason[], activeId: null }),
   ]);
+}
+
+/** Fetches every room slice once without disturbing the live subscriptions. */
+export async function fetchRoomSnapshot(roomCode: string): Promise<RoomSnapshot> {
+  const [playersSnap, settingsSnap, currentDaySnap, historySnap, goalsSnap, trophiesSnap, seasonsSnap] = await Promise.all([
+    getDoc(roomDoc(roomCode, PLAYERS_PATH)),
+    getDoc(roomDoc(roomCode, SETTINGS_PATH)),
+    getDoc(roomDoc(roomCode, CURRENT_DAY_PATH)),
+    getDocs(query(historyCollection(roomCode), orderBy('date', 'asc'))),
+    getDoc(roomDoc(roomCode, GOALS_PATH)),
+    getDoc(roomDoc(roomCode, CUSTOM_TROPHIES_PATH)),
+    getDoc(roomDoc(roomCode, SEASONS_PATH)),
+  ]);
+
+  const playersData = playersSnap.data() as { list?: Player[] } | undefined;
+  const currentDayData = currentDaySnap.data() as { games?: Game[]; session?: MatchSession | null } | undefined;
+  const goalsData = goalsSnap.data() as { byPlayer?: Record<string, PlayerGoal> } | undefined;
+  const trophiesData = trophiesSnap.data() as { list?: CustomTrophyDef[] } | undefined;
+  const seasonsData = seasonsSnap.data() as { list?: LeagueSeason[]; activeId?: string | null } | undefined;
+
+  return {
+    players: playersData?.list ?? [],
+    settings: (settingsSnap.data() as Settings | undefined) ?? defaultSettings,
+    currentDay: {
+      games: currentDayData?.games ?? [],
+      session: currentDayData?.session ?? null,
+    },
+    history: historySnap.docs.map((historyEntry) => ({
+      id: historyEntry.id,
+      ...(historyEntry.data() as Omit<DayRecord, 'id'>),
+    })),
+    goals: goalsData?.byPlayer ?? {},
+    customTrophies: trophiesData?.list ?? [],
+    seasons: {
+      list: seasonsData?.list ?? [],
+      activeId: seasonsData?.activeId ?? null,
+    },
+  };
 }
 
 export function subscribePlayers(roomCode: string, cb: (players: Player[]) => void): Unsubscribe {

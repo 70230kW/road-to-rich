@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   ensureAnonymousAuth: vi.fn(),
   ensureRoomInitialized: vi.fn(),
+  fetchRoomSnapshot: vi.fn(),
   savePlayers: vi.fn(),
   saveSettings: vi.fn(),
   saveCurrentDay: vi.fn(),
@@ -30,6 +31,7 @@ vi.mock('../lib/firebase', () => ({
 
 vi.mock('../lib/roomRepo', () => ({
   ensureRoomInitialized: mocks.ensureRoomInitialized,
+  fetchRoomSnapshot: mocks.fetchRoomSnapshot,
   subscribePlayers: (_roomCode: string, cb: (players: unknown[]) => void) => {
     mocks.playersCb = cb;
     const unsub = vi.fn();
@@ -111,6 +113,15 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.ensureAnonymousAuth.mockResolvedValue('mock-uid');
   mocks.ensureRoomInitialized.mockResolvedValue(undefined);
+  mocks.fetchRoomSnapshot.mockResolvedValue({
+    players: [],
+    settings: defaultSettings,
+    currentDay: { games: [], session: null },
+    history: [],
+    goals: {},
+    customTrophies: [],
+    seasons: { list: [], activeId: null },
+  });
   mocks.savePlayers.mockResolvedValue(undefined);
   mocks.saveSettings.mockResolvedValue(undefined);
   mocks.saveCurrentDay.mockResolvedValue(undefined);
@@ -197,6 +208,33 @@ describe('leaveRoom', () => {
     expect(useAppStore.getState().roomCode).toBeNull();
     expect(useAppStore.getState().players).toEqual([]);
     expect(getSavedRoomCode()).toBeNull();
+  });
+});
+
+describe('refreshRoom', () => {
+  it('fetches every slice without replacing the live subscriptions', async () => {
+    await useAppStore.getState().connectToRoom('room-refresh');
+    flushInitialSnapshots();
+    mocks.fetchRoomSnapshot.mockResolvedValueOnce({
+      players: [{ id: 'p1', name: '最新雀士' }],
+      settings: { ...defaultSettings, divider: 20 },
+      currentDay: { games: [{ id: 'g1', scores: [] }], session: null },
+      history: [],
+      goals: { p1: { type: 'profit', target: 30000 } },
+      customTrophies: [],
+      seasons: { list: [], activeId: null },
+    });
+
+    await useAppStore.getState().refreshRoom();
+
+    expect(mocks.fetchRoomSnapshot).toHaveBeenCalledWith('room-refresh');
+    expect(useAppStore.getState()).toMatchObject({
+      connectionStatus: 'synced',
+      players: [{ id: 'p1', name: '最新雀士', color: '#06b6d4' }],
+      currentDayGames: [{ id: 'g1', scores: [] }],
+      goals: { p1: { type: 'profit', target: 30000 } },
+    });
+    expect(mocks.unsubscribers.every((unsubscribe) => unsubscribe.mock.calls.length === 0)).toBe(true);
   });
 });
 
