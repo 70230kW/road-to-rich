@@ -2,7 +2,7 @@ import { DesktopNav } from './components/layout/DesktopNav';
 import { PlayerContext } from './components/layout/PlayerContext';
 import { RankPromotion } from './components/layout/RankPromotion';
 import { lazy, Suspense, useCallback, useState } from 'react';
-import { BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, Plus, ScrollText, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
+import { BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, House, Plus, ScrollText, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { RecordSheet } from './components/layout/RecordSheet';
 import { useAppStore } from './store/useAppStore';
@@ -46,16 +46,18 @@ const RankSection = lazy(() => import('./components/rank/RankSection').then((m) 
 const InputSection = lazy(() => import('./components/input/InputSection').then((m) => ({ default: m.InputSection })));
 const SeasonArchiveSection = lazy(() => import('./components/seasons/SeasonArchiveSection').then((m) => ({ default: m.SeasonArchiveSection })));
 const UpdateHistorySection = lazy(() => import('./components/updates/UpdateHistorySection').then((m) => ({ default: m.UpdateHistorySection })));
+const LeagueHomeSection = lazy(() => import('./components/home/LeagueHomeSection').then((m) => ({ default: m.LeagueHomeSection })));
 
 // 画面下部の固定ナビゲーションに収まる主要4タブ。全画面は共通メニューからも移動できる。
 const PRIMARY_TABS: PrimaryTabDef[] = [
+  { id: 'home', name: 'ホーム', icon: House },
   { id: 'ranking', name: '順位表', icon: Crown },
-  { id: 'dashboard', name: 'ダッシュボード', icon: BarChart3 },
   { id: 'input', name: '記録', icon: Plus },
   { id: 'history', name: '対戦履歴', icon: History },
 ];
 
 const OTHER_TABS: PrimaryTabDef[] = [
+  { id: 'dashboard', name: 'ダッシュボード', icon: BarChart3 },
   { id: 'rank', name: '段位', icon: Gauge },
   { id: 'simulator', name: '成績予想', icon: Telescope },
   { id: 'trophies', name: '実績', icon: Trophy },
@@ -77,7 +79,7 @@ function App() {
 }
 
 function AppShell() {
-  const [activeTab, setActiveTab] = useState<string>('ranking');
+  const [activeTab, setActiveTab] = useState<string>('home');
   const [isRecordOpen, setIsRecordOpen] = useState(false);
   const [startSettling, setStartSettling] = useState(false);
   const [inputKey, setInputKey] = useState(0);
@@ -120,7 +122,8 @@ function AppShell() {
             <main className="min-h-[500px] pt-5">
               <div key={activeTab} className="relative z-10 screen-transition">
                 <Suspense fallback={<TabSkeleton tab={activeTab} />}>
-                  {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} />}
+                  {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} onResultComplete={() => selectTab('home')} />}
+                  {activeTab === 'home' && <LeagueHomeSection onOpenRecord={() => setIsRecordOpen(true)} onOpenMatch={() => selectTab('input')} onNavigate={selectTab} />}
                   {activeTab === 'dashboard' && <DashboardSection />}
                   {activeTab === 'history' && <HistorySection />}
                   {activeTab === 'ranking' && <RankingSection />}

@@ -210,6 +210,12 @@ export function HanchanForm({
 
   const showBanner = attemptedSubmit && !validation.isValid ? validation.message : validation.totalMismatch ? validation.message : null;
 
+  const previewScores = useMemo(() => {
+    if (!validation.isValid) return null;
+    const entries = selectedIds.map((id, index) => ({ playerId: id as string, rawScore: rawScores[index] as number }));
+    return calcGameSettlement(entries, settings, tieBreakOrder, isRankPointsChanged ? activeRankPoints : undefined);
+  }, [activeRankPoints, isRankPointsChanged, rawScores, selectedIds, settings, tieBreakOrder, validation.isValid]);
+
   const enteredTotal = otherRaw.reduce<number>((sum, value) => sum + (value ?? 0), 0);
   const expectedTotal = settings.initialScore * playerCount;
   const inputStep = validation.missingPlayerIndices.size > 0 ? 0 : validation.missingScoreIndices.size > 0 ? 1 : validation.isValid ? 3 : 2;
@@ -260,7 +266,7 @@ export function HanchanForm({
         <>
           <ErrorBanner message={saveError ?? showBanner} />
 
-          <CurrentProfitsBar games={currentDayGames} players={players} />
+          <CurrentProfitsBar games={currentDayGames} players={players} previewScores={previewScores} participantIds={eligiblePlayerIds} />
 
           <p className="muted text-xs">素点は100点単位で入力（250 → 25,000点）。最後の1人は自動計算します。席番号は入力順で、起家順ではありません。</p>
           <div className={`score-table score-table-${playerCount}`}>
