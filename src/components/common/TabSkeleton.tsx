@@ -1,6 +1,6 @@
 type SkeletonLayout = 'data' | 'collection' | 'form';
 
-const DATA_TABS = new Set(['dashboard', 'ranking', 'history', 'rank', 'simulator']);
+const DATA_TABS = new Set(['home', 'dashboard', 'ranking', 'history', 'rank', 'simulator']);
 const COLLECTION_TABS = new Set(['trophies', 'rules', 'seasons', 'updates']);
 
 function getLayout(tab: string): SkeletonLayout {
