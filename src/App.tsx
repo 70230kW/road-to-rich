@@ -123,7 +123,7 @@ function AppShell() {
               <div key={activeTab} className="relative z-10 screen-transition">
                 <Suspense fallback={<TabSkeleton tab={activeTab} />}>
                   {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} onResultComplete={() => selectTab('home')} />}
-                  {activeTab === 'home' && <LeagueHomeSection onOpenRecord={() => setIsRecordOpen(true)} onOpenMatch={() => selectTab('input')} onNavigate={selectTab} />}
+                  {activeTab === 'home' && <LeagueHomeSection onOpenRecord={() => setIsRecordOpen(true)} onOpenMatch={() => { setStartSettling(false); setInputKey(key => key + 1); selectTab('input'); }} onNavigate={selectTab} />}
                   {activeTab === 'dashboard' && <DashboardSection />}
                   {activeTab === 'history' && <HistorySection />}
                   {activeTab === 'ranking' && <RankingSection />}

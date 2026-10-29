@@ -1,10 +1,10 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
-import { Check, RefreshCw, X } from 'lucide-react';
+import { Check, RefreshCw, Search, X } from 'lucide-react';
 import type { PrimaryTabDef } from './BottomNav';
 
 const MENU_GROUPS = [
-  { label: 'メイン', ids: ['ranking', 'dashboard', 'input', 'history'] },
+  { label: 'メイン', ids: ['home', 'ranking', 'dashboard', 'input', 'history'] },
   { label: 'キャリア', ids: ['rank', 'simulator', 'trophies'] },
   { label: 'リーグ管理', ids: ['seasons', 'players', 'rules', 'settings'] },
   { label: 'アプリ情報', ids: ['updates'] },
@@ -27,6 +27,10 @@ export function MoreMenu({
   onClose: () => void;
 }) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [query, setQuery] = useState('');
+  const visibleTabs = tabs.filter(tab => (tab.id === 'input' ? '対局を記録 精算' : tab.name).includes(query.trim()));
   const [refreshState, setRefreshState] = useState<RefreshState>('idle');
 
   useEffect(() => {
@@ -37,12 +41,20 @@ export function MoreMenu({
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
+      if (event.key === 'Tab') {
+        const items = panelRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input');
+        if (!items?.length) return;
+        const first = items[0], last = items[items.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => {
       window.removeEventListener('keydown', onKeyDown);
       document.body.style.overflow = previousOverflow;
       previouslyFocused?.focus();
+      if (resetTimer.current) clearTimeout(resetTimer.current);
     };
   }, [onClose]);
 
@@ -52,7 +64,7 @@ export function MoreMenu({
     try {
       await onRefresh();
       setRefreshState('success');
-      window.setTimeout(() => setRefreshState('idle'), 900);
+      resetTimer.current = setTimeout(() => setRefreshState('idle'), 900);
     } catch {
       setRefreshState('error');
     }
@@ -69,8 +81,8 @@ export function MoreMenu({
 
   return createPortal(
     <div className="navigation-menu-overlay">
-      <button type="button" className="navigation-menu-backdrop" onClick={onClose} aria-label="メニューを閉じる" />
-      <aside className="navigation-menu-panel" role="dialog" aria-modal="true" aria-labelledby="navigation-menu-title">
+      <button type="button" tabIndex={-1} className="navigation-menu-backdrop" onClick={onClose} aria-label="メニューを閉じる" />
+      <aside ref={panelRef} className="navigation-menu-panel" role="dialog" aria-modal="true" aria-labelledby="navigation-menu-title">
         <header className="navigation-menu-header">
           <div>
             <p className="eyebrow">ROAD TO RICH</p>
@@ -81,12 +93,14 @@ export function MoreMenu({
           </button>
         </header>
 
+        <label className="menu-search"><Search size={18} aria-hidden="true" /><input aria-label="メニューを検索" placeholder="機能を探す" value={query} onChange={event => setQuery(event.target.value)} /></label>
         <nav className="navigation-menu-scroll" aria-label="全画面ナビゲーション">
-          {MENU_GROUPS.map((group) => (
+          {visibleTabs.length === 0 && <p role="status" className="hub-caption">一致する機能がありません。別の言葉で検索してください。</p>}
+          {MENU_GROUPS.filter(group => visibleTabs.some(tab => group.ids.some(id => id === tab.id))).map((group) => (
             <section className="navigation-menu-group" key={group.label}>
               <p className="more-menu-group-label">{group.label}</p>
               <div className="navigation-menu-grid">
-                {tabs.filter((tab) => group.ids.some((id) => id === tab.id)).map((tab) => {
+                {visibleTabs.filter((tab) => group.ids.some((id) => id === tab.id)).map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
                   return (

@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { BarChart3, Crown, Plus } from 'lucide-react';
+import { BarChart3, Crown, House, Plus } from 'lucide-react';
 import { Header } from '../components/layout/Header';
 import { MoreMenu } from '../components/layout/MoreMenu';
 import { PullToRefresh } from '../components/layout/PullToRefresh';
@@ -8,6 +8,34 @@ import { PullToRefresh } from '../components/layout/PullToRefresh';
 afterEach(cleanup);
 
 describe('global navigation', () => {
+  it('includes home, filters destinations and handles an empty search', () => {
+    const onSelect = vi.fn();
+    render(<MoreMenu tabs={[{ id: 'home', name: 'ホーム', icon: House }, { id: 'ranking', name: '順位表', icon: Crown }]} activeTab="home" onSelect={onSelect} onRefresh={vi.fn()} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /ホーム/ }));
+    expect(onSelect).toHaveBeenCalledWith('home');
+    fireEvent.change(screen.getByRole('textbox', { name: 'メニューを検索' }), { target: { value: '順位' } });
+    expect(screen.queryByRole('button', { name: /ホーム/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '順位表' })).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: '存在しない機能' } });
+    expect(screen.getByRole('status')).toHaveTextContent('一致する機能がありません');
+  });
+
+  it('keeps keyboard focus inside the drawer and restores the opener', () => {
+    const opener = document.createElement('button');
+    document.body.append(opener);
+    opener.focus();
+    const { unmount } = render(<MoreMenu tabs={[]} activeTab="home" onSelect={vi.fn()} onRefresh={vi.fn()} onClose={vi.fn()} />);
+    const close = screen.getByRole('dialog').querySelector('button')!;
+    expect(close).toHaveFocus();
+    fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
+    expect(screen.getByRole('button', { name: 'データを更新' })).toHaveFocus();
+    fireEvent.keyDown(window, { key: 'Tab' });
+    expect(close).toHaveFocus();
+    unmount();
+    expect(opener).toHaveFocus();
+    opener.remove();
+  });
+
   it('opens the hamburger menu from the shared header', () => {
     const onOpenMenu = vi.fn();
     render(<Header playerSelect={<span>和賀</span>} onOpenMenu={onOpenMenu} />);

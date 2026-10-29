@@ -33,14 +33,7 @@ export function MatchResultSequence({
 
   useEffect(() => {
     headingRef.current?.focus();
-  }, [step]);
-
-  useEffect(() => {
-    const reducedMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (step >= RESULT_STEPS.length - 1 || reducedMotion) return;
-    const timer = window.setTimeout(() => setStep((current) => Math.min(current + 1, RESULT_STEPS.length - 1)), 2400);
-    return () => window.clearTimeout(timer);
-  }, [step]);
+  }, []);
 
   const finalRows = useMemo(() => Object.entries(resultDay.settlement).map(([id, entry]) => ({
     id,
@@ -94,11 +87,14 @@ export function MatchResultSequence({
 
   return (
     <section className="match-result" aria-label="対局終了リザルト">
-      <div className="match-result-progress" role="tablist" aria-label="リザルトのページ">
-        {RESULT_STEPS.map((label, index) => <button key={label} type="button" role="tab" aria-selected={step === index} onClick={() => setStep(index)}><span>{index < step ? <Check size={12} /> : index + 1}</span>{label}</button>)}
+      <div className="match-result-progress" role="tablist" aria-label="リザルトのページ" onKeyDown={event => {
+        const next = event.key === 'ArrowRight' ? (step + 1) % RESULT_STEPS.length : event.key === 'ArrowLeft' ? (step + RESULT_STEPS.length - 1) % RESULT_STEPS.length : event.key === 'Home' ? 0 : event.key === 'End' ? RESULT_STEPS.length - 1 : null;
+        if (next !== null) { event.preventDefault(); setStep(next); event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus(); }
+      }}>
+        {RESULT_STEPS.map((label, index) => <button id={`result-tab-${index}`} aria-controls="result-panel" tabIndex={step === index ? 0 : -1} key={label} type="button" role="tab" aria-selected={step === index} onClick={() => setStep(index)}><span>{index < step ? <Check size={12} /> : index + 1}</span>{label}</button>)}
       </div>
 
-      <div key={step} className="match-result-stage">
+      <div key={step} id="result-panel" role="tabpanel" aria-labelledby={`result-tab-${step}`} className="match-result-stage">
         {step === 0 && <>
           <div className="match-result-title"><Crown aria-hidden="true" /><p className="eyebrow">MATCH COMPLETE</p><h2 ref={headingRef} tabIndex={-1}>{title}</h2><span>{resultDay.games.length}半荘の最終結果</span></div>
           <ol className="match-result-ranking">
