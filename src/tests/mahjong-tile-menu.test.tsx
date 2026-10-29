@@ -54,6 +54,23 @@ describe('continuous tile orbit', () => {
 });
 
 describe('tile menu interaction and fallback', () => {
+  it('keeps a single accessible title and places fallback Mincho text behind the front tile', () => {
+    reduced = true;
+    const { container } = render(<MahjongTileMenu onOpen={vi.fn()} />);
+    const titles = container.querySelectorAll<HTMLElement>('.jk-fallback-title');
+    const tiles = container.querySelectorAll<HTMLElement>('.jk-fallback-tile');
+    expect(screen.getAllByRole('heading')).toHaveLength(1);
+    expect(screen.getByRole('heading', { name: '順位表' })).toHaveClass('jk-title-a11y');
+    expect(titles[0].style.fontFamily).toContain('Mincho');
+    expect(titles[0].style.opacity).toBe('1');
+    expect(Number(tiles[0].style.zIndex)).toBeGreaterThan(Number(titles[0].style.zIndex));
+    expect(Number(tiles[1].style.zIndex)).toBeLessThan(Number(titles[0].style.zIndex));
+    fireEvent.click(screen.getByRole('button', { name: '04 段位' }));
+    act(() => vi.mocked(requestAnimationFrame).mock.calls.at(-1)![0](performance.now() + 16));
+    expect(titles[3].style.opacity).toBe('1'); expect(titles[0].style.opacity).toBe('0');
+    expect(screen.getByRole('heading', { name: '段位' })).toBeInTheDocument();
+    expect(Number(tiles[3].style.zIndex)).toBeGreaterThan(Number(titles[3].style.zIndex));
+  });
   it('selects in both directions, including several complete loops, without navigating', () => {
     const onOpen = vi.fn(), change = vi.fn();
     render(<MahjongTileMenu onOpen={onOpen} onSelectionChange={change} />);

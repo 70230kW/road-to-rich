@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { createEngravedTile, prepareArt } from './engravedTile';
 import { TILE_MENUS } from './tileMenus';
 import { tilePose } from './tileMotion';
+import { createTileTitles } from './tileTitle';
 
 export interface TileScene {
   render: (position: number, reduced: boolean, hx: number, hy: number) => void;
@@ -33,6 +34,7 @@ export async function createTileScene(host: HTMLDivElement, stage: HTMLDivElemen
   const group = new THREE.Group();
   const tiles: ReturnType<typeof createEngravedTile>[] = [];
   let environment: THREE.WebGLRenderTarget | undefined;
+  let titles: ReturnType<typeof createTileTitles> | undefined;
   let disposed = false;
   const contextLost = (event: Event) => { event.preventDefault(); onLost(); };
   const dispose = () => {
@@ -45,6 +47,7 @@ export async function createTileScene(host: HTMLDivElement, stage: HTMLDivElemen
       tile.textures.forEach(item => item.dispose());
     });
     environment?.dispose();
+    titles?.dispose();
     renderer.dispose();
     renderer.forceContextLoss();
     renderer.domElement.remove();
@@ -75,6 +78,7 @@ export async function createTileScene(host: HTMLDivElement, stage: HTMLDivElemen
     arts.forEach(art => {
       const tile = createEngravedTile(art, renderer); tiles.push(tile); group.add(tile.group);
     });
+    titles = createTileTitles(scene);
     const base = tiles.map(tile => tile.materials.map(m => ({ color: m.color.clone(), env: m.envMapIntensity, specular: m.specularIntensity, clearcoat: m.clearcoat })));
     let mobile = false;
     const resize = () => {
@@ -84,6 +88,7 @@ export async function createTileScene(host: HTMLDivElement, stage: HTMLDivElemen
       const wh = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z, ww = wh * camera.aspect;
       group.position.set(mobile ? 0 : ww * .235, mobile ? (host.clientHeight < stage.clientHeight ? 0 : wh * .15) : wh * .02, 0);
       group.scale.setScalar(mobile ? Math.min(.95, ww / 3.4) : 1.05);
+      titles?.resize(camera, group.scale.x);
     };
     const render: TileScene['render'] = (position, reduced, hx, hy) => {
       if (disposed) return;
@@ -97,6 +102,7 @@ export async function createTileScene(host: HTMLDivElement, stage: HTMLDivElemen
           m.envMapIntensity = b.env * v.light; m.specularIntensity = b.specular * v.light; m.clearcoat = b.clearcoat * v.light;
         });
       });
+      titles?.render(position, reduced);
       renderer.render(scene, camera);
     };
     const raycaster = new THREE.Raycaster();
