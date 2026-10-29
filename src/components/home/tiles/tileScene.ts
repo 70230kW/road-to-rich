@@ -3,6 +3,7 @@ import { createEngravedTile, prepareArt } from './engravedTile';
 import { TILE_MENUS } from './tileMenus';
 import { tilePose } from './tileMotion';
 import { createTileTitles } from './tileTitle';
+import { tileComposition } from './tileTypography';
 
 export interface TileScene {
   render: (position: number, reduced: boolean, hx: number, hy: number) => void;
@@ -24,7 +25,7 @@ function loadImage(src: string, signal: AbortSignal): Promise<HTMLImageElement> 
   });
 }
 
-export async function createTileScene(host: HTMLDivElement, stage: HTMLDivElement, signal: AbortSignal, onLost: () => void): Promise<TileScene> {
+export async function createTileScene(host: HTMLDivElement, _stage: HTMLDivElement, signal: AbortSignal, onLost: () => void): Promise<TileScene> {
   const images = await Promise.all(TILE_MENUS.map(menu => loadImage(menu.source, signal)));
   if (signal.aborted) throw new Error('Tile scene cancelled');
   const arts = images.map((image, i) => prepareArt(image, TILE_MENUS[i].kind));
@@ -85,9 +86,9 @@ export async function createTileScene(host: HTMLDivElement, stage: HTMLDivElemen
       if (disposed) return;
       const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight); mobile = w <= 560;
       renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
-      const wh = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z, ww = wh * camera.aspect;
-      group.position.set(mobile ? 0 : ww * .235, mobile ? (host.clientHeight < stage.clientHeight ? 0 : wh * .15) : wh * .02, 0);
-      group.scale.setScalar(mobile ? Math.min(.95, ww / 3.4) : 1.05);
+      const composition = tileComposition(w, h, camera.fov, camera.position.z);
+      group.position.set(composition.x, composition.y, 0);
+      group.scale.setScalar(composition.scale);
       titles?.resize(camera, group.scale.x);
     };
     const render: TileScene['render'] = (position, reduced, hx, hy) => {
