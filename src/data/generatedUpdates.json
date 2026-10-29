@@ -1,6 +1,6 @@
 {
-  "currentVersion": "2.7.1",
-  "lastProcessedPr": 88,
+  "currentVersion": "2.7.2",
+  "lastProcessedPr": 89,
   "processedPrs": [
     79,
     80,
@@ -11,9 +11,30 @@
     85,
     86,
     87,
-    88
+    88,
+    89
   ],
   "updates": [
+    {
+      "version": "2.7.2",
+      "date": "2026.10.29",
+      "title": "TOPを牌だけの全画面メニューに変更",
+      "summary": "TOPの周囲のUIを非表示にし、縦スクロールなしで牌メニューを操作できるようにしました。",
+      "items": [
+        {
+          "target": "TOP",
+          "change": "共通ヘッダーやナビゲーションを非表示にし、牌スクロールのセクションだけを表示しました。"
+        },
+        {
+          "target": "TOP",
+          "change": "縦スクロールとプルトゥリフレッシュを停止しました。"
+        },
+        {
+          "target": "牌メニュー",
+          "change": "画面の高さに合わせて描画領域を調整しました。"
+        }
+      ]
+    },
     {
       "version": "2.7.1",
       "date": "2026.10.29",
