@@ -32,6 +32,10 @@ describe('home integration with the real app shell', () => {
     expect(document.documentElement).toHaveClass('top-scroll-locked');
     fireEvent.click(screen.getByRole('button', { name: '順位表を開く' }));
     await screen.findByRole('heading', { name: '総合ランキング' });
+    const bottom = within(screen.getByRole('navigation', { name: 'メインナビゲーション' }));
+    expect(bottom.queryByRole('button', { name: /TOP|ホーム/ })).not.toBeInTheDocument();
+    expect(bottom.getAllByRole('button')).toHaveLength(4);
+    expect(bottom.getByRole('button', { name: '順位表' })).toHaveAttribute('aria-current', 'page');
     expect(document.body).not.toHaveClass('top-scroll-locked');
     expect(document.documentElement).not.toHaveClass('top-scroll-locked');
     fireEvent.click(screen.getByRole('button', { name: 'メニューを開く' }));
