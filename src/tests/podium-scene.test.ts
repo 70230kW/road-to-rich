@@ -12,9 +12,14 @@ vi.mock('three', async importOriginal => ({
   },
 }));
 let drawText = vi.fn();
+let textureContext: CanvasRenderingContext2D;
+let drawnFonts: string[];
 beforeEach(() => {
   Object.values(calls).forEach(mock => mock.mockClear()); drawText = vi.fn();
-  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({ clearRect: vi.fn(), fillRect: vi.fn(), fillText: drawText } as unknown as CanvasRenderingContext2D);
+  drawnFonts = [];
+  drawText.mockImplementation(() => drawnFonts.push(textureContext.font));
+  textureContext = { clearRect: vi.fn(), fillRect: vi.fn(), fillText: drawText, strokeText: vi.fn() } as unknown as CanvasRenderingContext2D;
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(textureContext);
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 1);
   vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {});
 });
@@ -79,5 +84,19 @@ describe('podium real mesh with a mocked GPU boundary', () => {
   });
   it('uses actual tied ranks for medal colors', () => {
     expect(medalColor(1)).toBe(0xcdb780); expect(medalColor(2)).toBe(0xbac6d0); expect(medalColor(3)).toBe(0xb68c71);
+  });
+  it('prints a bold Mincho glyph, player name and rank without changing the text', () => {
+    const model = createPodiumScene(document.createElement('div'), vi.fn());
+    model.update('タカハシ', 1);
+    expect(drawnFonts).toEqual([
+      '900 280px "Hiragino Mincho ProN", "Yu Mincho", serif',
+      '700 38px "Hiragino Mincho ProN", "Yu Mincho", serif',
+      '700 100px "Hiragino Mincho ProN", "Yu Mincho", serif',
+    ]);
+    expect(textureContext.strokeText).toHaveBeenCalledExactlyOnceWith('タ', 256, 285, 410);
+    expect(textureContext.lineWidth).toBe(4);
+    expect(textureContext.strokeStyle).toBe('#24392f');
+    expect(drawText.mock.calls.map(call => call[0])).toEqual(['タ', 'タカハシ', '01']);
+    model.dispose();
   });
 });

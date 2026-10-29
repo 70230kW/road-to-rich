@@ -1043,10 +1043,6 @@ button, select, summary { min-height: 44px; }
 .session-title-field { display: block; margin-bottom: 14px; }
 .session-title-field > span, .season-create-card label > span { display: block; margin-bottom: 7px; color: #928d84; font-size: 9px; letter-spacing: .12em; }
 .session-title-field input, .season-create-card input { width: 100%; min-height: 48px; padding: 11px 14px; border: 1px solid #3a3936; border-radius: 11px; background: #0e1115; color: #edf1f5; font-weight: 700; }
-.session-player-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-.session-player-grid button { display: inline-flex; align-items: center; gap: 8px; min-height: 41px; padding: 8px 11px; border: 1px solid #343941; border-radius: 10px; background: #11151a; color: #9099a6; font-size: 11px; }
-.session-player-grid button[aria-pressed="true"] { border-color: #d9bd8266; background: #d9bd820e; color: #f0dfbb; box-shadow: 0 0 14px #d9bd8212; }
-.session-player-grid button > span { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 7px currentColor; }
 .session-setup-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 17px; }
 .session-setup-footer small { color: #747d89; font-size: 9px; }
 .session-live-heading, .session-live-heading > div, .session-live-meta, .session-live-actions { display: flex; align-items: center; }

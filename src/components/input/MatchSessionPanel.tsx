@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { CalendarDays, Check, Flag, Play, RotateCcw, Users } from 'lucide-react';
+import { CalendarDays, Flag, Play, RotateCcw, Users } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { haptic } from '../../lib/haptics';
 import { NeonButton } from '../common/NeonButton';
 import { ConfirmDialog } from '../common/ConfirmDialog';
+import { SessionPlayerPicker } from './SessionPlayerPicker';
 
 function defaultTitle() {
   return `${new Date().toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })} 対局会`;
@@ -17,35 +18,33 @@ export function MatchSessionPanel({ onSettle }: { onSettle: () => void }) {
   const startSession = useAppStore((s) => s.startSession);
   const clearSession = useAppStore((s) => s.clearSession);
   const [title, setTitle] = useState(defaultTitle);
-  const [selectedIds, setSelectedIds] = useState<string[]>(() => players.map((player) => player.id));
+  const [selection, setSelection] = useState<string[]>([]);
+  const selectedIds = players.filter(player => selection.includes(player.id)).map(player => player.id);
   const [confirmingClear, setConfirmingClear] = useState(false);
   const [saving, setSaving] = useState(false);
-
-  const togglePlayer = (id: string) => {
-    setSelectedIds((current) => current.includes(id) ? current.filter((value) => value !== id) : [...current, id]);
-  };
+  const [startError, setStartError] = useState(false);
 
   if (!session) {
     const canStart = title.trim().length > 0 && selectedIds.length >= settings.playerCount;
+    const startHint = !title.trim() ? '対局会名を入力してください。' : selectedIds.length < settings.playerCount
+      ? `あと${settings.playerCount - selectedIds.length}人選択してください（${settings.playerCount}人麻雀）。`
+      : `${selectedIds.length}人で開始できます（${settings.playerCount}人麻雀）。`;
     return (
       <section className="match-session-setup">
         <div className="content-section-header">
           <div><span className="eyebrow">MATCH NIGHT</span><h3><CalendarDays size={18} /> 対局会を開始</h3></div>
           <small>参加メンバーと会の名前を先に設定します</small>
         </div>
-        <label className="session-title-field"><span>対局会名</span><input value={title} onChange={(event) => setTitle(event.target.value)} /></label>
-        <div className="session-player-grid" role="group" aria-label="対局会の参加雀士">
-          {players.map((player) => {
-            const selected = selectedIds.includes(player.id);
-            return <button key={player.id} type="button" aria-pressed={selected} onClick={() => togglePlayer(player.id)}><span style={{ backgroundColor: player.color }} />{player.name}{selected && <Check size={14} />}</button>;
-          })}
-        </div>
-        <div className="session-setup-footer"><small>{settings.playerCount}人以上を選択してください</small><NeonButton variant="primary" disabled={!canStart || saving} onClick={async () => {
-          setSaving(true);
-          await startSession(title, selectedIds);
-          haptic('success');
-          setSaving(false);
-        }}><Play size={17} className="mr-2" />{saving ? '開始中…' : '対局会を開始'}</NeonButton></div>
+        <label className="session-title-field"><span>対局会名</span><input value={title} disabled={saving} onChange={(event) => setTitle(event.target.value)} /></label>
+        <SessionPlayerPicker players={players} selectedIds={selectedIds} onChange={setSelection} disabled={saving} />
+        <div className="session-setup-footer"><small data-ready={canStart}>{startHint}</small><button type="button" className="session-start-button" disabled={!canStart || saving} onClick={async () => {
+          if (!canStart || saving) return;
+          setSaving(true); setStartError(false);
+          try { await startSession(title, selectedIds); haptic('success'); }
+          catch { setStartError(true); }
+          finally { setSaving(false); }
+        }}><Play size={17} aria-hidden="true" />{saving ? '開始中…' : `${selectedIds.length}人で対局会を開始`}</button></div>
+        {startError && <p className="session-start-error" role="alert">対局会を開始できませんでした。通信状態を確認して、もう一度お試しください。</p>}
       </section>
     );
   }
