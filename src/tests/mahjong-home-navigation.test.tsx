@@ -9,13 +9,15 @@ const addGame = vi.fn(async (_game: Omit<Game, 'id'>) => 'qa-saved');
 beforeEach(() => {
   localStorage.clear(); localStorage.setItem('road-to-rich-welcome-v1', 'seen');
   vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+  HTMLDialogElement.prototype.showModal = function () { this.open = true; };
+  HTMLDialogElement.prototype.close = function () { this.open = false; };
   addGame.mockClear();
   useAppStore.setState({ roomCode: 'tile-test', connectionStatus: 'synced', players: ['a', 'b', 'c', 'd'].map(id => ({ id, name: '雀士' + id, color: '#cdb780' })),
     settings: defaultSettings, currentDayGames: [], history: [],
     currentSession: { id: 'session', title: '再開する対局会', participantIds: ['a', 'b', 'c', 'd'], startedAt: '2026-10-29T00:00:00Z' }, addGame,
   });
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal'); Reflect.deleteProperty(HTMLDialogElement.prototype, 'close'); });
 const home = () => fireEvent.click(screen.getByRole('button', { name: 'TOPに戻る' }));
 
 describe('home integration with the real app shell', () => {
@@ -33,14 +35,20 @@ describe('home integration with the real app shell', () => {
     fireEvent.click(screen.getByRole('button', { name: '順位表を開く' }));
     await screen.findByRole('heading', { name: '総合ランキング' });
     const bottom = within(screen.getByRole('navigation', { name: 'メインナビゲーション' }));
-    expect(bottom.queryByRole('button', { name: /TOP|ホーム/ })).not.toBeInTheDocument();
-    expect(bottom.getAllByRole('button')).toHaveLength(4);
+    expect(bottom.queryByRole('button', { name: 'TOP' })).not.toBeInTheDocument();
+    expect(bottom.getAllByRole('button')).toHaveLength(5);
+    expect(bottom.getAllByRole('button')[0]).toHaveAccessibleName('リーグホーム');
     expect(bottom.getByRole('button', { name: '順位表' })).toHaveAttribute('aria-current', 'page');
     expect(document.body).not.toHaveClass('top-scroll-locked');
     expect(document.documentElement).not.toHaveClass('top-scroll-locked');
-    fireEvent.click(screen.getByRole('button', { name: 'メニューを開く' }));
-    fireEvent.click(within(screen.getByRole('dialog', { name: 'メニュー' })).getByRole('button', { name: 'リーグホーム' }));
+    fireEvent.click(bottom.getByRole('button', { name: 'リーグホーム' }));
     expect(await screen.findByLabelText('あなたの通算成績')).toBeInTheDocument();
+    expect(bottom.getByRole('button', { name: 'リーグホーム' })).toHaveAttribute('aria-current', 'page');
+    expect(bottom.getByRole('button', { name: 'メニュー' })).not.toHaveClass('is-active');
+    fireEvent.click(bottom.getByRole('button', { name: '対局を記録' }));
+    const record = screen.getByRole('dialog');
+    expect(record).toBeInTheDocument();
+    fireEvent.click(within(record).getByRole('button', { name: /閉じる/ }));
     expect(screen.queryByRole('region', { name: '麻雀牌のホームメニュー' })).not.toBeInTheDocument();
     home();
     expect(await screen.findByRole('button', { name: '順位表を開く' })).toBeInTheDocument();

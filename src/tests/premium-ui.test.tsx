@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { DashboardSection } from '../components/dashboard/DashboardSection';
 import { RankingSection } from '../components/ranking/RankingSection';
@@ -26,6 +26,9 @@ describe('premium league screens', () => {
   it('renders a two-player podium and keeps details available', () => {
     seed(); render(<RankingSection />);
     expect(screen.getByRole('button',{name:'1位 春樹の成績詳細'})).toBeInTheDocument();
+    const spotlight = within(screen.getByRole('article'));
+    expect(spotlight.getAllByText('100.0%')).toHaveLength(2);
+    expect(spotlight.getByText('1.00位')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', {name:'次の雀士'}));
     expect(screen.getByRole('button',{name:'2位 直人の成績詳細'})).toBeInTheDocument();
     expect(screen.queryByRole('button',{name:/3位 .*の成績詳細/})).not.toBeInTheDocument();

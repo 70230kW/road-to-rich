@@ -1,7 +1,10 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-export interface PodiumScene { update: (name: string, place: number) => void; resize: () => void; dispose: () => void }
+export interface PodiumScene {
+  update: (name: string, place: number) => void; resize: () => void; dispose: () => void;
+  rotate: (yaw: number, pitch: number) => void; resetRotation: () => void;
+}
 export const medalColor = (place: number) => place === 1 ? 0xcdb780 : place === 2 ? 0xbac6d0 : 0xb68c71;
 
 /** One real mesh scene for the featured player. Render only after content/size changes. */
@@ -31,7 +34,17 @@ export function createPodiumScene(host: HTMLDivElement, onLost: () => void): Pod
     const green = new THREE.MeshStandardMaterial({ color: 0x18573f, roughness: .32 }); materials.push(green);
     const metal = new THREE.MeshStandardMaterial({ color: medalColor(1), roughness: .3, metalness: .5 }); materials.push(metal);
     const dark = new THREE.MeshStandardMaterial({ color: 0x171d22, roughness: .45, metalness: .2 }); materials.push(dark);
-    const tile = new THREE.Group(); tile.position.y = .26; tile.rotation.set(0, -.3, -.045); scene.add(tile);
+    const tile = new THREE.Group(); tile.position.y = .4; tile.rotation.set(0, -.3, -.045); scene.add(tile);
+    const initialRotation = tile.quaternion.clone();
+    const rotationAxis = new THREE.Vector3(), rotation = new THREE.Quaternion();
+    const rotate = (yaw: number, pitch: number) => {
+      if (disposed || !Number.isFinite(yaw) || !Number.isFinite(pitch) || (!yaw && !pitch)) return;
+      // Camera-relative quaternion rotations have no polar limit or Euler/gimbal lock.
+      rotationAxis.set(pitch, yaw, 0).normalize().applyQuaternion(camera.quaternion);
+      rotation.setFromAxisAngle(rotationAxis, Math.hypot(yaw, pitch));
+      tile.quaternion.premultiply(rotation).normalize(); schedule();
+    };
+    const resetRotation = () => { if (!disposed) { tile.quaternion.copy(initialRotation); schedule(); } };
     const add = (geometry: THREE.BufferGeometry, material: THREE.Material, parent: THREE.Object3D) => {
       geometries.push(geometry); const mesh = new THREE.Mesh(geometry, material); parent.add(mesh); return mesh;
     };
@@ -42,15 +55,20 @@ export function createPodiumScene(host: HTMLDivElement, onLost: () => void): Pod
     const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; textures.push(texture);
     const print = new THREE.MeshStandardMaterial({ map: texture, transparent: true, roughness: .42, depthWrite: false }); materials.push(print);
     add(new THREE.PlaneGeometry(1.08, 1.60), print, tile).position.z = .162;
-    add(new THREE.CylinderGeometry(1.0, 1.06, .15, 64), metal, scene).position.y = -.80;
-    add(new THREE.CylinderGeometry(1.10, 1.14, .09, 64), dark, scene).position.y = -.92;
+    add(new THREE.CylinderGeometry(.81, .86, .15, 64), metal, scene).position.y = -.90;
+    add(new THREE.CylinderGeometry(.9, .94, .09, 64), dark, scene).position.y = -1.02;
     const resize = () => {
       if (disposed) return;
       const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
       if (w === width && h === height) return;
       width = w; height = h; renderer.setSize(w, h, false); camera.aspect = w / h;
-      // Protect the full tile and pedestal even in a narrow container.
-      camera.fov = w / h < .9 ? 43 : 35; camera.updateProjectionMatrix(); schedule();
+      // Fit a rotation-safe bounding sphere, including mobile's half-width column.
+      const vertical = THREE.MathUtils.degToRad(camera.fov) / 2;
+      const horizontal = Math.atan(Math.tan(vertical) * camera.aspect);
+      const distance = 1.6 / Math.sin(Math.min(vertical, horizontal));
+      camera.position.set(2.2, 1.35, 5.2).normalize().multiplyScalar(distance).add(new THREE.Vector3(0, .12, 0));
+      camera.lookAt(0, .12, 0); camera.far = distance + 10;
+      camera.updateProjectionMatrix(); schedule();
     };
     const update = (name: string, place: number) => {
       if (disposed) return;
@@ -69,6 +87,6 @@ export function createPodiumScene(host: HTMLDivElement, onLost: () => void): Pod
       schedule();
     };
     renderer.domElement.addEventListener('webglcontextlost', lost); host.appendChild(renderer.domElement); resize();
-    return { resize, update, dispose };
+    return { resize, update, rotate, resetRotation, dispose };
   } catch (error) { dispose(); throw error; }
 }

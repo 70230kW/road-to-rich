@@ -1,55 +1,44 @@
-import { useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronRight, Crown, Medal } from 'lucide-react';
+import { formatRatePercentage } from '../../lib/format';
 import { ScrambleText } from '../common/ScrambleText';
 import { PodiumModel } from './PodiumModel';
+import { usePodiumCarousel } from './usePodiumCarousel';
 import './podiumSpotlight.css';
 
 export interface PodiumEntry {
   id: string; name: string; place: number; tier?: string;
   amount: string; amountLabel: string | null; positive: boolean; hanchanCount: number;
+  topRate?: number | null; rentaiRate?: number | null; avgRank?: number | null;
 }
 
-/** One readable player at a time; the complete leaderboard remains immediately below. */
 export function PodiumSpotlight({ entries, onOpen }: { entries: PodiumEntry[]; onOpen: (id: string) => void }) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const gesture = useRef<{ id: number; x: number; y: number; axis: 'x' | 'y' | null } | null>(null);
-  const index = Math.max(0, entries.findIndex(entry => entry.id === selectedId));
+  const { viewport, index, select, step, ...gestures } = usePodiumCarousel(entries.map(entry => entry.id));
   const current = entries[index];
   if (!current) return null;
-  const step = (delta: number) => setSelectedId(entries[(index + delta + entries.length) % entries.length].id);
-  const cancel = () => { gesture.current = null; };
-  return <section className="podium-spotlight" aria-label="上位3名">
+  return <section className="podium-spotlight" aria-label="上位3名" aria-roledescription="カルーセル">
     <div className="podium-picks" role="group" aria-label="表彰する雀士を選択">
-      {entries.map(entry => <button type="button" key={entry.id} aria-pressed={current.id === entry.id} onClick={() => setSelectedId(entry.id)}>
+      {entries.map((entry, i) => <button type="button" key={entry.id} aria-pressed={index === i} onClick={() => select(i)}>
         <span>{entry.place}位</span><strong>{entry.name}</strong>
       </button>)}
     </div>
-    <div className="podium-feature" data-medal={current.place === 1 ? 'gold' : current.place === 2 ? 'silver' : 'bronze'}>
-      <div className="podium-art" data-pull-ignore onPointerDown={event => {
-        if (event.button !== 0 || !event.isPrimary) return;
-        gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY, axis: null };
-      }} onPointerMove={event => {
-        const start = gesture.current; if (!start || start.id !== event.pointerId) return;
-        const dx = event.clientX - start.x, dy = event.clientY - start.y;
-        if (!start.axis && Math.max(Math.abs(dx), Math.abs(dy)) > 8) {
-          start.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-          if (start.axis === 'x') event.currentTarget.setPointerCapture(event.pointerId);
-        }
-      }} onPointerUp={event => {
-        const start = gesture.current; cancel();
-        if (start?.id === event.pointerId && start.axis === 'x' && Math.abs(event.clientX - start.x) > 40 && entries.length > 1) step(event.clientX < start.x ? 1 : -1);
-      }} onPointerCancel={cancel} onLostPointerCapture={cancel}>
-        <PodiumModel name={current.name} place={current.place} />
-      </div>
-      <div className="podium-info">
-        <span className="podium-place">{current.place === 1 ? <Crown size={19} aria-hidden="true" /> : <Medal size={19} aria-hidden="true" />}第{current.place}位<span>LEAGUE LEADERS</span></span>
-        <h3>{current.name}</h3>
-        <p className="podium-meta">{current.tier && <span>{current.tier}</span>}<span>{current.hanchanCount}半荘</span></p>
-        <div className="podium-amount"><span>{current.amountLabel ?? '場代抜き収支'}</span><strong className={current.positive ? 'profit-positive' : 'profit-negative'}><ScrambleText text={current.amount} /></strong><small>円</small></div>
-        <button type="button" className="podium-detail" aria-label={`${current.place}位 ${current.name}の成績詳細`} onClick={() => onOpen(current.id)}>成績を詳しく見る<ChevronRight size={18} aria-hidden="true" /></button>
-      </div>
+    <div ref={viewport} className="podium-viewport" role="group" tabIndex={0} aria-label="上位雀士の戦績。左右キーまたは戦績側のスワイプで切り替え" data-pull-ignore {...gestures}>
+      {entries.map((entry, i) => <article key={entry.id} className="podium-feature" data-podium-slide={i} aria-hidden={i !== index} inert={i !== index} data-medal={entry.place === 1 ? 'gold' : entry.place === 2 ? 'silver' : 'bronze'}>
+        <div className="podium-info">
+          <span className="podium-place">{entry.place === 1 ? <Crown size={19} aria-hidden="true" /> : <Medal size={19} aria-hidden="true" />}第{entry.place}位</span>
+          <h3>{entry.name}</h3>
+          <p className="podium-meta">{entry.tier && <span>{entry.tier}</span>}<span>{entry.hanchanCount}半荘</span></p>
+          <div className="podium-amount"><span>{entry.amountLabel ?? '場代抜き収支'}</span><strong className={entry.positive ? 'profit-positive' : 'profit-negative'}><ScrambleText text={entry.amount} /></strong><small>円</small></div>
+          <dl className="podium-stats">
+            <div><dt>トップ率</dt><dd>{formatRatePercentage(entry.topRate)}</dd></div>
+            <div><dt>連対率</dt><dd>{formatRatePercentage(entry.rentaiRate)}</dd></div>
+            <div><dt>平均順位</dt><dd>{entry.avgRank == null ? '—' : `${entry.avgRank.toFixed(2)}位`}</dd></div>
+          </dl>
+          <button type="button" className="podium-detail" aria-label={`${entry.place}位 ${entry.name}の成績詳細`} onClick={() => onOpen(entry.id)}>成績詳細<ChevronRight size={16} aria-hidden="true" /></button>
+        </div>
+        <div className="podium-art"><PodiumModel name={entry.name} place={entry.place} active={i === index} /></div>
+      </article>)}
     </div>
-    {entries.length > 1 && <div className="podium-controls"><span>左右にスワイプして雀士を切り替え</span><div><button type="button" aria-label="前の雀士" onClick={() => step(-1)}><ArrowLeft size={18} /></button><span aria-hidden="true">{index + 1} / {entries.length}</span><button type="button" aria-label="次の雀士" onClick={() => step(1)}><ArrowRight size={18} /></button></div></div>}
+    {entries.length > 1 && <div className="podium-controls"><span>戦績をスワイプで切替<br />牌をドラッグで回転</span><div><button type="button" aria-label="前の雀士" onClick={() => step(-1)}><ArrowLeft size={18} /></button><span aria-hidden="true">{index + 1} / {entries.length}</span><button type="button" aria-label="次の雀士" onClick={() => step(1)}><ArrowRight size={18} /></button></div></div>}
     <span className="sr-only" role="status" aria-live="polite">{current.place}位、{current.name}を表示中</span>
   </section>;
 }

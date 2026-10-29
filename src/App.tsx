@@ -71,7 +71,7 @@ const OTHER_TABS: PrimaryTabDef[] = [
 ];
 
 const ALL_TABS: PrimaryTabDef[] = [...PRIMARY_TABS, ...OTHER_TABS];
-const BOTTOM_TABS = PRIMARY_TABS.filter(tab => tab.id !== 'top');
+const BOTTOM_TABS = [OTHER_TABS[0], ...PRIMARY_TABS.filter(tab => tab.id !== 'top')];
 
 function App() {
   return (
@@ -93,7 +93,7 @@ export function AppShell() {
   const [showGuide, setShowGuide] = useState(() => {
     try { return localStorage.getItem('road-to-rich-welcome-v1') !== 'seen'; } catch { return false; }
   });
-  const isMoreActive = OTHER_TABS.some((t) => t.id === activeTab);
+  const isMoreActive = !BOTTOM_TABS.some((t) => t.id === activeTab);
 
   const selectTab = useCallback((id: string) => {
     setActiveTab(id);
