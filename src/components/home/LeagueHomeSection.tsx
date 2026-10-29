@@ -9,11 +9,9 @@ import { formatSignedYen, formatRatePercentage } from '../../lib/format';
 import { ScrambleText } from '../common/ScrambleText';
 import { RankBadge } from '../common/RankBadge';
 import { CurrentProfitsBar } from '../input/CurrentProfitsBar';
-import { MahjongTileMenu } from './tiles/MahjongTileMenu';
 
-export function LeagueHomeSection({ onOpenRecord, onOpenMatch, onNavigate, menuIndex = 0, onMenuChange }: {
+export function LeagueHomeSection({ onOpenRecord, onOpenMatch, onNavigate }: {
   onOpenRecord: () => void; onOpenMatch: () => void; onNavigate: (id: string) => void;
-  menuIndex?: number; onMenuChange?: (index: number) => void;
 }) {
   const players = useAppStore(s => s.players);
   const history = useAppStore(s => s.history);
@@ -32,7 +30,6 @@ export function LeagueHomeSection({ onOpenRecord, onOpenMatch, onNavigate, menuI
   const inProgress = Boolean(session || games.length);
 
   return <div className="league-hub">
-    <MahjongTileMenu initialIndex={menuIndex} onSelectionChange={onMenuChange} onOpen={id => id === 'input' ? onOpenMatch() : onNavigate(id)} />
     <header className="hub-heading"><div><p className="eyebrow">YOUR LEAGUE, YOUR STORY</p><h2>今日も、一局ずつ。</h2><p>仲間との記録を、あなたのキャリアに。</p></div><span className="hub-season">通算成績 ／ {players.length}人のリーグ</span></header>
     <div className="hub-primary-grid">
       <section className="hub-career" aria-label="あなたの通算成績">

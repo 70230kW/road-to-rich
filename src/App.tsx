@@ -2,7 +2,7 @@ import { DesktopNav } from './components/layout/DesktopNav';
 import { PlayerContext } from './components/layout/PlayerContext';
 import { RankPromotion } from './components/layout/RankPromotion';
 import { lazy, Suspense, useCallback, useState } from 'react';
-import { BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, House, Plus, ScrollText, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
+import { ArrowLeft, BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, House, Plus, ScrollText, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { RecordSheet } from './components/layout/RecordSheet';
 import { useAppStore } from './store/useAppStore';
@@ -47,16 +47,18 @@ const InputSection = lazy(() => import('./components/input/InputSection').then((
 const SeasonArchiveSection = lazy(() => import('./components/seasons/SeasonArchiveSection').then((m) => ({ default: m.SeasonArchiveSection })));
 const UpdateHistorySection = lazy(() => import('./components/updates/UpdateHistorySection').then((m) => ({ default: m.UpdateHistorySection })));
 const LeagueHomeSection = lazy(() => import('./components/home/LeagueHomeSection').then((m) => ({ default: m.LeagueHomeSection })));
+const TopSection = lazy(() => import('./components/home/TopSection').then((m) => ({ default: m.TopSection })));
 
 // 画面下部の固定ナビゲーションに収まる主要4タブ。全画面は共通メニューからも移動できる。
 const PRIMARY_TABS: PrimaryTabDef[] = [
-  { id: 'home', name: 'ホーム', icon: House },
+  { id: 'top', name: 'TOP', icon: House },
   { id: 'ranking', name: '順位表', icon: Crown },
   { id: 'input', name: '記録', icon: Plus },
   { id: 'history', name: '対戦履歴', icon: History },
 ];
 
 const OTHER_TABS: PrimaryTabDef[] = [
+  { id: 'home', name: 'リーグホーム', icon: House },
   { id: 'dashboard', name: 'ダッシュボード', icon: BarChart3 },
   { id: 'rank', name: '段位', icon: Gauge },
   { id: 'simulator', name: '成績予想', icon: Telescope },
@@ -79,7 +81,7 @@ function App() {
 }
 
 export function AppShell() {
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const [activeTab, setActiveTab] = useState<string>('top');
   const [homeMenuIndex, setHomeMenuIndex] = useState(0);
   const [isRecordOpen, setIsRecordOpen] = useState(false);
   const [startSettling, setStartSettling] = useState(false);
@@ -121,10 +123,12 @@ export function AppShell() {
             <RankPromotion />
 
             <main className="min-h-[500px] pt-5">
+              {activeTab !== 'top' && <button type="button" className="top-return-button" onClick={() => selectTab('top')}><ArrowLeft size={17} aria-hidden="true" />TOPに戻る</button>}
               <div key={activeTab} className="relative z-10 screen-transition">
                 <Suspense fallback={<TabSkeleton tab={activeTab} />}>
-                  {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} onResultComplete={() => selectTab('home')} />}
-                  {activeTab === 'home' && <LeagueHomeSection menuIndex={homeMenuIndex} onMenuChange={setHomeMenuIndex} onOpenRecord={() => setIsRecordOpen(true)} onOpenMatch={() => { setStartSettling(false); setInputKey(key => key + 1); selectTab('input'); }} onNavigate={selectTab} />}
+                  {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} onResultComplete={() => selectTab('top')} />}
+                  {activeTab === 'top' && <TopSection menuIndex={homeMenuIndex} onMenuChange={setHomeMenuIndex} onOpenMatch={() => { setStartSettling(false); setInputKey(key => key + 1); selectTab('input'); }} onNavigate={selectTab} />}
+                  {activeTab === 'home' && <LeagueHomeSection onOpenRecord={() => setIsRecordOpen(true)} onOpenMatch={() => { setStartSettling(false); setInputKey(key => key + 1); selectTab('input'); }} onNavigate={selectTab} />}
                   {activeTab === 'dashboard' && <DashboardSection />}
                   {activeTab === 'history' && <HistorySection />}
                   {activeTab === 'ranking' && <RankingSection />}

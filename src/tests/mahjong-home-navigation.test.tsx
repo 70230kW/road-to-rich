@@ -16,9 +16,21 @@ beforeEach(() => {
   });
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
-const home = () => fireEvent.click(within(screen.getByRole('navigation', { name: 'メインナビゲーション' })).getByRole('button', { name: 'ホーム' }));
+const home = () => fireEvent.click(screen.getByRole('button', { name: 'TOPに戻る' }));
 
 describe('home integration with the real app shell', () => {
+  it('separates TOP from the league overview and keeps both reachable', async () => {
+    render(<AppShell />);
+    await screen.findByRole('button', { name: '順位表を開く' });
+    expect(screen.queryByLabelText('あなたの通算成績')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'TOPに戻る' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'リーグホームを見る' }));
+    expect(await screen.findByLabelText('あなたの通算成績')).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: '麻雀牌のホームメニュー' })).not.toBeInTheDocument();
+    home();
+    expect(await screen.findByRole('button', { name: '順位表を開く' })).toBeInTheDocument();
+    expect(within(screen.getByRole('navigation', { name: 'メインナビゲーション' })).getByRole('button', { name: 'TOP' })).toHaveAttribute('aria-current', 'page');
+  });
   it('opens all three existing read-only screens and restores the selected tile on returning home', async () => {
     render(<AppShell />);
     await screen.findByRole('button', { name: '順位表を開く' });

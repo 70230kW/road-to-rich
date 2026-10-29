@@ -2,7 +2,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MahjongTileMenu } from '../components/home/tiles/MahjongTileMenu';
 import { menuIndex, nearestPosition, springStep, tilePose } from '../components/home/tiles/tileMotion';
-import { LeagueHomeSection } from '../components/home/LeagueHomeSection';
+import { TopSection } from '../components/home/TopSection';
 
 let reduced = false;
 beforeEach(() => {
@@ -121,7 +121,7 @@ describe('tile menu interaction and fallback', () => {
   });
   it('connects the input tile to the existing match entry instead of a new route', () => {
     const match = vi.fn(), navigate = vi.fn();
-    render(<LeagueHomeSection onOpenMatch={match} onOpenRecord={vi.fn()} onNavigate={navigate} menuIndex={1} />);
+    render(<TopSection onOpenMatch={match} onNavigate={navigate} menuIndex={1} />);
     fireEvent.click(screen.getByRole('button', { name: '対局入力を開く' }));
     expect(match).toHaveBeenCalledOnce(); expect(navigate).not.toHaveBeenCalled();
   });

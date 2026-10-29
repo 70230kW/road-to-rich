@@ -4,7 +4,7 @@ import { Check, RefreshCw, Search, X } from 'lucide-react';
 import type { PrimaryTabDef } from './BottomNav';
 
 const MENU_GROUPS = [
-  { label: 'メイン', ids: ['home', 'ranking', 'dashboard', 'input', 'history'] },
+  { label: 'メイン', ids: ['top', 'home', 'ranking', 'dashboard', 'input', 'history'] },
   { label: 'キャリア', ids: ['rank', 'simulator', 'trophies'] },
   { label: 'リーグ管理', ids: ['seasons', 'players', 'rules', 'settings'] },
   { label: 'アプリ情報', ids: ['updates'] },

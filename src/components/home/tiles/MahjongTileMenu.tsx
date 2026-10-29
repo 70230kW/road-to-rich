@@ -172,7 +172,7 @@ export function MahjongTileMenu({ initialIndex = 0, onSelectionChange, onOpen }:
     if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); controls.current?.select(event.key === 'Home' ? 0 : 3); }
   }}>
     <div className="jk-glow" aria-hidden="true" />
-    <header className="jk-header"><span className="jk-home-label">HOME</span><span className="jk-header-line" aria-hidden="true" /><span className="jk-header-note">一枚を選んで、次の一手へ。</span></header>
+    <header className="jk-header"><span className="jk-home-label">TOP</span><span className="jk-header-line" aria-hidden="true" /><span className="jk-header-note">一枚を選んで、次の一手へ。</span></header>
     <div className="jk-stage" data-pull-ignore tabIndex={0} aria-label="牌を左右にスワイプして選択。選択した牌をタップして開く。キーボードでは左右キーと下の開くボタンを使用。">
       <div className="jk-webgl" aria-hidden="true" />
       <div className="jk-fallback" aria-hidden="true">{TILE_MENUS.map((item, index) => <div className="jk-fallback-tile" key={item.id} data-tile={index}><img src={item.source} alt="" draggable={false} /></div>)}</div>
