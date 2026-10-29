@@ -1,0 +1,88 @@
+# 3D麻雀牌ホーム — 実装・検証記録
+
+2026-10-29。ベース: `b71eba4`（main、承認済み試作を含む）。
+リポジトリ内に `AGENTS.md` はありませんでした。
+
+## 変更範囲
+
+| ファイル | 内容 |
+| --- | --- |
+| `src/components/home/tiles/MahjongTileMenu.tsx` | Reactのメニュー、選択と決定の分離、ポインター／キー操作、描画のライフサイクル |
+| `src/components/home/tiles/tileMotion.ts` | 試作の閉軌道、連続位置、最短方向、時間刻みに依存しない吸着 |
+| `src/components/home/tiles/engravedTile.ts` | 試作の画像マスク、白い本体・緑の背面、凹み付きメッシュ・法線処理のTypeScript移植 |
+| `src/components/home/tiles/tileScene.ts` | 照明・環境マップ、奥行きによる連続減光、選択牌のレイキャスト、リソース解放 |
+| `src/components/home/tiles/tileMenus.ts` | 4メニューと同梱原画への固定対応 |
+| `src/components/home/tiles/mahjongTiles.css` | 試作を基準としたコンポーネント限定CSS、コンテナ幅への対応 |
+| `src/components/home/LeagueHomeSection.tsx` | 上部へ牌メニューを追加。成績・対局再開・履歴の既存導線を維持 |
+| `src/App.tsx` | ホーム選択状態の保持。既存遷移の利用。隔離検証用にAppShellをexport |
+| `package.json` / `package-lock.json` | Three.jsと型定義を試作と同じ0.180.0に固定 |
+| `src/tests/mahjong-*.test.tsx` / `src/tests/engraved-tile.test.ts` | 操作・軌道・遷移・下書き再開・凹み・解放のテスト |
+| `qa/home-menu.html` / `qa/home-menu.tsx` | Firebaseに接続しない開発専用の実AppShell確認画面 |
+
+認証、Firebase設定、ストアの保存処理、順位・収支・段位計算は変更していません。
+試作HTMLのiframe表示、CDNからのThree.js読込、原画の描き直しはありません。
+原画は `docs/design/jankane-home/assets/` からViteで取り込みます。
+
+## 実装上の要点
+
+- 順位表=赤伍萬、対局入力=發、ダッシュボード=七筒、段位=一索。
+- 連続位置・targetを0〜3へ巻き戻さず、軌道だけを周期化。牌を距離で非表示にしません。
+- 色は基準色から毎回計算。試作の `.025 + .975 * exp(-5 * depth)` を維持。
+- 凹み深さ0.014、160×240の表面グリッド、共有外周、単一の法線傾斜を維持。
+- ドラッグ後のsynthetic clickを遷移に使わず、移動7px以内の意図的なpointerupだけを判定。3Dは最前面の選択牌をレイキャストします。
+- 牌とボタンの入力遷移は既存 `onOpenMatch` を使用。入力下書き・進行中の対局・入力中順位を維持。
+- React stateはメニュー選択時のみ更新。フレームごとの値はeffect内で管理。
+- 動きが止まるとRAF停止。画面非表示／スクロールアウト時も描画停止。画面離脱で画像読込を中断し、イベント・observer・GPU資源を解放。
+- reduced-motionでは選択移動を即時反映し、ホバー傾きを停止。
+- WebGL2非対応、モジュール／画像／描画エラー、context loss時は原画の代替表示と共通ボタンを使用。
+- `touch-action: pan-y` と既存の `data-pull-ignore` を使い、縦スクロールとプルトゥリフレッシュの競合を避けます。
+
+## 自動確認
+
+- 原画4枚: 試作HTMLの埋込画像と**バイト一致**。
+- 新規18テスト: 軌道周期性、境界の連続性、複数周、減光、最短方向、逆方向、15/120Hz比較、ドラッグ後誤遷移防止、縦操作／キャンセル、代替表示、reduced-motion、遅延解決・アンマウント・context loss、実AppShellの4画面遷移、Enter決定、ホーム選択復元、入力下書き・入力中順位・既存保存アクション、凹み頂点／外周／法線。
+- 入力保存の検証はストアの保存アクションをモックし、Firebaseへの実書込は行っていません。
+- 全体テスト: **253成功 / 254件**。既存の固定バージョン期待値による1件のみ失敗（末尾参照）。
+- 型チェック・本番ビルド成功。3Dは独立した遅延チャンク（約526KB、gzip約135KB）。元の約811KBのmainと合わせて500KB超のビルド警告あり。
+- lint: エラーなし。既存 `RankBadge.tsx` と試作 `prototype-script.js` に警告2件。
+- アプデ生成テスト: 3件成功。`git diff --check`: 成功。
+
+実行コマンド:
+
+```sh
+TZ=Asia/Tokyo npm test
+npm run build
+npm run lint
+npm run test:changelog
+git diff --check
+```
+
+## ブラウザー確認の制限と再現手順
+
+この実行環境では起動したdev serverへローカル／検証用ブラウザーから到達できず、接続可能な環境への起動権限も利用不可でした。**実際のWebGL描画、見た目、タッチ実機、各幅でのレイアウトを確認済みとはしていません。** PRはDraftとし、以下の目視確認後にReadyへ変更してください。
+
+通常の開発環境で:
+
+```sh
+npm ci
+npm run dev
+# 開発サーバーの /qa/home-menu.html を開く
+```
+
+このページは開発専用で本番ビルドの入口には含まれません。全ストアアクションをマウント前に差し替え、保存操作は一部のみメモリー上で動作します。本番のRoomGateに迂回経路を追加していません。
+
+- `/qa/home-menu.html`: 実AppShell + テスト雀士4人 + 進行中の対局
+- `/qa/home-menu.html?fallback`: WebGL非対応時の原画メニュー
+- `/qa/home-menu.html?reduced`: reduced-motion時のJS制御。CSSの確認はOS／ブラウザーの実設定も併用
+
+未確認の受け入れ項目:
+
+- [ ] 320 / 390 / 768 / 1024px: 牌・文字・ボタンの収まり、横はみ出し、縦スクロール
+- [ ] 4原画の印象、印字の凹み、斜めからの陰影、緑の背面
+- [ ] 04→01 / 01→04、複数周、途中反転、指への追従・吸着の視覚確認
+- [ ] 実タッチの誤遷移防止、選択牌のヒット領域、キー操作
+- [ ] 画面遷移・復帰、ルーム／雀士選択、実機キーボード表示中の順位確認
+- [ ] 実GPUでのメモリー・フレームレート、WebGL context lossからの代替表示
+- [ ] 認証済みプレビューで既存Firebase保存・再開フロー（テストルームのみ）
+
+未解決の既存テスト: `src/tests/update-history.test.tsx` が最新版を `Ver. 2.4.0` と固定している一方、mainの生成データは `2.6.0` のため失敗します。今回のホーム実装とは独立した失敗で、変更範囲外の画面／テストは編集していません。
