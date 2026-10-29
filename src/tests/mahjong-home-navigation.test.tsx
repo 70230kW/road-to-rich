@@ -1,0 +1,54 @@
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AppShell } from '../App';
+import { useAppStore, defaultSettings } from '../store/useAppStore';
+import type { Game } from '../types';
+
+const addGame = vi.fn(async (_game: Omit<Game, 'id'>) => 'qa-saved');
+beforeEach(() => {
+  localStorage.clear(); localStorage.setItem('road-to-rich-welcome-v1', 'seen');
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+  addGame.mockClear();
+  useAppStore.setState({ roomCode: 'tile-test', connectionStatus: 'synced', players: ['a', 'b', 'c', 'd'].map(id => ({ id, name: '雀士' + id, color: '#cdb780' })),
+    settings: defaultSettings, currentDayGames: [], history: [],
+    currentSession: { id: 'session', title: '再開する対局会', participantIds: ['a', 'b', 'c', 'd'], startedAt: '2026-10-29T00:00:00Z' }, addGame,
+  });
+});
+afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+const home = () => fireEvent.click(within(screen.getByRole('navigation', { name: 'メインナビゲーション' })).getByRole('button', { name: 'ホーム' }));
+
+describe('home integration with the real app shell', () => {
+  it('opens all three existing read-only screens and restores the selected tile on returning home', async () => {
+    render(<AppShell />);
+    await screen.findByRole('button', { name: '順位表を開く' });
+    for (const [selection, title] of [['01 順位表', '順位表'], ['03 ダッシュボード', 'ダッシュボード'], ['04 段位', '段位']]) {
+      fireEvent.click(screen.getByRole('button', { name: selection }));
+      fireEvent.click(screen.getByRole('button', { name: title + 'を開く' }));
+      expect(screen.queryByRole('region', { name: '麻雀牌のホームメニュー' })).not.toBeInTheDocument();
+      await screen.findByRole('heading', { name: title === '順位表' ? '総合ランキング' : title });
+      home();
+      expect(await screen.findByRole('button', { name: title + 'を開く' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: selection })).toHaveAttribute('aria-pressed', 'true');
+    }
+  });
+  it('reopens the existing input draft with live ranks and saves through the existing action', async () => {
+    localStorage.setItem('road-to-rich-hanchan-draft:tile-test', JSON.stringify({ playerCount: 4, selectedIds: ['a', 'b', 'c', 'd'], manualInputs: ['400', '300', '200'] }));
+    render(<AppShell />);
+    fireEvent.click(await screen.findByRole('button', { name: '02 対局入力' }));
+    const open = screen.getByRole('button', { name: '対局入力を開く' });
+    open.focus(); await userEvent.keyboard('{Enter}');
+    expect(await screen.findByRole('heading', { name: '半荘成績入力' })).toBeInTheDocument();
+    expect(screen.getByLabelText('席1の素点 (百点単位)')).toHaveValue(400);
+    expect(screen.getByLabelText('入力中の暫定順位')).toHaveTextContent('雀士a');
+    fireEvent.change(screen.getByLabelText('席1の素点 (百点単位)'), { target: { value: '450' } });
+    home();
+    fireEvent.click(await screen.findByRole('button', { name: '対局入力を開く' }));
+    expect(await screen.findByLabelText('席1の素点 (百点単位)')).toHaveValue(450);
+    fireEvent.click(screen.getByRole('button', { name: 'この半荘を記録する' }));
+    expect(await screen.findByText('半荘を保存しました')).toBeInTheDocument();
+    expect(addGame).toHaveBeenCalledOnce();
+    expect(addGame.mock.calls[0][0].scores[0].rawScore).toBe(45000);
+    expect(useAppStore.getState().currentSession?.title).toBe('再開する対局会');
+  });
+});
