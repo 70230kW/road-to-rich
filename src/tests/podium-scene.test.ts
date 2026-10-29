@@ -35,16 +35,28 @@ describe('podium real mesh with a mocked GPU boundary', () => {
     expect(meshes).toHaveLength(5);
     expect(meshes.filter(mesh => mesh.geometry.type === 'RoundedBoxGeometry')).toHaveLength(2);
     const checkBounds = () => {
+      scene.updateMatrixWorld(true); camera.updateMatrixWorld(true);
       for (const mesh of meshes) {
-        const box = new THREE.Box3().setFromObject(mesh);
-        for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
-          const point = new THREE.Vector3(x, y, z).project(camera);
-          expect(Math.abs(point.x)).toBeLessThan(1); expect(Math.abs(point.y)).toBeLessThan(1);
+        const vertices = mesh.geometry.getAttribute('position');
+        let maxX = 0, maxY = 0;
+        for (let i = 0; i < vertices.count; i++) {
+          const point = new THREE.Vector3().fromBufferAttribute(vertices, i).applyMatrix4(mesh.matrixWorld).project(camera);
+          maxX = Math.max(maxX, Math.abs(point.x)); maxY = Math.max(maxY, Math.abs(point.y));
         }
+        expect(maxX).toBeLessThan(1); expect(maxY).toBeLessThan(1);
       }
     };
     checkBounds();
-    Object.defineProperties(host, { clientWidth: { value: 240 }, clientHeight: { value: 310 } }); model.resize(); checkBounds();
+    const tile = meshes[0].parent!; const initial = tile.quaternion.clone();
+    for (const [w, h] of [[132, 210], [163, 210], [340, 310], [470, 310]]) {
+      Object.defineProperties(host, { clientWidth: { value: w, configurable: true }, clientHeight: { value: h, configurable: true } }); model.resize(); checkBounds();
+      for (let step = 0; step < 12; step++) { model.rotate(.7, .4); checkBounds(); }
+    }
+    expect(tile.quaternion.equals(initial)).toBe(false);
+    expect(tile.quaternion.length()).toBeCloseTo(1, 10);
+    model.resetRotation(); expect(tile.quaternion.equals(initial)).toBe(true);
+    model.rotate(Math.PI * 4, 0); expect(Math.abs(tile.quaternion.dot(initial))).toBeCloseTo(1, 10);
+    model.rotate(0, Math.PI * 4); expect(Math.abs(tile.quaternion.dot(initial))).toBeCloseTo(1, 10);
     const geometries = meshes.map(mesh => vi.spyOn(mesh.geometry, 'dispose'));
     const materials = [...new Set(meshes.map(mesh => mesh.material as THREE.Material))].map(material => vi.spyOn(material, 'dispose'));
     const texture = meshes.map(mesh => (mesh.material as THREE.MeshStandardMaterial).map).find(Boolean)!;

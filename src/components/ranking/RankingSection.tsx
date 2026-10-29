@@ -77,7 +77,8 @@ export function RankingSection() {
       <PodiumSpotlight onOpen={setSelectedPlayerId} entries={rows.slice(0, 3).map((row, idx) => {
           const amount = amountDisplay(idx);
           return { id: row.playerId, name: row.name, place: positions[row.playerId], tier: rankStatuses[row.playerId]?.levelName,
-            amount: amount.value, amountLabel: amount.label, positive: (amountMode === 'actual' ? row.totalProfitWithoutFee : adjacentProfitGap(rows, idx)?.amount ?? 0) >= 0, hanchanCount: row.hanchanCount };
+            amount: amount.value, amountLabel: amount.label, positive: (amountMode === 'actual' ? row.totalProfitWithoutFee : adjacentProfitGap(rows, idx)?.amount ?? 0) >= 0,
+            hanchanCount: row.hanchanCount, avgRank: row.avgRank, topRate: rateStats[row.playerId]?.topRate, rentaiRate: rateStats[row.playerId]?.rentaiRate };
         })} />
       <div className="section-kicker ranking-list-heading"><h3>すべての雀士</h3><div className="ranking-view-controls"><div><span>情報量</span><div className="density-switch" role="group" aria-label="順位表の表示密度"><button type="button" aria-pressed={density === 'simple'} onClick={() => setDensity('simple')}>シンプル</button><button type="button" aria-pressed={density === 'detail'} onClick={() => setDensity('detail')}>詳細</button></div></div><div><span>金額表示</span><div className="density-switch" role="group" aria-label="順位表の金額表示"><button type="button" aria-pressed={amountMode === 'actual'} onClick={() => setAmountMode('actual')}>収支額</button><button type="button" aria-pressed={amountMode === 'gap'} onClick={() => setAmountMode('gap')}>差額</button></div></div></div></div>
       <div className={`leaderboard-list is-${density}`}>
