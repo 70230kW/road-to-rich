@@ -109,6 +109,15 @@ export function AppShell() {
     selectTab(id);
   }, [selectTab]);
 
+  // TOP is a separate, viewport-sized scene, not a page inside the league shell.
+  if (activeTab === 'top') return (
+    <main className="top-viewport">
+      <Suspense fallback={<span className="sr-only" role="status">TOPを読み込み中</span>}>
+        <TopSection menuIndex={homeMenuIndex} onMenuChange={setHomeMenuIndex} onOpenMatch={() => { setStartSettling(false); setInputKey(key => key + 1); selectTab('input'); }} onNavigate={selectTab} />
+      </Suspense>
+    </main>
+  );
+
   return (
     <PullToRefresh onRefresh={refreshRoom}>
       <div className="min-h-screen bg-abyss text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-clip relative">
@@ -127,7 +136,6 @@ export function AppShell() {
               <div key={activeTab} className="relative z-10 screen-transition">
                 <Suspense fallback={<TabSkeleton tab={activeTab} />}>
                   {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} onResultComplete={() => selectTab('top')} />}
-                  {activeTab === 'top' && <TopSection menuIndex={homeMenuIndex} onMenuChange={setHomeMenuIndex} onOpenMatch={() => { setStartSettling(false); setInputKey(key => key + 1); selectTab('input'); }} onNavigate={selectTab} />}
                   {activeTab === 'home' && <LeagueHomeSection onOpenRecord={() => setIsRecordOpen(true)} onOpenMatch={() => { setStartSettling(false); setInputKey(key => key + 1); selectTab('input'); }} onNavigate={selectTab} />}
                   {activeTab === 'dashboard' && <DashboardSection />}
                   {activeTab === 'history' && <HistorySection />}

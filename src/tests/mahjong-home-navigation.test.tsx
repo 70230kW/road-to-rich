@@ -19,17 +19,44 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 const home = () => fireEvent.click(screen.getByRole('button', { name: 'TOPに戻る' }));
 
 describe('home integration with the real app shell', () => {
-  it('separates TOP from the league overview and keeps both reachable', async () => {
-    render(<AppShell />);
+  it('shows only the tile section on TOP and restores the shell and scrolling on exit', async () => {
+    const { unmount } = render(<AppShell />);
     await screen.findByRole('button', { name: '順位表を開く' });
     expect(screen.queryByLabelText('あなたの通算成績')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'TOPに戻る' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'リーグホームを見る' }));
+    expect(screen.queryByRole('button', { name: 'リーグホームを見る' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'メニューを開く' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'メインナビゲーション' })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Provided by/)).not.toBeInTheDocument();
+    expect(document.body).toHaveClass('top-scroll-locked');
+    expect(document.documentElement).toHaveClass('top-scroll-locked');
+    fireEvent.click(screen.getByRole('button', { name: '順位表を開く' }));
+    await screen.findByRole('heading', { name: '総合ランキング' });
+    expect(document.body).not.toHaveClass('top-scroll-locked');
+    expect(document.documentElement).not.toHaveClass('top-scroll-locked');
+    fireEvent.click(screen.getByRole('button', { name: 'メニューを開く' }));
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'メニュー' })).getByRole('button', { name: 'リーグホーム' }));
     expect(await screen.findByLabelText('あなたの通算成績')).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: '麻雀牌のホームメニュー' })).not.toBeInTheDocument();
     home();
     expect(await screen.findByRole('button', { name: '順位表を開く' })).toBeInTheDocument();
-    expect(within(screen.getByRole('navigation', { name: 'メインナビゲーション' })).getByRole('button', { name: 'TOP' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.queryByRole('navigation', { name: 'メインナビゲーション' })).not.toBeInTheDocument();
+    expect(document.body).toHaveClass('top-scroll-locked');
+    unmount();
+    expect(document.body).not.toHaveClass('top-scroll-locked');
+    expect(document.documentElement).not.toHaveClass('top-scroll-locked');
+  });
+  it('does not cover TOP with first-visit guidance or pull-to-refresh', async () => {
+    localStorage.removeItem('road-to-rich-welcome-v1');
+    const refreshRoom = vi.fn();
+    useAppStore.setState({ refreshRoom });
+    render(<AppShell />);
+    await screen.findByRole('button', { name: '順位表を開く' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    fireEvent.touchStart(window, { touches: [{ clientY: 0 }] });
+    fireEvent.touchMove(window, { touches: [{ clientY: 200 }] });
+    fireEvent.touchEnd(window, { touches: [] });
+    expect(refreshRoom).not.toHaveBeenCalled();
   });
   it('opens all three existing read-only screens and restores the selected tile on returning home', async () => {
     render(<AppShell />);

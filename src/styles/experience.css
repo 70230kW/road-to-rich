@@ -125,12 +125,15 @@ main { scroll-margin-top: 90px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
-.top-return-button, .top-overview-link {
+.top-return-button {
   display: inline-flex; align-items: center; gap: 8px; min-height: 44px;
   padding: 10px 14px; border-radius: 9px; font-size: 13px; cursor: pointer;
 }
 .top-return-button { margin-bottom: 18px; color: #d9c390; background: #181b20; border: 1px solid #cdb78040; }
 .top-return-button:hover { background: #27251f; border-color: #cdb78088; }
-.top-overview-link { margin-top: 12px; color: #b5b8bd; background: transparent; border: 1px solid transparent; }
-.top-overview-link:hover { color: #e4cf9b; }
-.top-return-button:focus-visible, .top-overview-link:focus-visible { outline: 2px solid #cdb780; outline-offset: 3px; }
+.top-return-button:focus-visible { outline: 2px solid #cdb780; outline-offset: 3px; }
+
+/* Only TOP owns the viewport. Removing TopSection restores normal page scrolling. */
+html.top-scroll-locked, body.top-scroll-locked { overflow: hidden; overscroll-behavior: none; }
+.top-viewport { position: fixed; inset: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #090d10; overscroll-behavior: none; }
+.top-screen { height: 100%; min-height: 0; padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); box-sizing: border-box; }

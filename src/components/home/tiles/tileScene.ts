@@ -79,10 +79,10 @@ export async function createTileScene(host: HTMLDivElement, stage: HTMLDivElemen
     let mobile = false;
     const resize = () => {
       if (disposed) return;
-      const w = Math.max(1, stage.clientWidth), h = Math.max(1, stage.clientHeight); mobile = w <= 560;
+      const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight); mobile = w <= 560;
       renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
       const wh = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z, ww = wh * camera.aspect;
-      group.position.set(mobile ? 0 : ww * .235, mobile ? wh * .15 : wh * .02, 0);
+      group.position.set(mobile ? 0 : ww * .235, mobile ? (host.clientHeight < stage.clientHeight ? 0 : wh * .15) : wh * .02, 0);
       group.scale.setScalar(mobile ? Math.min(.95, ww / 3.4) : 1.05);
     };
     const render: TileScene['render'] = (position, reduced, hx, hy) => {
@@ -101,7 +101,8 @@ export async function createTileScene(host: HTMLDivElement, stage: HTMLDivElemen
     };
     const raycaster = new THREE.Raycaster();
     const hit: TileScene['hit'] = (x, y, index) => {
-      const box = stage.getBoundingClientRect();
+      const box = host.getBoundingClientRect();
+      if (x < box.left || x > box.right || y < box.top || y > box.bottom) return false;
       raycaster.setFromCamera(new THREE.Vector2((x - box.left) / box.width * 2 - 1, -(y - box.top) / box.height * 2 + 1), camera);
       const first = raycaster.intersectObjects(group.children, true)[0];
       return !!first && tiles[index].group.children.includes(first.object);
