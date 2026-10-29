@@ -1,6 +1,6 @@
 {
-  "currentVersion": "2.7.4",
-  "lastProcessedPr": 91,
+  "currentVersion": "2.7.5",
+  "lastProcessedPr": 92,
   "processedPrs": [
     79,
     80,
@@ -14,9 +14,26 @@
     88,
     89,
     90,
-    91
+    91,
+    92
   ],
   "updates": [
+    {
+      "version": "2.7.5",
+      "date": "2026.10.29",
+      "title": "TOP画面を以前の表示に復元",
+      "summary": "大きな明朝体と配置変更を取り消し、TOP画面をPR #89時点の表示に戻しました。",
+      "items": [
+        {
+          "target": "TOP",
+          "change": "メニュー名の大きな明朝体表示を取り消しました。"
+        },
+        {
+          "target": "牌メニュー",
+          "change": "文字と牌の大きさ・配置をPR #89時点に戻しました。"
+        }
+      ]
+    },
     {
       "version": "2.7.4",
       "date": "2026.10.29",
