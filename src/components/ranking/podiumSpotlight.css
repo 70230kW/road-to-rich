@@ -6,7 +6,7 @@
 .podium-picks button[aria-pressed="true"] { background: #cdb7800c; color: #eee6d3; border-bottom-color: #cdb780; }
 .podium-viewport { display: grid; overflow: hidden; touch-action: pan-y pinch-zoom; cursor: grab; }
 .podium-viewport[data-dragging] { cursor: grabbing; user-select: none; }
-.podium-feature { grid-area: 1 / 1; width: 100%; min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: center; background: radial-gradient(ellipse at 75% 40%,#cdb78010,transparent 65%),#12161b; will-change: transform; }
+.podium-feature { grid-area: 1 / 1; width: 100%; min-width: 0; display: grid; grid-template-columns: minmax(0,44fr) minmax(0,56fr); align-items: center; background: radial-gradient(ellipse at 75% 40%,#cdb78010,transparent 65%),#12161b; will-change: transform; }
 .podium-feature[data-medal="silver"] { --podium-accent: #bac6d0; }
 .podium-feature[data-medal="bronze"] { --podium-accent: #b68c71; }
 .podium-info { min-width: 0; padding: 28px 8px 28px 28px; }
@@ -24,25 +24,18 @@
 .podium-stats dd { color: #eee6d3; font: 14px var(--font-mono); }
 .podium-detail { display: flex; align-items: center; justify-content: space-between; gap: 5px; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #cdb78044; border-radius: 10px; color: #e2cc9f; background: #cdb7800a; font-size: 13px; }
 .podium-detail svg { flex-shrink: 0; }
-.podium-art { min-width: 0; height: 380px; }
-.podium-model { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; }
-.podium-model-rotation { position: relative; width: 100%; flex: 1; min-height: 0; }
-.podium-model[data-renderer="webgl"] .podium-model-rotation { touch-action: none; cursor: grab; }
-.podium-model[data-renderer="webgl"] .podium-model-rotation:active { cursor: grabbing; }
+.podium-art { min-width: 0; height: clamp(320px,68cqi,510px); }
+.podium-model { position: relative; width: 100%; height: 100%; }
 .podium-model-host { width: 100%; height: 100%; position: absolute; inset: 0; }
-.podium-model-host canvas { width: 100%; height: 100%; display: block; }
+.podium-model-host canvas { width: 100%; height: 100%; display: block; pointer-events: none; }
 .podium-model-host { opacity: 0; transition: opacity .24s ease; }
 .podium-model[data-renderer="webgl"] .podium-model-host { opacity: 1; }
-.podium-model-reset { flex-shrink: 0; }
-.podium-model:not([data-renderer="webgl"]) { padding-bottom: 44px; }
 @media (prefers-reduced-motion: reduce) { .podium-model-host { transition: none; } }
-.podium-model-hint { font-size: 11px; color: #aab2bf; text-align: center; margin: 0 6px; }
-.podium-model-reset { display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 44px; font-size: 11px; color: #e2cc9f; padding: 6px 10px; }
 .podium-model-fallback { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-.podium-model-tile { width: min(55%,112px); aspect-ratio: 112 / 166; border-radius: 12px; background: #ece8dc; color: #24392f; display: grid; align-content: center; justify-items: center; gap: 12px; transform: perspective(650px) rotateY(-20deg) rotateZ(-3deg); box-shadow: 5px 4px #d0cbbd,11px 7px #1b5a41,13px 8px 0 #123a2a; z-index: 1; }
+.podium-model-tile { width: min(74%,240px); max-height: 76%; aspect-ratio: 112 / 166; border-radius: 12px; background: #ece8dc; color: #24392f; display: grid; align-content: center; justify-items: center; gap: 12px; transform: perspective(650px) rotateY(-14deg) rotateZ(-3deg); box-shadow: 5px 4px #d0cbbd,11px 7px #1b5a41,13px 8px 0 #123a2a; z-index: 1; }
 .podium-model-tile strong { font: 600 clamp(32px,9cqi,64px) "Hiragino Mincho ProN","Yu Mincho",serif; }
 .podium-model-tile span { color: #8b7753; font: 20px var(--font-mono); }
-.podium-model-base { width: 78%; max-width: 190px; height: 24px; border-radius: 50%; background: var(--podium-accent); box-shadow: 0 8px #43413c,0 16px #171d22,0 25px 24px #0006; margin-top: -5px; }
+.podium-model-base { width: 80%; max-width: 260px; height: 16px; border-radius: 50%; background: var(--podium-accent); box-shadow: 0 5px #43413c,0 10px #171d22,0 18px 24px #0006; margin-top: 8px; }
 .podium-controls { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid #ffffff0c; padding: 10px 18px; }
 .podium-controls > span { color: #8c98a4; font-size: 11px; line-height: 1.7; }
 .podium-controls > div { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
@@ -57,9 +50,8 @@
   .podium-meta { font-size: 11px; gap: 5px 8px; }
   .podium-amount { margin: 18px 0 14px; }
   .podium-amount strong { font-size: clamp(19px,6.3cqi,28px); }
-  .podium-stats dt, .podium-model-hint { font-size: 10px; }
+  .podium-stats dt { font-size: 11px; }
   .podium-stats dd { font-size: 12px; }
-  .podium-art { height: 280px; }
   .podium-picks button { padding: 10px 8px; }
   .podium-picks strong { font-size: 11px; }
   .podium-controls { padding: 10px; }
