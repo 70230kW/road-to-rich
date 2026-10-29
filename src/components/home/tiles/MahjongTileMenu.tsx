@@ -3,7 +3,6 @@ import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
 import { TILE_MENUS } from './tileMenus';
 import { clamp, menuIndex, nearestPosition, signedDistance, springStep, tilePose } from './tileMotion';
 import type { TileScene } from './tileScene';
-import { FALLBACK_TITLE_LAYER, MINCHO_FONT, tileLayout, titleFrame, titleLines } from './tileTypography';
 import './mahjongTiles.css';
 
 export function MahjongTileMenu({ initialIndex = 0, onSelectionChange, onOpen }: {
@@ -24,7 +23,6 @@ export function MahjongTileMenu({ initialIndex = 0, onSelectionChange, onOpen }:
     const fallback = root.querySelector<HTMLDivElement>('.jk-fallback')!;
     const slides = [...root.querySelectorAll<HTMLElement>('.jk-slide')];
     const fallbackTiles = [...root.querySelectorAll<HTMLElement>('.jk-fallback-tile')];
-    const fallbackTitles = [...root.querySelectorAll<HTMLElement>('.jk-fallback-title')];
     const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
     let reduced = media?.matches ?? false, position = initial.current, target = position, velocity = 0;
     let frame = 0, lastFrame = 0, disposed = false, visible = true, hoverX = 0, hoverY = 0;
@@ -45,11 +43,6 @@ export function MahjongTileMenu({ initialIndex = 0, onSelectionChange, onOpen }:
         tile.style.zIndex = String(Math.round((1 - v.depth) * 100));
         tile.style.filter = `brightness(${Math.pow(v.light, .6)})`;
         tile.style.transform = `translate(-50%,-50%) translate3d(${v.side * Math.min(150, stage.clientWidth * .33)}px,${-v.depth * 48}px,${-v.depth * 300}px) scale(${1 - v.depth * .39}) rotateX(${reduced ? 0 : -5 + v.depth * 8}deg) rotateY(${reduced ? 0 : -16 - v.side * 18}deg) rotateZ(${reduced ? 0 : -3 + v.side * 7}deg)`;
-      });
-      if (!scene) fallbackTitles.forEach((title, index) => {
-        const frame = titleFrame(index, position, reduced);
-        title.style.opacity = String(frame.opacity);
-        title.style.transform = `translateX(${frame.offset * stage.clientWidth}px)`;
       });
       try { scene?.render(position, reduced, hoverX, hoverY); }
       catch { fail(); }
@@ -133,21 +126,7 @@ export function MahjongTileMenu({ initialIndex = 0, onSelectionChange, onOpen }:
     };
     const changeMotion = () => { reduced = media?.matches ?? false; hoverX = hoverY = 0; select(target); };
     const visibility = () => { if (document.hidden) { stop(); pointer = null; axis = null; stage.classList.remove('jk-dragging'); } else wake(); };
-    const resize = () => {
-      const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
-      const { title, tile } = tileLayout(w, h);
-      fallbackTitles.forEach((element, index) => {
-        const lines = titleLines(TILE_MENUS[index].name);
-        element.style.left = `${title.left * 100}%`; element.style.top = `${title.top * 100}%`;
-        element.style.fontSize = `${Math.min(w * title.width * .96 / Math.max(...lines.map(line => line.length)), h * title.height / (lines.length * 1.12 + .24))}px`;
-      });
-      fallbackTiles.forEach(element => {
-        const tileWidth = Math.min(w * tile.width, h * tile.height * 1.34 / 1.98) * .84;
-        element.style.left = `${tile.x * 100}%`; element.style.top = `${tile.y * 100}%`;
-        element.style.width = `${tileWidth}px`; element.style.height = `${tileWidth * 1.98 / 1.34}px`;
-      });
-      try { scene?.resize(); } catch { fail(); } wake();
-    };
+    const resize = () => { try { scene?.resize(); } catch { fail(); } wake(); };
     stage.addEventListener('pointerdown', down); stage.addEventListener('pointermove', move);
     stage.addEventListener('pointerup', release); stage.addEventListener('pointercancel', release);
     stage.addEventListener('lostpointercapture', release); stage.addEventListener('pointerleave', leave);
@@ -174,7 +153,7 @@ export function MahjongTileMenu({ initialIndex = 0, onSelectionChange, onOpen }:
       if (disposed) { result.dispose(); return; }
       scene = result; fallback.hidden = true; setRendererState('webgl'); wake();
     }).catch(fail);
-    resize(); paint();
+    paint();
     return () => {
       disposed = true; abort.abort(); stop(); controls.current = null;
       observer?.disconnect(); intersection?.disconnect(); scene?.dispose();
@@ -196,11 +175,8 @@ export function MahjongTileMenu({ initialIndex = 0, onSelectionChange, onOpen }:
     <header className="jk-header"><span className="jk-home-label">TOP</span><span className="jk-header-line" aria-hidden="true" /><span className="jk-header-note">一枚を選んで、次の一手へ。</span></header>
     <div className="jk-stage" data-pull-ignore tabIndex={0} aria-label="牌を左右にスワイプして選択。選択した牌をタップして開く。キーボードでは左右キーと下の開くボタンを使用。">
       <div className="jk-webgl" aria-hidden="true" />
-      <div className="jk-fallback" aria-hidden="true">
-        {TILE_MENUS.map((item, index) => <div className="jk-fallback-tile" key={item.id} data-tile={index}><img src={item.source} alt="" draggable={false} /></div>)}
-        {TILE_MENUS.map((item, index) => <div className="jk-fallback-title" key={item.id} style={{ fontFamily: MINCHO_FONT, zIndex: FALLBACK_TITLE_LAYER, opacity: index === initial.current ? 1 : 0 }}>{titleLines(item.name).map(line => <span key={line}>{line}</span>)}</div>)}
-      </div>
-      <div className="jk-copy">{TILE_MENUS.map((item, index) => <div className="jk-slide" key={item.id} data-jk-slide={index} aria-hidden={index !== selected}><div className="jk-eyebrow">{item.eyebrow}</div><h2 className="jk-title-a11y">{item.name}</h2><p className="jk-description">{item.description}</p></div>)}</div>
+      <div className="jk-fallback" aria-hidden="true">{TILE_MENUS.map((item, index) => <div className="jk-fallback-tile" key={item.id} data-tile={index}><img src={item.source} alt="" draggable={false} /></div>)}</div>
+      <div className="jk-copy">{TILE_MENUS.map((item, index) => <div className="jk-slide" key={item.id} data-jk-slide={index} aria-hidden={index !== selected}><div className="jk-eyebrow">{item.eyebrow}</div><h2>{item.name}</h2><p className="jk-description">{item.description}</p></div>)}</div>
       <div className="jk-selection"><span className="jk-count">0{selected + 1} / 04</span><span className="jk-divider" /><span className="jk-tile-name">{menu.tile}</span></div>
     </div>
     <div className="jk-action"><button type="button" className="jk-open" onClick={() => onOpen(menu.id)}>{menu.name}を開く<ArrowUpRight size={18} aria-hidden="true" /></button></div>

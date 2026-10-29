@@ -2,8 +2,6 @@ import * as THREE from 'three';
 import { createEngravedTile, prepareArt } from './engravedTile';
 import { TILE_MENUS } from './tileMenus';
 import { tilePose } from './tileMotion';
-import { createTileTitles } from './tileTitle';
-import { tileComposition } from './tileTypography';
 
 export interface TileScene {
   render: (position: number, reduced: boolean, hx: number, hy: number) => void;
@@ -25,7 +23,7 @@ function loadImage(src: string, signal: AbortSignal): Promise<HTMLImageElement> 
   });
 }
 
-export async function createTileScene(host: HTMLDivElement, _stage: HTMLDivElement, signal: AbortSignal, onLost: () => void): Promise<TileScene> {
+export async function createTileScene(host: HTMLDivElement, stage: HTMLDivElement, signal: AbortSignal, onLost: () => void): Promise<TileScene> {
   const images = await Promise.all(TILE_MENUS.map(menu => loadImage(menu.source, signal)));
   if (signal.aborted) throw new Error('Tile scene cancelled');
   const arts = images.map((image, i) => prepareArt(image, TILE_MENUS[i].kind));
@@ -35,7 +33,6 @@ export async function createTileScene(host: HTMLDivElement, _stage: HTMLDivEleme
   const group = new THREE.Group();
   const tiles: ReturnType<typeof createEngravedTile>[] = [];
   let environment: THREE.WebGLRenderTarget | undefined;
-  let titles: ReturnType<typeof createTileTitles> | undefined;
   let disposed = false;
   const contextLost = (event: Event) => { event.preventDefault(); onLost(); };
   const dispose = () => {
@@ -48,7 +45,6 @@ export async function createTileScene(host: HTMLDivElement, _stage: HTMLDivEleme
       tile.textures.forEach(item => item.dispose());
     });
     environment?.dispose();
-    titles?.dispose();
     renderer.dispose();
     renderer.forceContextLoss();
     renderer.domElement.remove();
@@ -79,17 +75,15 @@ export async function createTileScene(host: HTMLDivElement, _stage: HTMLDivEleme
     arts.forEach(art => {
       const tile = createEngravedTile(art, renderer); tiles.push(tile); group.add(tile.group);
     });
-    titles = createTileTitles(scene);
     const base = tiles.map(tile => tile.materials.map(m => ({ color: m.color.clone(), env: m.envMapIntensity, specular: m.specularIntensity, clearcoat: m.clearcoat })));
     let mobile = false;
     const resize = () => {
       if (disposed) return;
       const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight); mobile = w <= 560;
       renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
-      const composition = tileComposition(w, h, camera.fov, camera.position.z);
-      group.position.set(composition.x, composition.y, 0);
-      group.scale.setScalar(composition.scale);
-      titles?.resize(camera, group.scale.x);
+      const wh = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z, ww = wh * camera.aspect;
+      group.position.set(mobile ? 0 : ww * .235, mobile ? (host.clientHeight < stage.clientHeight ? 0 : wh * .15) : wh * .02, 0);
+      group.scale.setScalar(mobile ? Math.min(.95, ww / 3.4) : 1.05);
     };
     const render: TileScene['render'] = (position, reduced, hx, hy) => {
       if (disposed) return;
@@ -103,7 +97,6 @@ export async function createTileScene(host: HTMLDivElement, _stage: HTMLDivEleme
           m.envMapIntensity = b.env * v.light; m.specularIntensity = b.specular * v.light; m.clearcoat = b.clearcoat * v.light;
         });
       });
-      titles?.render(position, reduced);
       renderer.render(scene, camera);
     };
     const raycaster = new THREE.Raycaster();
