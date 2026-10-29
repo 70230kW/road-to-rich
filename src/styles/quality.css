@@ -1,0 +1,68 @@
+/* Shared league grammar. TOP, tile materials, semantic ranks and share exports
+   keep their approved visual identities; no universal border or color reset. */
+:root {
+  --font-editorial: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  --ui-text: #eeede7;
+  --ui-muted: #aab2bf;
+  --ui-space-section: clamp(24px, 4vw, 40px);
+}
+.league-shell { color: var(--ui-text); font-variant-numeric: tabular-nums; }
+.league-shell :is(h2, h3, h4) { text-wrap: pretty; overflow-wrap: anywhere; }
+.league-shell .section-heading h2 { font-family: var(--font-editorial); font-weight: 700; letter-spacing: .015em; line-height: 1.5; }
+.league-shell :is(.section-heading-icon, .section-kicker, .eyebrow) { color: var(--ui-muted); }
+.league-shell :is(.premium-panel, .unified-section, .hub-panel, .setting-card, .rule-card, .match-session-setup) { padding-block: var(--ui-space-section); }
+.league-shell :is(.kpi strong, .hero-number, .hub-profit, .leaderboard-profit, .podium-profit, .font-mono, .scramble-text) { font-variant-numeric: tabular-nums; }
+.league-shell :is(.leaderboard-person > strong, .player-roster-card .truncate, .editorial-stat .truncate, .match-result-ranking strong, .match-result-changes strong, .career-card-heading h3) { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; min-width: 0; }
+.league-shell :is(.section-heading-description, .section-kicker, .period-detail, .hub-caption) { line-height: 1.8; }
+.league-shell .editorial-stat > div { color: var(--ui-text); font-weight: 600; }
+.league-shell :is(.editorial-history h4, .editorial-history > button .text-cyan-300) { color: var(--ui-muted); filter: none; }
+.league-shell .history-actions button { min-height: 44px; }
+.league-shell .history-actions { margin-top: 12px; }
+.league-shell .match-result-progress { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 4px; }
+.league-shell .match-result-progress button { min-width: 0; padding-inline: 4px; flex-wrap: wrap; line-height: 1.6; }
+.league-action { display: inline-flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; min-height: 48px; padding: 12px 20px; border-radius: 10px; border: 1px solid transparent; font: 650 14px/1.6 var(--font-sans); letter-spacing: .01em; cursor: pointer; transition: background .15s ease, border-color .15s ease; }
+.league-action > svg { flex-shrink: 0; }
+.league-action-primary { background: var(--premium-gold); color: #201d16; }
+.league-action-primary:hover:not(:disabled) { background: #eddbb7; }
+.league-action-secondary { border-color: var(--premium-line); background: transparent; color: #d1d5db; }
+.league-action-secondary:hover:not(:disabled) { background: #ffffff06; }
+.league-action-danger { background: #ff85950a; border-color: #ff85954a; color: #ff9aaa; }
+.league-action:disabled { opacity: .4; cursor: not-allowed; }
+.league-action:focus-visible { outline: 2px solid var(--premium-gold); outline-offset: 4px; }
+.replay-toggle { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; color: var(--premium-gold); font-size: 14px; }
+.hanchan-form :is(input, select) { scroll-margin-block: 170px 200px; }
+.hanchan-form .score-next-seat { display: flex; align-items: center; justify-content: end; gap: 8px; width: 100%; min-height: 44px; margin-top: 4px; color: #d8c49c; font-size: 13px; }
+.hanchan-form .negative-score { min-height: 44px; padding-inline: 8px; }
+.hanchan-form .score-save-bar { border-radius: 12px; border-color: var(--premium-line); gap: 10px 16px; }
+.hanchan-form .score-save-totals { flex: 1 1 240px; min-width: 0; font-size: 12px; }
+.hanchan-form .score-save-totals small { font-size: 11px; line-height: 1.7; }
+.hanchan-form .score-save-state { color: var(--ui-muted); }
+.hanchan-form .score-save-bar .solid-action { min-height: 48px; }
+.hanchan-form .score-save-totals:focus { outline: 2px solid var(--premium-gold); outline-offset: 4px; }
+.hanchan-form .live-standings-bar { box-shadow: 0 6px 18px #0003; border-radius: 8px; }
+.hanchan-form .live-standings-heading h3 { color: var(--ui-muted); }
+.hanchan-form .live-standings-heading svg { filter: none; }
+.hanchan-form .live-standings-list > div { border: 0; border-radius: 0; background: transparent; }
+.hanchan-form .live-standings-list strong { white-space: normal; overflow-wrap: anywhere; }
+@media (max-width: 1023px) {
+  .league-shell .app-content :is(input:not([type="range"]):not([type="checkbox"]):not([type="color"]), select, textarea) { font-size: max(16px, 1em); }
+  .hanchan-form:has(.score-save-bar) { padding-bottom: 210px; }
+  .score-entry-focused:has([data-score-entry]) .bottom-nav { display: none; }
+  .score-entry-focused:has([data-score-entry]) .app-header { padding-block: 4px; transition: none; }
+  .score-entry-focused:has([data-score-entry]) .app-header .brand-lockup { display: none; }
+  .score-entry-focused:has([data-score-entry]) .header-player-select { max-width: none; }
+  .score-entry-focused:has([data-score-entry]) .app-header .header-player-select select { min-height: 44px; font-size: 16px; }
+  .score-entry-focused .hanchan-form .score-save-bar { bottom: calc(var(--score-keyboard-inset, 0px) + 8px); }
+  .score-entry-focused .hanchan-form .live-standings-list { display: flex; overflow-x: auto; overscroll-behavior-x: contain; gap: 12px; }
+  .score-entry-focused .hanchan-form .live-standings-list > div { flex: 0 0 148px; min-width: 0; grid-template-columns: 14px minmax(0,1fr); padding: 3px; }
+  .score-entry-focused .hanchan-form .live-standings-list em { grid-column: 2; }
+  .score-entry-focused .hanchan-form .live-standings-heading { padding-bottom: 4px; }
+}
+@media (max-width: 540px) {
+  .hanchan-form .score-save-bar { padding: 10px 12px; }
+  .hanchan-form .score-save-bar .solid-action { width: 100%; }
+  .league-shell .section-heading h2 { font-size: 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .league-action { transition: none; }
+}

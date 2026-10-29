@@ -1,7 +1,7 @@
 import { DesktopNav } from './components/layout/DesktopNav';
 import { PlayerContext } from './components/layout/PlayerContext';
 import { RankPromotion } from './components/layout/RankPromotion';
-import { lazy, Suspense, useCallback, useState } from 'react';
+import { lazy, Suspense, useCallback, useState, type CSSProperties } from 'react';
 import { ArrowLeft, BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, House, Plus, ScrollText, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { RecordSheet } from './components/layout/RecordSheet';
@@ -15,6 +15,7 @@ import { TabSkeleton } from './components/common/TabSkeleton';
 import { WelcomeGuide } from './components/layout/WelcomeGuide';
 import { OnlineStatusBar } from './components/layout/OnlineStatusBar';
 import { PullToRefresh } from './components/layout/PullToRefresh';
+import { useScoreWorkspace } from './components/input/useScoreWorkspace';
 
 
 // Secondary screens are loaded on demand.
@@ -83,6 +84,7 @@ function App() {
 
 export function AppShell() {
   const [activeTab, setActiveTab] = useState<string>('top');
+  const scoreWorkspace = useScoreWorkspace(activeTab === 'input' || activeTab === 'history');
   const [homeMenuIndex, setHomeMenuIndex] = useState(0);
   const [isRecordOpen, setIsRecordOpen] = useState(false);
   const [startSettling, setStartSettling] = useState(false);
@@ -121,7 +123,7 @@ export function AppShell() {
 
   return (
     <PullToRefresh onRefresh={refreshRoom}>
-      <div className="min-h-screen bg-abyss text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-clip relative">
+      <div className={`league-shell min-h-screen bg-abyss text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-clip relative ${scoreWorkspace.focused ? 'score-entry-focused' : ''}`} style={{ '--score-keyboard-inset': `${scoreWorkspace.keyboardInset}px` } as CSSProperties}>
         <Background />
         <OnlineStatusBar />
 

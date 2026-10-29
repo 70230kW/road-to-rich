@@ -1,7 +1,7 @@
 import { useViewContext } from '../../store/useViewPreferences';
 import { RankEmblem } from '../common/RankEmblem';
 import { lazy, Suspense, useMemo, useState } from 'react';
-import { BarChart3, ArrowUpRight, ChevronDown, Sparkles } from 'lucide-react';
+import { BarChart3, ChevronDown } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { computeRanking, computePlayerRateStats } from '../../lib/stats';
 import { computePlayerRankStatuses } from '../../lib/rankLevel';
@@ -13,6 +13,7 @@ import { EmptyState } from '../common/EmptyState';
 import { PersonalProfitChart } from './PersonalProfitChart';
 import { ScrambleText } from '../common/ScrambleText';
 import { TabSkeleton } from '../common/TabSkeleton';
+import { RecentTrends } from './RecentTrends';
 const LeagueAnalysis = lazy(() => import('./LeagueAnalysis').then(m => ({ default: m.LeagueAnalysis })));
 
 export function DashboardSection() {
@@ -32,10 +33,6 @@ export function DashboardSection() {
       const score = game.scores.find(s => s.playerId === activeId);
       return score ? [{ ...score, id: game.id, date: day.date, number: index + 1 }] : [];
     })), [filtered, activeId]);
-  const recent = games.slice(-10);
-  const previous = games.slice(-20, -10);
-  const topRateChange = recent.length === 10 && previous.length === 10
-    ? (recent.filter(g => g.rank === 1).length - previous.filter(g => g.rank === 1).length) * 10 : null;
 
   return <div className="space-y-7 animate-fade-in">
     <SectionHeader icon={BarChart3} title="ダッシュボード" />
@@ -63,9 +60,9 @@ export function DashboardSection() {
           {games.slice(-5).reverse().map(game => <div key={game.id} className="recent-row"><span className={`placement placement-${game.rank}`}>{game.rank}<small>位</small></span><div><strong>第{game.number}半荘</strong><small>{new Date(game.date).toLocaleDateString('ja-JP')}</small></div><strong className={`ml-auto font-mono ${game.point >= 0 ? 'profit-positive' : 'profit-negative'}`}>{formatSignedYen(game.point)}</strong></div>)}
           {games.length === 0 && <p className="muted text-sm py-5">この期間の半荘記録はありません。</p>}
         </section>
-        <section className="insight-panel"><Sparkles size={19} className="text-gold shrink-0" /><div><p className="eyebrow mb-2">PERFORMANCE NOTE</p><p>{topRateChange !== null ? `直近10半荘のトップ率は、その前の10半荘と比べて${topRateChange > 0 ? '+' : ''}${topRateChange.toFixed(1)}ポイント${topRateChange === 0 ? 'で変化なしです。' : '変化しています。'}` : `この期間に${games.length}半荘を記録。20半荘以上になると、直近のトップ率の変化を比較できます。`}</p></div><ArrowUpRight size={18} className="text-gold shrink-0" /></section>
         </aside>
       </div> : <EmptyState icon={BarChart3} message="この期間の成績はありません" hint="期間または雀士を切り替えると、ほかの記録を確認できます。" />}
+      <RecentTrends history={filtered} playerId={activeId} periodLabel={formatSeasonLabel(season)} />
     </>}
     <button type="button" className="details-toggle" aria-expanded={showDetails} aria-controls="league-analysis" onClick={() => setShowDetails(!showDetails)}>リーグ全体の分析 {showDetails ? 'を閉じる' : 'を見る'}<ChevronDown size={18} className={showDetails ? 'rotate-180' : ''} /></button>
     {showDetails && <div id="league-analysis"><Suspense fallback={<TabSkeleton tab="dashboard" compact label="リーグ分析を読み込み中" />}><LeagueAnalysis season={season} /></Suspense></div>}

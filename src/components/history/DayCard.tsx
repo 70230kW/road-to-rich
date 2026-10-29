@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useId, useMemo, useState } from 'react';
 import { ChevronDown, DollarSign, Pencil, StickyNote, Trash2, Vote } from 'lucide-react';
 import type { DayRecord, Player, Settings } from '../../types';
 import { formatDate, formatSignedYen, formatYen } from '../../lib/format';
@@ -9,6 +9,7 @@ import { PointMatrixTable } from './PointMatrixTable';
 import { HanchanNotes } from './HanchanNotes';
 import { DayVotes } from './DayVotes';
 import { ResultShareButton } from '../share/ResultShareButton';
+const MatchReplay = lazy(() => import('./MatchReplay').then(module => ({ default: module.MatchReplay })));
 
 export function DayCard({
   day,
@@ -18,6 +19,7 @@ export function DayCard({
   onToggle,
   onUpdateDay,
   onDeleteDay,
+  historyBefore = [],
 }: {
   day: DayRecord;
   players: Player[];
@@ -26,7 +28,10 @@ export function DayCard({
   onToggle: () => void;
   onUpdateDay: (dayId: string, patch: Omit<DayRecord, 'id' | 'date'>) => void | Promise<void>;
   onDeleteDay: (dayId: string) => void;
+  historyBefore?: DayRecord[];
 }) {
+  const [replayOpen, setReplayOpen] = useState(false);
+  const replayId = useId();
   const [isEditing, setIsEditing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const participantIds = useMemo(() => {
@@ -118,7 +123,8 @@ export function DayCard({
 
       {isExpanded && (
         <div className="p-5 md:p-8 border-t border-slate-700/50 bg-panel-3/80 relative animate-fade-in">
-          <div className="flex justify-end gap-2 mb-6 relative z-10">
+          <div className="history-actions flex flex-wrap justify-end gap-2 mb-6 relative z-10">
+            {day.games.length > 0 && <button type="button" className="replay-toggle" aria-expanded={replayOpen} aria-controls={replayId} onClick={() => setReplayOpen(!replayOpen)}>{replayOpen ? '振り返りを閉じる' : '対局会を振り返る'}</button>}
             <ResultShareButton title={day.session?.title ?? `${formatDate(day.date)}の対局`} date={formatDate(day.date)} hanchanCount={day.games.length} rows={participantIds.map((id) => ({ id, name: name(id), profit: day.settlement[id]?.totalWithFee ?? 0, color: players.find((player) => player.id === id)?.color }))} />
             <button
               type="button"
@@ -136,6 +142,7 @@ export function DayCard({
             </button>
           </div>
 
+          {replayOpen && <div id={replayId}><Suspense fallback={<p role="status">振り返りを読み込み中…</p>}><MatchReplay day={day} players={players} historyBefore={historyBefore} /></Suspense></div>}
           <h4 className="text-xs font-black text-cyan-400 mb-4 tracking-[0.2em] uppercase flex items-center relative z-10">
             <span className="w-2 h-2 rounded-full bg-cyan-400 mr-2 shadow-[0_0_8px_rgb(var(--accent-rgb-400)/1)]" />
             この日の精算結果

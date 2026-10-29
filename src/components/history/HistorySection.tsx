@@ -53,6 +53,7 @@ export function HistorySection() {
             onToggle={() => setExpandedId(expandedId === day.id ? null : day.id)}
             onUpdateDay={updateDay}
             onDeleteDay={deleteDay}
+            historyBefore={history}
           />
         ))}
         {status !== 'pending' && sorted.length === 0 && <EmptyState icon={History} message="該当する履歴がありません" hint="絞り込み条件を変更してください。" />}
