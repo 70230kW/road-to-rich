@@ -19,6 +19,7 @@ import { EmptyState } from '../common/EmptyState';
 import { RankBadge } from '../common/RankBadge';
 import { PlayerDetailModal } from './PlayerDetailModal';
 import { ScrambleText } from '../common/ScrambleText';
+import { PodiumSpotlight } from './PodiumSpotlight';
 
 export function RankingSection() {
   const fullHistory = useAppStore((s) => s.history);
@@ -73,22 +74,11 @@ export function RankingSection() {
 
       {activeRow && <section className="ranking-target"><div><span className="eyebrow">YOUR NEXT TARGET</span><h3>{activeRow.name} · <ScrambleText text={String(positions[activeId])} />位</h3></div><p>{gap === null ? '現在トップの収支です' : <>上位の収支まで <strong><ScrambleText text={`¥${Math.ceil(gap).toLocaleString()}`} /></strong></>}</p></section>}
       <div className="section-kicker"><span className="eyebrow">THE LEADERBOARD</span><span>{rows.length}人の雀士 · 場代抜き収支順（円）</span></div>
-      <div className="podium" aria-label="上位3名">
-        {rows.slice(0, 3).map((row, idx) => {
+      <PodiumSpotlight onOpen={setSelectedPlayerId} entries={rows.slice(0, 3).map((row, idx) => {
           const amount = amountDisplay(idx);
-          return (
-          <button type="button" key={row.playerId} className={`podium-player podium-${idx + 1}`}
-            onClick={() => setSelectedPlayerId(row.playerId)} aria-label={`${positions[row.playerId]}位 ${row.name}の成績詳細`}>
-            <span className="podium-crown">{positions[row.playerId] === 1 ? <Crown size={22} /> : <span>{String(positions[row.playerId]).padStart(2, '0')}</span>}</span>
-            <span className="player-avatar">{Array.from(row.name)[0]}</span>
-            <strong className="podium-name">{row.name}</strong>
-            <span className="podium-tier">{rankStatuses[row.playerId]?.levelName}</span>
-            <span className={`podium-profit ${(amountMode === 'actual' ? row.totalProfitWithoutFee : adjacentProfitGap(rows, idx)?.amount ?? 0) >= 0 ? 'profit-positive' : 'profit-negative'}`}><ScrambleText text={amount.value} />{amount.label && <small>{amount.label}</small>}</span>
-            <span className="podium-base"><span>{String(positions[row.playerId]).padStart(2, '0')}</span><small>{row.hanchanCount} 半荘</small></span>
-          </button>
-          );
-        })}
-      </div>
+          return { id: row.playerId, name: row.name, place: positions[row.playerId], tier: rankStatuses[row.playerId]?.levelName,
+            amount: amount.value, amountLabel: amount.label, positive: (amountMode === 'actual' ? row.totalProfitWithoutFee : adjacentProfitGap(rows, idx)?.amount ?? 0) >= 0, hanchanCount: row.hanchanCount };
+        })} />
       <div className="section-kicker ranking-list-heading"><h3>すべての雀士</h3><div className="ranking-view-controls"><div><span>情報量</span><div className="density-switch" role="group" aria-label="順位表の表示密度"><button type="button" aria-pressed={density === 'simple'} onClick={() => setDensity('simple')}>シンプル</button><button type="button" aria-pressed={density === 'detail'} onClick={() => setDensity('detail')}>詳細</button></div></div><div><span>金額表示</span><div className="density-switch" role="group" aria-label="順位表の金額表示"><button type="button" aria-pressed={amountMode === 'actual'} onClick={() => setAmountMode('actual')}>収支額</button><button type="button" aria-pressed={amountMode === 'gap'} onClick={() => setAmountMode('gap')}>差額</button></div></div></div></div>
       <div className={`leaderboard-list is-${density}`}>
         {rows.map((row, idx) => {

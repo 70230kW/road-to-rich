@@ -49,7 +49,7 @@ const UpdateHistorySection = lazy(() => import('./components/updates/UpdateHisto
 const LeagueHomeSection = lazy(() => import('./components/home/LeagueHomeSection').then((m) => ({ default: m.LeagueHomeSection })));
 const TopSection = lazy(() => import('./components/home/TopSection').then((m) => ({ default: m.TopSection })));
 
-// 画面下部の固定ナビゲーションに収まる主要4タブ。全画面は共通メニューからも移動できる。
+// デスクトップ／共通メニューの主要導線。下部ナビではTOPを省く。
 const PRIMARY_TABS: PrimaryTabDef[] = [
   { id: 'top', name: 'TOP', icon: House },
   { id: 'ranking', name: '順位表', icon: Crown },
@@ -71,6 +71,7 @@ const OTHER_TABS: PrimaryTabDef[] = [
 ];
 
 const ALL_TABS: PrimaryTabDef[] = [...PRIMARY_TABS, ...OTHER_TABS];
+const BOTTOM_TABS = PRIMARY_TABS.filter(tab => tab.id !== 'top');
 
 function App() {
   return (
@@ -159,7 +160,7 @@ export function AppShell() {
         </div>
 
         <BottomNav
-          tabs={PRIMARY_TABS}
+          tabs={BOTTOM_TABS}
           activeTab={activeTab}
           isMoreActive={isMoreActive}
           isMenuOpen={isMoreOpen}

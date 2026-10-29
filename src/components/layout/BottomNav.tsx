@@ -7,7 +7,7 @@ export interface PrimaryTabDef {
   icon: ComponentType<{ className?: string }>;
 }
 
-/** 画面下部に固定される、主要4タブ + 「その他」メニューを開くボタン。 */
+/** 主要タブ + 共通メニュー。表示数に合わせて等幅にする。 */
 export function BottomNav({
   tabs,
   activeTab,
@@ -29,7 +29,7 @@ export function BottomNav({
       className="bottom-nav"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="max-w-5xl mx-auto grid grid-cols-5">
+      <div className="max-w-5xl mx-auto grid" style={{ gridTemplateColumns: `repeat(${tabs.length + 1}, minmax(0, 1fr))` }}>
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = !isMoreActive && activeTab === tab.id;
