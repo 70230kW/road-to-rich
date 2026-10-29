@@ -4,6 +4,7 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 export interface PodiumScene {
   update: (name: string, place: number) => void; resize: () => void; dispose: () => void;
   rotate: (yaw: number, pitch: number) => void; resetRotation: () => void;
+  flush: () => void;
 }
 export const medalColor = (place: number) => place === 1 ? 0xcdb780 : place === 2 ? 0xbac6d0 : 0xb68c71;
 
@@ -21,7 +22,8 @@ export function createPodiumScene(host: HTMLDivElement, onLost: () => void): Pod
     geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose()); textures.forEach(t => t.dispose());
     renderer.dispose(); renderer.forceContextLoss(); renderer.domElement.remove(); scene.clear();
   };
-  const schedule = () => { if (!disposed && !frame) frame = requestAnimationFrame(() => { frame = 0; if (!disposed) { try { renderer.render(scene, camera); } catch { onLost(); } } }); };
+  const flush = () => { cancelAnimationFrame(frame); frame = 0; if (!disposed) renderer.render(scene, camera); };
+  const schedule = () => { if (!disposed && !frame) frame = requestAnimationFrame(() => { try { flush(); } catch { onLost(); } }); };
   try {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setClearColor(0x000000, 0); renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -87,6 +89,6 @@ export function createPodiumScene(host: HTMLDivElement, onLost: () => void): Pod
       schedule();
     };
     renderer.domElement.addEventListener('webglcontextlost', lost); host.appendChild(renderer.domElement); resize();
-    return { resize, update, rotate, resetRotation, dispose };
+    return { resize, update, rotate, resetRotation, flush, dispose };
   } catch (error) { dispose(); throw error; }
 }

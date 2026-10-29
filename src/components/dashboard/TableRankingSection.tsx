@@ -16,7 +16,7 @@ export function TableRankingSection({ history, players }: { history: DayRecord[]
   if (players.length < 2) return null;
 
   return (
-    <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-yellow-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
+    <div className="editorial-section bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-yellow-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
       <h3 className="text-sm font-black text-yellow-400 mb-6 flex items-center tracking-[0.2em] uppercase">
         <Users className="w-5 h-5 mr-2" /> 同卓ランキング
         <span className="text-slate-500 ml-2 font-normal text-xs normal-case">(Most Played With)</span>
@@ -45,7 +45,7 @@ export function TableRankingSection({ history, players }: { history: DayRecord[]
           {rows.map((row, idx) => (
             <div
               key={row.playerId}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 bg-abyss/60 px-5 py-4 rounded-2xl border border-slate-800/80"
+              className="editorial-row flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 bg-abyss/60 px-5 py-4 rounded-2xl border border-slate-800/80"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <span className="font-mono text-xs text-slate-500 w-5 text-right shrink-0">{idx + 1}</span>

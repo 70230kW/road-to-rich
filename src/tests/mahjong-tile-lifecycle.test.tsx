@@ -15,6 +15,33 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 const mockScene = (): TileScene => ({ render: vi.fn(), resize: vi.fn(), hit: vi.fn(() => false), dispose: vi.fn() });
 
 describe('lazy scene lifecycle', () => {
+  it('never shows the substitute tiles while loading, and reveals only after a successful first frame', async () => {
+    let resolve!: (scene: TileScene) => void;
+    factory.mockImplementation(() => new Promise<TileScene>(done => { resolve = done; }));
+    const onOpen = vi.fn(); const { container } = render(<MahjongTileMenu onOpen={onOpen} />);
+    expect(container.querySelector('[data-renderer="loading"]')).toBeInTheDocument();
+    expect(container.querySelector('.jk-fallback')).toHaveAttribute('hidden');
+    await waitFor(() => expect(factory).toHaveBeenCalledOnce());
+    fireEvent.click(screen.getByRole('button', { name: '03 ダッシュボード' }));
+    fireEvent.click(screen.getByRole('button', { name: 'ダッシュボードを開く' }));
+    expect(onOpen).toHaveBeenCalledWith('dashboard');
+    expect(container.querySelector('.jk-fallback')).toHaveAttribute('hidden');
+    const scene = mockScene();
+    vi.mocked(scene.render).mockImplementation(() => expect(container.querySelector('[data-renderer="loading"]')).toBeInTheDocument());
+    await act(async () => resolve(scene));
+    expect(scene.render).toHaveBeenCalledOnce();
+    expect(container.querySelector('[data-renderer="webgl"]')).toBeInTheDocument();
+    expect(container.querySelector('.jk-fallback')).toHaveAttribute('hidden');
+    expect(container.querySelector('.scene-loading')).not.toBeInTheDocument();
+  });
+  it('keeps the fallback available when the first frame fails', async () => {
+    const scene = mockScene(); vi.mocked(scene.render).mockImplementation(() => { throw new Error('Draw failed'); });
+    factory.mockResolvedValue(scene);
+    const { container } = render(<MahjongTileMenu onOpen={vi.fn()} />);
+    await waitFor(() => expect(container.querySelector('[data-renderer="fallback"]')).toBeInTheDocument());
+    expect(scene.dispose).toHaveBeenCalledOnce();
+    expect(container.querySelector('.jk-fallback')).not.toHaveAttribute('hidden');
+  });
   it('keeps controls usable when loading rejects', async () => {
     factory.mockRejectedValue(new Error('GPU unavailable'));
     const { container } = render(<MahjongTileMenu onOpen={vi.fn()} />);

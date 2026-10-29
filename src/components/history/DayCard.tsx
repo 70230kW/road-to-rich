@@ -78,7 +78,7 @@ export function DayCard({
 
   return (
     <div
-      className={`bg-panel-2/60 border transition-all duration-300 rounded-[2rem] overflow-hidden backdrop-blur-sm ${
+      className={`editorial-history bg-panel-2/60 border transition-all duration-300 rounded-[2rem] overflow-hidden backdrop-blur-sm ${
         isExpanded ? 'border-cyan-500/50 shadow-[0_0_30px_rgb(var(--accent-rgb-500)/0.15)]' : 'border-slate-700/50 hover:border-slate-500/50'
       }`}
     >
@@ -146,7 +146,7 @@ export function DayCard({
               return (
                 <div
                   key={pid}
-                  className="bg-abyss p-4 rounded-2xl border border-slate-700/80 flex flex-col justify-center relative overflow-hidden group hover:border-cyan-800/80 transition-colors"
+                  className="editorial-row bg-abyss p-4 rounded-2xl border border-slate-700/80 flex flex-col justify-center relative overflow-hidden group hover:border-cyan-800/80 transition-colors"
                 >
                   <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                   <div className="text-xs font-bold text-slate-400 mb-2 tracking-wide pl-1">{name(pid)}</div>

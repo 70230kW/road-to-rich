@@ -17,7 +17,7 @@ export function HanchanNotes({ games, onSaveNote }: { games: Game[]; onSaveNote:
   return (
     <div className="space-y-2">
       {games.map((game, idx) => (
-        <div key={game.id} className="flex items-center gap-3 bg-panel-2/40 border border-slate-700/50 rounded-xl px-4 py-2.5">
+        <div key={game.id} className="editorial-row flex items-center gap-3 bg-panel-2/40 border border-slate-700/50 rounded-xl px-4 py-2.5">
           <span className="shrink-0 text-emerald-500 font-mono font-black text-xs">#{String(idx + 1).padStart(2, '0')}</span>
           <StickyNote className="w-3.5 h-3.5 text-slate-600 shrink-0" />
           <input

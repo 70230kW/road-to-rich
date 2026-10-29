@@ -20,7 +20,7 @@ function RecordCard({
   formatDetail?: (record: HallOfFameRecord) => string | null;
 }) {
   return (
-    <div className="bg-abyss/80 p-5 rounded-2xl border border-slate-800/80 min-w-0">
+    <div className="editorial-row bg-abyss/80 p-5 rounded-2xl border border-slate-800/80 min-w-0">
       <div className={`flex items-center text-[10px] font-black tracking-widest uppercase mb-2 ${accent}`}>
         <Icon className="w-3.5 h-3.5 mr-1.5 shrink-0" /> {label}
       </div>
@@ -47,7 +47,7 @@ export function HallOfFameSection({ history, players }: { history: DayRecord[]; 
   if (!hasAnyRecord) return null;
 
   return (
-    <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-fuchsia-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
+    <div className="editorial-section bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-fuchsia-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
       <h3 className="text-sm font-black text-fuchsia-400 mb-6 flex items-center tracking-[0.2em] uppercase">
         <Sparkles className="w-5 h-5 mr-2" /> 名場面ランキング
         <span className="text-slate-500 ml-2 font-normal text-xs normal-case">(Hall of Fame)</span>

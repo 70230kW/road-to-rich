@@ -128,7 +128,7 @@ export function SettlementForm({
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <div className="bg-panel-2/80 p-6 rounded-3xl border border-slate-700/50 shadow-inner relative overflow-hidden group">
+          <div className="editorial-section bg-panel-2/80 p-6 rounded-3xl border border-slate-700/50 shadow-inner relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             <label className="block text-xs font-black text-cyan-400 mb-4 tracking-[0.2em] uppercase flex items-center">
               <span className="w-2 h-2 rounded-full bg-cyan-400 mr-2 animate-pulse" />
@@ -147,7 +147,7 @@ export function SettlementForm({
             </p>
           </div>
 
-          <div className="bg-panel-2/80 p-6 rounded-3xl border border-slate-700/50 shadow-inner relative overflow-hidden">
+          <div className="editorial-section bg-panel-2/80 p-6 rounded-3xl border border-slate-700/50 shadow-inner relative overflow-hidden">
             <label
               className={`block text-xs font-black mb-4 tracking-[0.2em] uppercase flex items-center ${
                 chipsBalanced ? 'text-fuchsia-400' : 'text-rose-400'

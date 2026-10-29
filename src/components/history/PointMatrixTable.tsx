@@ -13,7 +13,7 @@ export function PointMatrixTable({
   const name = (id: string) => players.find((p) => p.id === id)?.name ?? '不明';
 
   return (
-    <div className="rounded-2xl border border-slate-700/50 shadow-inner relative z-10">
+    <div className="editorial-table rounded-2xl border border-slate-700/50 shadow-inner relative z-10">
       <table className="w-full table-fixed text-[11px] sm:text-sm text-left">
         <thead className="text-slate-400 bg-abyss uppercase tracking-widest">
           <tr>
