@@ -20,7 +20,7 @@ export function GoalProgressSection({
   if (withGoals.length === 0) return null;
 
   return (
-    <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-emerald-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
+    <div className="editorial-section bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-emerald-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
       <h3 className="text-sm font-black text-emerald-400 mb-6 flex items-center tracking-[0.2em] uppercase">
         <Target className="w-5 h-5 mr-2" /> 今月の目標
       </h3>
@@ -31,7 +31,7 @@ export function GoalProgressSection({
           const targetLabel = gp.goal.type === 'profit' ? `${formatSignedYen(gp.goal.target)}` : formatPercentage(gp.goal.target);
           const currentLabel = gp.goal.type === 'profit' ? formatSignedYen(gp.currentValue) : formatPercentage(gp.currentValue);
           return (
-            <div key={p.id} className="bg-abyss/70 p-4 rounded-2xl border border-slate-800/80">
+            <div key={p.id} className="editorial-row bg-abyss/70 p-4 rounded-2xl border border-slate-800/80">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-sm text-slate-200 truncate">{p.name}</span>
                 <span className={`font-mono text-xs font-black shrink-0 ${gp.achieved ? 'text-emerald-300' : 'text-slate-400'}`}>

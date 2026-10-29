@@ -363,7 +363,7 @@ export function HanchanForm({
             })}
           </div>
 
-          <div className="bg-panel-2/40 border border-slate-700/50 rounded-2xl overflow-hidden">
+          <div className="editorial-section bg-panel-2/40 border border-slate-700/50 rounded-2xl overflow-hidden">
             <button
               type="button"
               onClick={() => setIsRankPointsOpen((v) => !v)}

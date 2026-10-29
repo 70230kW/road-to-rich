@@ -4,7 +4,7 @@ import { PodiumModel } from '../components/ranking/PodiumModel';
 import { PodiumSpotlight } from '../components/ranking/PodiumSpotlight';
 const factory = vi.hoisted(() => vi.fn());
 vi.mock('../components/ranking/podiumScene', () => ({ createPodiumScene: factory }));
-const scene = () => ({ resize: vi.fn(), update: vi.fn(), dispose: vi.fn(), rotate: vi.fn(), resetRotation: vi.fn() });
+const scene = () => ({ resize: vi.fn(), update: vi.fn(), dispose: vi.fn(), rotate: vi.fn(), resetRotation: vi.fn(), flush: vi.fn() });
 beforeEach(() => { factory.mockReset(); vi.stubGlobal('WebGL2RenderingContext', class {}); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 describe('podium GPU lifecycle', () => {
@@ -17,7 +17,10 @@ describe('podium GPU lifecycle', () => {
   it('reuses one scene for player changes and disposes on unmount', async () => {
     const model = scene(); factory.mockReturnValue(model);
     const { rerender, unmount, container } = render(<PodiumModel name="和賀" place={3} />);
+    expect(container.querySelector('[data-renderer="loading"]')).toBeInTheDocument();
+    expect(container.querySelector('.podium-model-fallback')).not.toBeInTheDocument();
     await waitFor(() => expect(container.querySelector('[data-renderer="webgl"]')).toBeInTheDocument());
+    expect(model.flush).toHaveBeenCalledOnce();
     expect(model.update).toHaveBeenLastCalledWith('和賀', 3);
     rerender(<PodiumModel name="佐野" place={1} />);
     expect(factory).toHaveBeenCalledOnce(); expect(model.update).toHaveBeenLastCalledWith('佐野', 1);
@@ -82,5 +85,13 @@ describe('podium GPU lifecycle', () => {
     expect(screen.queryByRole('button', { name: /正面に戻す/ })).not.toBeInTheDocument();
     expect(container.querySelector('.podium-model-rotation')).toHaveAttribute('tabindex', '-1');
     expect(factory).not.toHaveBeenCalled();
+  });
+  it('shows the fallback, not a ready scene, when the first frame cannot render', async () => {
+    const model = scene(); model.flush.mockImplementation(() => { throw new Error('First frame failed'); });
+    factory.mockReturnValue(model);
+    const { container } = render(<PodiumModel name="和賀" place={3} />);
+    await waitFor(() => expect(container.querySelector('[data-renderer="fallback"]')).toBeInTheDocument());
+    expect(model.dispose).toHaveBeenCalledOnce();
+    expect(container.querySelector('.podium-model-fallback')).toBeInTheDocument();
   });
 });

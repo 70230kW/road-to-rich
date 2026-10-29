@@ -104,7 +104,7 @@ export function SettingsSection() {
         </div>
         <div className={`grid gap-4 md:gap-6 ${settings.playerCount === 4 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-3'}`}>
           {activeRankPoints.map((value, idx) => (
-            <div key={idx} className="bg-abyss p-4 rounded-2xl border border-slate-700/80 shadow-inner">
+            <div key={idx} className="min-w-0">
               <span className="text-xs font-black text-slate-500 block mb-3 tracking-[0.2em] uppercase text-center">{idx + 1}着</span>
               <input
                 type="number"

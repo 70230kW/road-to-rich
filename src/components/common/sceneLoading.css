@@ -1,0 +1,5 @@
+.scene-loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; pointer-events: none; color: #a7aeab; opacity: 0; animation: scene-loading-reveal .25s .45s forwards; }
+.scene-loading > span { width: 38px; height: 1px; background: #cdb780; }
+.scene-loading small { font-size: 11px; letter-spacing: .08em; }
+@keyframes scene-loading-reveal { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .scene-loading { animation: none; opacity: 1; } }

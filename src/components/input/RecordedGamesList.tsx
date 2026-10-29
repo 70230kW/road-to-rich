@@ -36,7 +36,7 @@ export function RecordedGamesList({
           return (
             <div
               key={g.id}
-              className="bg-panel-2/40 border border-slate-700/50 rounded-2xl px-4 py-3 hover:border-slate-500/50 transition-colors group"
+              className="editorial-row bg-panel-2/40 border border-slate-700/50 rounded-2xl px-4 py-3 hover:border-slate-500/50 transition-colors group"
             >
               <div className="flex items-center gap-3 md:gap-4">
                 <span className="shrink-0 text-cyan-500 font-mono font-black text-sm w-8">

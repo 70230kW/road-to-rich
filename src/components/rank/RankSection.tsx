@@ -84,7 +84,7 @@ export function RankSection() {
           if (!status) return null;
           const theme = RANK_GROUP_THEME[status.group];
           return (
-            <div key={p.id} className="bg-panel-2/70 p-5 rounded-2xl border border-slate-700/50 backdrop-blur-sm">
+            <div key={p.id} className="editorial-row bg-panel-2/70 p-5 rounded-2xl border border-slate-700/50 backdrop-blur-sm">
               <div className="flex items-center justify-between mb-2.5">
                 <span className="font-black text-slate-100 text-lg truncate">{p.name}</span>
                 <span className={`font-mono text-lg font-black shrink-0 ${theme.text}`}>{status.levelName}</span>
@@ -112,7 +112,7 @@ export function RankSection() {
 
       <div
         id="rank-tier-list"
-        className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden backdrop-blur-md scroll-mt-4"
+        className="editorial-section bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden backdrop-blur-md scroll-mt-4"
       >
         <div className="rank-ladder-heading"><div><span className="eyebrow">RANK LADDER</span><h3>段位一覧</h3></div><div className="rank-ladder-direction"><TrendingUp size={15} /><span>上ほど高段位</span></div></div>
         <p className="text-[11px] text-slate-500 mb-6">魂天を頂点に、現在の累計収支から段位を判定します。タップすると各段位の条件を確認できます。</p>

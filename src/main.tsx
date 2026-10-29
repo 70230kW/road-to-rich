@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import './styles/experience.css'
+import './styles/editorial.css'
 import App from './App.tsx'
 import { applySeasonalTheme } from './lib/seasonalTheme'
 

@@ -138,7 +138,7 @@ export function SimulatorSection() {
             {catchUpRows.map((row) => (
               <div
                 key={row.playerId}
-                className="flex items-center justify-between gap-4 bg-abyss/60 px-5 py-4 rounded-2xl border border-slate-800/80"
+                className="editorial-row flex items-center justify-between gap-4"
               >
                 <span className="font-bold text-slate-200">{row.name}</span>
                 {row.hanchansNeeded === null ? (

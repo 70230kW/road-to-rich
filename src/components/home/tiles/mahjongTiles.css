@@ -91,6 +91,9 @@
 .mahjong-home-menu .jk-fallback-tile img { display: block; width: 100%; height: 100%; object-fit: contain; padding: 8px; border-radius: 12px; }
 .mahjong-home-menu .jk-fallback-tile[data-tile="0"] img { padding: 0; }
 .mahjong-home-menu .jk-webgl { z-index: 1; }
+.mahjong-home-menu .jk-webgl canvas { opacity: 0; transition: opacity .24s ease; }
+.mahjong-home-menu[data-renderer="webgl"] .jk-webgl canvas { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .mahjong-home-menu .jk-webgl canvas { transition: none; } }
 .mahjong-home-menu .jk-fallback { z-index: 1; }
 .mahjong-home-menu .jk-copy { z-index: 2; }
 @container mahjong-menu (max-width: 560px) {

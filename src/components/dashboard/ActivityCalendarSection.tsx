@@ -17,7 +17,7 @@ export function ActivityCalendarSection({ history, players }: { history: DayReco
   const selectedDays = selectedDate ? (daysByDate.get(selectedDate) ?? []) : [];
 
   return (
-    <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-emerald-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
+    <div className="editorial-section bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-emerald-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
       <h3 className="text-sm font-black text-emerald-400 mb-6 flex items-center tracking-[0.2em] uppercase">
         <CalendarDays className="w-5 h-5 mr-2" /> 対局カレンダー
         <span className="text-slate-500 ml-2 font-normal text-xs normal-case">(Activity)</span>

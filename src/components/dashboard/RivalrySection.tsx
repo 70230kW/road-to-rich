@@ -83,7 +83,7 @@ export function RivalrySection({ history, players }: { history: DayRecord[]; pla
   const gridColsClass = playerCount > 2 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2';
 
   return (
-    <div className="bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-rose-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
+    <div className="editorial-section bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden group hover:border-rose-800/80 transition-colors duration-500 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] backdrop-blur-md">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h3 className="text-sm font-black text-rose-400 flex items-center tracking-[0.2em] uppercase">
           <Swords className="w-5 h-5 mr-2 shrink-0" /> ライバル対決
@@ -146,7 +146,7 @@ export function RivalrySection({ history, players }: { history: DayRecord[]; pla
             {stats!.players.map((p, i) => {
               const theme = SLOT_THEME[i];
               return (
-                <div key={p.playerId} className={`bg-abyss/80 p-5 rounded-2xl border ${theme.border} text-center min-w-0`}>
+                <div key={p.playerId} className={`editorial-row bg-abyss/80 p-5 rounded-2xl border ${theme.border} text-center min-w-0`}>
                   <div className="font-black text-slate-100 text-lg truncate mb-1">{nameOf(p.playerId)}</div>
                   <div className={`font-mono text-4xl font-black ${theme.text} ${theme.glow}`}>{p.wins}</div>
                   <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mt-1">WINS</div>
@@ -165,7 +165,7 @@ export function RivalrySection({ history, players }: { history: DayRecord[]; pla
             ))}
           </div>
 
-          <div className="flex items-center justify-between bg-abyss/60 px-5 py-4 rounded-2xl border border-slate-800/80">
+          <div className="editorial-row flex items-center justify-between bg-abyss/60 px-5 py-4 rounded-2xl border border-slate-800/80">
             <span className="text-xs font-bold text-slate-400 tracking-wide">同卓対局数</span>
             <span className="font-mono font-black text-slate-200">{stats!.sharedHanchanCount} 半荘</span>
           </div>
@@ -174,7 +174,7 @@ export function RivalrySection({ history, players }: { history: DayRecord[]; pla
             {stats!.players.map((p, i) => (
               <div
                 key={p.playerId}
-                className="flex items-center justify-between bg-abyss/60 px-5 py-4 rounded-2xl border border-slate-800/80"
+                className="editorial-row flex items-center justify-between bg-abyss/60 px-5 py-4 rounded-2xl border border-slate-800/80"
               >
                 <span className={`text-xs font-bold tracking-wide ${SLOT_THEME[i].text}`}>{nameOf(p.playerId)} の収支</span>
                 <span

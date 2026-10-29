@@ -163,7 +163,7 @@ export function TrophySection() {
                         return (
                           <div
                             key={trophy.id}
-                            className={`relative p-3.5 rounded-xl border transition-all ${
+                            className={`editorial-row relative p-3.5 rounded-xl border transition-all ${
                               isEarned
                                 ? `${theme.earnedBg} ${theme.earnedBorder} ${theme.earnedGlow}`
                                 : 'bg-abyss/40 border-slate-800/60 opacity-40 grayscale hover:opacity-60'
@@ -228,7 +228,7 @@ export function TrophySection() {
                 return (
                   <div
                     key={trophy.id}
-                    className={`relative p-3.5 rounded-xl border transition-all ${
+                    className={`editorial-row relative p-3.5 rounded-xl border transition-all ${
                       isEarned
                         ? 'bg-fuchsia-950/30 border-fuchsia-400/70 shadow-[0_0_18px_rgba(232,121,249,0.25)]'
                         : 'bg-abyss/40 border-slate-800/60'

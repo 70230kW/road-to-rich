@@ -31,6 +31,11 @@
 .podium-model[data-renderer="webgl"] .podium-model-rotation:active { cursor: grabbing; }
 .podium-model-host { width: 100%; height: 100%; position: absolute; inset: 0; }
 .podium-model-host canvas { width: 100%; height: 100%; display: block; }
+.podium-model-host { opacity: 0; transition: opacity .24s ease; }
+.podium-model[data-renderer="webgl"] .podium-model-host { opacity: 1; }
+.podium-model-reset { flex-shrink: 0; }
+.podium-model:not([data-renderer="webgl"]) { padding-bottom: 44px; }
+@media (prefers-reduced-motion: reduce) { .podium-model-host { transition: none; } }
 .podium-model-hint { font-size: 11px; color: #aab2bf; text-align: center; margin: 0 6px; }
 .podium-model-reset { display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 44px; font-size: 11px; color: #e2cc9f; padding: 6px 10px; }
 .podium-model-fallback { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
