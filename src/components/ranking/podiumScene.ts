@@ -83,11 +83,16 @@ export function createPodiumScene(host: HTMLDivElement, onLost: () => void): Pod
       if (value !== previous) {
         previous = value;
         context.clearRect(0, 0, 512, 768); context.textAlign = 'center'; context.textBaseline = 'middle';
-        context.fillStyle = '#24392f'; context.font = '600 280px "Hiragino Mincho ProN", "Yu Mincho", serif';
-        context.fillText(Array.from(name)[0] ?? '雀', 256, 285, 410);
-        context.font = '500 38px sans-serif'; context.fillText(name, 256, 445, 410);
+        const mincho = '"Hiragino Mincho ProN", "Yu Mincho", serif';
+        const initial = Array.from(name)[0] ?? '雀';
+        context.fillStyle = '#24392f'; context.font = `900 280px ${mincho}`;
+        // Some system Mincho faces have no heavy weight. A same-color stroke
+        // keeps the original glyph while making the fine strokes visibly bolder.
+        context.strokeStyle = context.fillStyle; context.lineWidth = 4; context.lineJoin = 'round';
+        context.strokeText(initial, 256, 285, 410); context.fillText(initial, 256, 285, 410);
+        context.font = `700 38px ${mincho}`; context.fillText(name, 256, 445, 410);
         context.fillStyle = `#${medalColor(place).toString(16).padStart(6, '0')}`;
-        context.fillRect(174, 500, 164, 3); context.font = '500 100px monospace';
+        context.fillRect(174, 500, 164, 3); context.font = `700 100px ${mincho}`;
         context.fillText(String(place).padStart(2, '0'), 256, 605);
         texture.needsUpdate = true; metal.color.setHex(medalColor(place));
       }
