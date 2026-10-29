@@ -43,9 +43,9 @@ export function CurrentProfitsBar({
       <div className="live-standings-list">
         {standings.map((row, index) => (
           <div key={row.id} className={index === 0 ? 'is-leading' : ''}>
-            <span className="live-standing-rank">{index + 1}</span>
+            <span className="live-standing-rank">{standings.findIndex(other => other.profit === row.profit) + 1}</span>
             <i style={{ backgroundColor: row.color }} />
-            <strong>{row.name}</strong>
+            <strong title={row.name}>{row.name}</strong>
             <em className={row.profit >= 0 ? 'profit-positive' : 'profit-negative'}>{formatSignedYen(row.profit)}</em>
           </div>
         ))}

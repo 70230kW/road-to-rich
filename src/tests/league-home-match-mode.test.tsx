@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LeagueHomeSection } from '../components/home/LeagueHomeSection';
 import { CurrentProfitsBar } from '../components/input/CurrentProfitsBar';
@@ -55,6 +55,23 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('league home', () => {
+  it('keeps unfinalized games accessible even without a session', () => {
+    useAppStore.setState({ currentDayGames: resultDay().games });
+    const onOpenMatch = vi.fn();
+    render(<LeagueHomeSection onOpenRecord={vi.fn()} onOpenMatch={onOpenMatch} onNavigate={vi.fn()} />);
+    expect(screen.getByText('精算前の対局があります')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /次の半荘を記録/ }));
+    expect(onOpenMatch).toHaveBeenCalledOnce();
+  });
+
+  it('offers registration when there are no players', () => {
+    useAppStore.setState({ players: [] });
+    const onNavigate = vi.fn();
+    render(<LeagueHomeSection onOpenRecord={vi.fn()} onOpenMatch={vi.fn()} onNavigate={onNavigate} />);
+    fireEvent.click(screen.getByRole('button', { name: '雀士を登録する' }));
+    expect(onNavigate).toHaveBeenCalledWith('players');
+    expect(screen.getByText('最初の精算から、順位が動き出します。')).toBeInTheDocument();
+  });
   it('turns into a match command center while a session is active', () => {
     useAppStore.setState({
       currentSession: { id: 'session-1', title: '水曜対局会', participantIds: players.map((player) => player.id), startedAt: '2026-10-21T10:00:00+09:00' },
@@ -71,6 +88,11 @@ describe('league home', () => {
 });
 
 describe('live standings during input', () => {
+  it('shows equal profits as tied ranks without hiding participants', () => {
+    render(<CurrentProfitsBar games={[]} players={players} participantIds={players.map(p => p.id)} />);
+    expect([...document.querySelectorAll('.live-standing-rank')].map(el => el.textContent)).toEqual(['1', '1', '1', '1']);
+    expect(screen.getByText('0半荘終了時点')).toBeInTheDocument();
+  });
   it('immediately reorders the table when valid draft scores are supplied', () => {
     render(
       <CurrentProfitsBar
@@ -94,6 +116,14 @@ describe('live standings during input', () => {
 });
 
 describe('match result sequence', () => {
+  it('does not advance while the user is reading', () => {
+    vi.useFakeTimers();
+    try {
+      render(<MatchResultSequence title="読み進めるリザルト" resultDay={resultDay()} historyBefore={[]} players={players} settings={defaultSettings} onComplete={vi.fn()} />);
+      act(() => vi.advanceTimersByTime(10000));
+      expect(screen.getByRole('heading', { name: '読み進めるリザルト' })).toBeInTheDocument();
+    } finally { cleanup(); vi.useRealTimers(); }
+  });
   it('shows final order, league impact, new records and achievements in stages', () => {
     render(<MatchResultSequence title="水曜対局会" resultDay={resultDay()} historyBefore={[]} players={players} settings={defaultSettings} onComplete={vi.fn()} />);
 
