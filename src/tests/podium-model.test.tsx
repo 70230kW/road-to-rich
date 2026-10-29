@@ -4,7 +4,7 @@ import { PodiumModel } from '../components/ranking/PodiumModel';
 import { PodiumSpotlight } from '../components/ranking/PodiumSpotlight';
 const factory = vi.hoisted(() => vi.fn());
 vi.mock('../components/ranking/podiumScene', () => ({ createPodiumScene: factory }));
-const scene = () => ({ resize: vi.fn(), update: vi.fn(), dispose: vi.fn(), rotate: vi.fn(), resetRotation: vi.fn(), flush: vi.fn() });
+const scene = () => ({ resize: vi.fn(), update: vi.fn(), dispose: vi.fn(), flush: vi.fn() });
 beforeEach(() => { factory.mockReset(); vi.stubGlobal('WebGL2RenderingContext', class {}); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 describe('podium GPU lifecycle', () => {
@@ -52,39 +52,63 @@ describe('podium GPU lifecycle', () => {
     expect(model.update).not.toHaveBeenCalled();
     unmount(); expect(disconnect).toHaveBeenCalledOnce(); expect(model.dispose).toHaveBeenCalledOnce();
   });
-  it('rotates in both axes without changing players, supports keyboard/reset, and stops on cancel', async () => {
+  it('swipes on the rendered tile to switch players instead of capturing it for rotation', async () => {
     vi.stubGlobal('PointerEvent', class extends MouseEvent { pointerId = 1; isPrimary = true; });
+    vi.stubGlobal('matchMedia', () => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
     const models: ReturnType<typeof scene>[] = []; factory.mockImplementation(() => { const model = scene(); models.push(model); return model; });
     const open = vi.fn();
-    render(<PodiumSpotlight entries={['和賀', '佐野', 'タカハシ'].map((name, i) => ({ id: name, name, place: i + 1, amount: '+100', amountLabel: null, positive: true, hanchanCount: 10 }))} onOpen={open} />);
+    const { container } = render(<PodiumSpotlight entries={['和賀', '佐野', 'タカハシ'].map((name, i) => ({ id: name, name, place: i + 1, amount: '+100', amountLabel: null, positive: true, hanchanCount: 10 }))} onOpen={open} />);
     await waitFor(() => expect(factory).toHaveBeenCalledTimes(3));
-    const rotation = screen.getByRole('group', { name: '和賀の3D麻雀牌' });
-    Object.assign(rotation, { setPointerCapture: vi.fn() }); Object.defineProperty(rotation, 'clientWidth', { value: 150 });
-    fireEvent.pointerDown(rotation, { clientX: 100, clientY: 100 });
-    fireEvent.pointerMove(rotation, { clientX: 50, clientY: 140 });
-    expect(models[0].rotate).toHaveBeenCalledExactlyOnceWith(-50 / 150 * Math.PI * 2, 40 / 150 * Math.PI * 2);
-    fireEvent.pointerCancel(rotation); fireEvent.pointerMove(rotation, { clientX: 5, clientY: 5 });
-    expect(models[0].rotate).toHaveBeenCalledOnce();
-    expect(screen.getByRole('heading', { name: '和賀' })).toBeInTheDocument(); expect(open).not.toHaveBeenCalled();
-    fireEvent.keyDown(rotation, { key: 'ArrowDown' }); expect(models[0].rotate).toHaveBeenLastCalledWith(0, .22);
-    fireEvent.keyDown(rotation, { key: 'ArrowRight' }); expect(models[0].rotate).toHaveBeenLastCalledWith(.22, 0);
-    expect(screen.getByRole('heading', { name: '和賀' })).toBeInTheDocument();
-    fireEvent.keyDown(rotation, { key: 'Home' });
-    fireEvent.click(screen.getByRole('button', { name: '和賀の牌を正面に戻す' }));
-    expect(models[0].resetRotation).toHaveBeenCalledTimes(2);
-    fireEvent.click(screen.getByRole('button', { name: '次の雀士' }));
+    const area = container.querySelector('.podium-viewport')!;
+    Object.assign(area, { setPointerCapture: vi.fn() }); Object.defineProperty(area, 'clientWidth', { value: 320 });
+    const tile = screen.getByRole('img', { name: '和賀の麻雀牌、1位' });
+    fireEvent.pointerDown(tile, { clientX: 250, clientY: 100 });
+    fireEvent.pointerMove(tile, { clientX: 140, clientY: 102 });
+    fireEvent.pointerUp(tile, { clientX: 140, clientY: 102 });
     expect(screen.getByRole('heading', { name: '佐野' })).toBeInTheDocument();
+    expect(open).not.toHaveBeenCalled();
+    expect(screen.queryByText(/360°回転/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /正面に戻す/ })).not.toBeInTheDocument();
+    expect(tile).not.toHaveAttribute('tabindex');
     fireEvent.click(screen.getByRole('button', { name: '前の雀士' }));
-    expect(factory).toHaveBeenCalledTimes(3); // retain each player's orientation across selection
-    expect(models[0].resetRotation).toHaveBeenCalledTimes(2);
+    expect(screen.getByRole('heading', { name: '和賀' })).toBeInTheDocument();
+    expect(factory).toHaveBeenCalledTimes(3); // Reuse scenes, not a new GPU per swipe.
   });
   it('does not offer a nonfunctional rotation control when WebGL is unavailable', () => {
     vi.stubGlobal('WebGL2RenderingContext', undefined);
     const { container } = render(<PodiumModel name="和賀" place={3} />);
-    expect(screen.getByText('麻雀牌プレビュー（静止画）')).toBeInTheDocument();
+    expect(container.querySelector('.podium-model-fallback')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: '和賀の麻雀牌、3位' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /正面に戻す/ })).not.toBeInTheDocument();
-    expect(container.querySelector('.podium-model-rotation')).toHaveAttribute('tabindex', '-1');
+    expect(container.querySelector('[data-model-interaction]')).not.toBeInTheDocument();
     expect(factory).not.toHaveBeenCalled();
+  });
+  it.each(['loading', 'fallback'] as const)('uses the same swipe area in the %s state and leaves vertical scrolling alone', async state => {
+    vi.stubGlobal('PointerEvent', class extends MouseEvent { pointerId = 1; isPrimary = true; });
+    vi.stubGlobal('matchMedia', () => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
+    if (state === 'fallback') vi.stubGlobal('WebGL2RenderingContext', undefined);
+    factory.mockImplementation(scene);
+    const open = vi.fn();
+    const { container } = render(<PodiumSpotlight entries={['和賀', '佐野'].map((name, i) => ({ id: name, name, place: i + 1, amount: '+100', amountLabel: null, positive: true, hanchanCount: 10 }))} onOpen={open} />);
+    const area = container.querySelector('.podium-viewport')!;
+    Object.assign(area, { setPointerCapture: vi.fn() }); Object.defineProperty(area, 'clientWidth', { value: 320 });
+    const tile = screen.getByRole('img', { name: '和賀の麻雀牌、1位' });
+    expect(tile.parentElement).toHaveAttribute('data-renderer', state);
+    fireEvent.pointerDown(tile, { clientX: 250, clientY: 100 });
+    const vertical = new PointerEvent('pointermove', { bubbles: true, cancelable: true, clientX: 248, clientY: 220 });
+    fireEvent(tile, vertical); fireEvent.pointerUp(tile, { clientX: 248, clientY: 220 });
+    expect(vertical.defaultPrevented).toBe(false);
+    expect(area.setPointerCapture).not.toHaveBeenCalled();
+    expect(screen.getByRole('heading', { name: '和賀' })).toBeInTheDocument();
+    fireEvent.pointerDown(tile, { clientX: 250, clientY: 100 });
+    fireEvent.pointerMove(tile, { clientX: 140, clientY: 102 });
+    fireEvent.pointerUp(tile, { clientX: 140, clientY: 102 });
+    expect(screen.getByRole('heading', { name: '佐野' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '2位 佐野の成績詳細' }), { detail: 1 });
+    expect(open).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: '2位 佐野の成績詳細' }), { detail: 0 });
+    expect(open).toHaveBeenCalledExactlyOnceWith('佐野');
+    if (state === 'loading') await waitFor(() => expect(container.querySelectorAll('[data-renderer="webgl"]')).toHaveLength(2));
   });
   it('shows the fallback, not a ready scene, when the first frame cannot render', async () => {
     const model = scene(); model.flush.mockImplementation(() => { throw new Error('First frame failed'); });

@@ -88,7 +88,7 @@ export function usePodiumCarousel(ids: string[]) {
     viewport, index, select: (i: number) => control.current.select(i), step: (delta: number) => control.current.step(delta),
     onPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => {
       suppressClick.current = false;
-      if (ids.length < 2 || event.button !== 0 || !event.isPrimary || gesture.current || (event.target as Element).closest('button,[data-model-interaction]')) return;
+      if (ids.length < 2 || event.button !== 0 || !event.isPrimary || gesture.current || (event.target as Element).closest('button,a,input,select,textarea')) return;
       gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY, position: state.current.position, width: Math.max(1, event.currentTarget.clientWidth), axis: null };
     },
     onPointerCancel: () => control.current.cancel(), onLostPointerCapture: () => control.current.cancel(),
