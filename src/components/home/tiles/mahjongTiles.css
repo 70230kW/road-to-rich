@@ -143,7 +143,8 @@
 .mahjong-home-menu .jk-stage .jk-webgl,
 .mahjong-home-menu .jk-stage .jk-fallback { bottom: 90px; }
 .mahjong-home-menu .jk-fallback { container-type: size; }
-.mahjong-home-menu .jk-fallback-title { position: absolute; left: 50%; top: 65%; color: var(--jk-ink); font-weight: 400; line-height: 1.25; letter-spacing: 0; white-space: nowrap; pointer-events: none; }
+.mahjong-home-menu .jk-fallback-title { position: absolute; color: var(--jk-ink); font-weight: 400; line-height: 1.12; padding-top: .12em; letter-spacing: 0; white-space: nowrap; pointer-events: none; }
+.mahjong-home-menu .jk-fallback-title span { display: block; }
 .mahjong-home-menu .jk-copy .jk-slide { top: auto; bottom: 35px; width: 100%; }
 @media (max-height: 500px) {
   .mahjong-home-menu .jk-stage .jk-webgl,
