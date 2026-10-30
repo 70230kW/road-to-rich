@@ -1,7 +1,18 @@
+/* Noto Serif JP Bold, subset to the four TOP menu names. See public/fonts/README.md. */
+@font-face {
+  font-family: "Jankane TOP Mincho";
+  src: url("/fonts/noto-serif-jp-700-top.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  unicode-range: U+3099, U+30B7-30B8, U+30BF-30C0, U+30C3, U+30C8-30C9, U+30DB-30DC, U+30E5, U+30FC, U+4F4D, U+5165, U+529B, U+5BFE, U+5C40, U+6BB5, U+8868, U+9806;
+}
+
 .mahjong-home-menu{--jk-bg:#090d10;--jk-ink:#f3f0e7;--jk-muted:#a7aeab;--jk-gold:#cdb780;--jk-line:rgba(223,215,191,.16);position:relative;isolation:isolate;width:100%;overflow:hidden;border-radius:20px;background:var(--jk-bg);color:var(--jk-ink);font-family:"Helvetica Neue","Noto Sans JP","Yu Gothic",Arial,sans-serif;-webkit-font-smoothing:antialiased;user-select:none;color-scheme:dark;}
     .mahjong-home-menu *{box-sizing:border-box;}
     .mahjong-home-menu button{font:inherit;color:inherit;}
     .mahjong-home-menu h2,.mahjong-home-menu p{font-family:inherit;}
+    .mahjong-home-menu .jk-menu-title{font-family:"Jankane TOP Mincho","Hiragino Mincho ProN","Yu Mincho",serif;font-weight:700;font-synthesis:none;}
     .mahjong-home-menu .jk-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 73% 36%,rgba(180,162,113,.11),transparent 48%);}
     .mahjong-home-menu .jk-header{position:relative;z-index:5;display:flex;align-items:center;gap:19px;min-height:80px;padding:26px 34px 0;}
     .mahjong-home-menu .jk-brand{font-size:21px;font-weight:700;letter-spacing:.02em;line-height:1.2;}
