@@ -54,6 +54,19 @@ describe('continuous tile orbit', () => {
 });
 
 describe('tile menu interaction and fallback', () => {
+  it('styles only the four titles and menu labels with the TOP Mincho font', () => {
+    const { container } = render(<MahjongTileMenu onOpen={vi.fn()} />);
+    expect(container.querySelectorAll('.jk-menu-title')).toHaveLength(8);
+    for (const [index, name] of ['順位表', '対局入力', 'ダッシュボード', '段位'].entries()) {
+      expect(container.querySelector(`[data-jk-slide="${index}"] h2`)).toHaveClass('jk-menu-title');
+      const button = screen.getByRole('button', { name: `0${index + 1} ${name}` });
+      expect(button.querySelector('.jk-menu-title')).toHaveTextContent(name);
+      expect(button.querySelector('.jk-menu-number')).not.toHaveClass('jk-menu-title');
+    }
+    for (const element of container.querySelectorAll('.jk-description, .jk-eyebrow, .jk-open')) {
+      expect(element).not.toHaveClass('jk-menu-title');
+    }
+  });
   it('selects in both directions, including several complete loops, without navigating', () => {
     const onOpen = vi.fn(), change = vi.fn();
     render(<MahjongTileMenu onOpen={onOpen} onSelectionChange={change} />);

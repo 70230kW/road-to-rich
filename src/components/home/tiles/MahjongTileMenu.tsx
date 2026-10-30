@@ -182,12 +182,12 @@ export function MahjongTileMenu({ initialIndex = 0, onSelectionChange, onOpen }:
       <div className="jk-webgl" aria-hidden="true" />
       {rendererState === 'loading' && <SceneLoading />}
       <div className="jk-fallback" hidden={rendererState !== 'fallback'} aria-hidden="true">{TILE_MENUS.map((item, index) => <div className="jk-fallback-tile" key={item.id} data-tile={index}><img src={item.source} alt="" draggable={false} /></div>)}</div>
-      <div className="jk-copy">{TILE_MENUS.map((item, index) => <div className="jk-slide" key={item.id} data-jk-slide={index} aria-hidden={index !== selected}><div className="jk-eyebrow">{item.eyebrow}</div><h2>{item.name}</h2><p className="jk-description">{item.description}</p></div>)}</div>
+      <div className="jk-copy">{TILE_MENUS.map((item, index) => <div className="jk-slide" key={item.id} data-jk-slide={index} aria-hidden={index !== selected}><div className="jk-eyebrow">{item.eyebrow}</div><h2 className="jk-menu-title">{item.name}</h2><p className="jk-description">{item.description}</p></div>)}</div>
       <div className="jk-selection"><span className="jk-count">0{selected + 1} / 04</span><span className="jk-divider" /><span className="jk-tile-name">{menu.tile}</span></div>
     </div>
     <div className="jk-action"><button type="button" className="jk-open" onClick={() => onOpen(menu.id)}>{menu.name}を開く<ArrowUpRight size={18} aria-hidden="true" /></button></div>
     <div className="jk-nav-zone">
-      <nav className="jk-nav" aria-label="メニューを選択">{TILE_MENUS.map((item, index) => <button className="jk-menu" key={item.id} type="button" aria-label={`0${index + 1} ${item.name}`} aria-pressed={selected === index} onClick={() => controls.current?.select(index)}><span className="jk-menu-number">0{index + 1}</span>{item.name}</button>)}</nav>
+      <nav className="jk-nav" aria-label="メニューを選択">{TILE_MENUS.map((item, index) => <button className="jk-menu" key={item.id} type="button" aria-label={`0${index + 1} ${item.name}`} aria-pressed={selected === index} onClick={() => controls.current?.select(index)}><span className="jk-menu-number">0{index + 1}</span><span className="jk-menu-title">{item.name}</span></button>)}</nav>
       <div className="jk-footer"><span className="jk-hint">左右にスワイプして選択<br />牌のタップ、またはボタンで開く</span><div className="jk-arrows"><button className="jk-arrow" type="button" aria-label="前のメニュー" onClick={() => controls.current?.step(-1)}><ArrowLeft size={18} /></button><button className="jk-arrow" type="button" aria-label="次のメニュー" onClick={() => controls.current?.step(1)}><ArrowRight size={18} /></button></div></div>
     </div>
     <span className="jk-sr" role="status" aria-live="polite" aria-atomic="true">{menu.name}、{menu.tile}を選択中。4つ中{selected + 1}つ目。</span>
