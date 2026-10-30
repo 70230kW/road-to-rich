@@ -1,0 +1,241 @@
+/* One material, three elevations. Opt-in on body also covers React portals.
+   Named surfaces only: do not turn every row, statistic or tile into a card. */
+body.neu-theme {
+  --neu-base: #272c33;
+  --neu-text: #f1eee7;
+  --neu-muted: #bac2cd;
+  --neu-edge: #454e5a;
+  --neu-gold: #dec594;
+  --neu-raised: 8px 8px 20px #191d23, -6px -6px 16px #353c45;
+  --neu-control: 3px 3px 7px #191d23, -3px -3px 7px #39414b;
+  --neu-inset: inset 3px 3px 7px #171c22, inset -3px -3px 7px #39414b;
+  --neu-float: 12px 18px 40px #11161cc9, inset 1px 1px 0 #ffffff12;
+  --neu-radius: 22px;
+  --neu-pad: clamp(16px, 2.5vw, 28px);
+  --color-abyss: var(--neu-base);
+  --color-panel: var(--neu-base);
+  --color-panel-2: #2b3139;
+  --color-panel-3: #242930;
+  --premium-line: #ffffff16;
+  --premium-muted: var(--neu-muted);
+  --premium-gold: var(--neu-gold);
+  --ui-muted: var(--neu-muted);
+  background: var(--neu-base);
+  color: var(--neu-text);
+  color-scheme: dark;
+}
+body.neu-theme .premium-background { background: none; }
+
+/* The first level is a coherent section; nested content stays on its surface. */
+body.neu-theme :is(.app-content, .room-gate) :is(
+  .premium-panel, .unified-panel, .unified-section, .editorial-section,
+  .hub-career, .hub-match, .hub-panel, .performance-hero, .ranking-target,
+  .rank-hero, .rank-progress-card, .player-add-panel, .setting-card,
+  .match-session-setup, .match-session-live, .match-result-stage,
+  .trophy-overview, .collection-card, .season-active-card, .season-create-card,
+  .updates-content, .recent-trends, .match-replay, .save-receipt, .neu-surface) {
+  min-width: 0;
+  padding: var(--neu-pad);
+  border: 1px solid #ffffff05;
+  border-radius: var(--neu-radius);
+  background: var(--neu-base);
+  box-shadow: var(--neu-raised);
+  backdrop-filter: none;
+}
+body.neu-theme .app-content :is(.unified-panel, .unified-section, .editorial-section) :is(.unified-panel, .editorial-section, .recent-trends, .match-replay) {
+  border: 0; border-top: 1px solid var(--premium-line);
+  border-radius: 0; padding: 22px 0; box-shadow: none;
+}
+body.neu-theme .app-content :is(.page-overview, .season-overview-grid, .kpi-grid) {
+  padding: 16px; gap: 16px; border: 0; border-radius: 16px;
+  background: var(--neu-base); box-shadow: var(--neu-inset);
+}
+body.neu-theme .app-content :is(.page-overview, .season-overview-grid) > div { background: transparent; }
+body.neu-theme .app-content :is(.rule-card, .player-roster-card, .season-archive-grid article) {
+  padding: 20px; border: 1px solid #ffffff07; border-radius: 16px;
+  background: var(--neu-base); box-shadow: var(--neu-control); transform: none;
+}
+body.neu-theme .app-content :is(.section-heading, .content-section-header, .editorial-stat, .editorial-row) { box-shadow: none; }
+body.neu-theme .app-content .section-heading { background: transparent; border: 0; }
+body.neu-theme .app-content .section-heading-icon {
+  width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+  background: var(--neu-base); box-shadow: var(--neu-control);
+}
+body.neu-theme .app-content .save-check { background: var(--neu-base); box-shadow: var(--neu-inset); }
+body.neu-theme .app-content :is(.rule-index, .section-heading::after) { display: none; }
+
+/* Identity, persistent navigation and portal sheets share the same material. */
+body.neu-theme :is(.app-content > .app-header, .room-gate .app-header, .desktop-nav,
+  .navigation-menu-panel, .mobile-sheet, .confirm-dialog-panel, .record-sheet,
+  .share-result-dialog, .score-save-bar, .live-standings-bar, .receipt-toast) {
+  background: var(--neu-base); border-color: var(--neu-edge);
+  box-shadow: var(--neu-float); color: var(--neu-text); backdrop-filter: none;
+}
+body.neu-theme .app-content > .app-header { border-radius: 18px; }
+body.neu-theme .room-gate .app-header { padding: 16px; border: 0; border-radius: 18px; margin-bottom: 28px; }
+body.neu-theme .desktop-nav { border-radius: 24px; }
+body.neu-theme .desktop-nav { padding: 18px 12px; }
+body.neu-theme :is(.navigation-menu-footer, .period-filter) { background: var(--neu-base); }
+body.neu-theme .bottom-nav {
+  background: var(--neu-base); border-top: 1px solid #ffffff09;
+  box-shadow: 0 -8px 24px #191d2366, inset 0 1px 0 #ffffff08;
+  backdrop-filter: none;
+}
+body.neu-theme .nav-item { color: var(--neu-muted); }
+body.neu-theme .nav-item.is-active { color: var(--neu-gold); }
+body.neu-theme .nav-item:not(.nav-record) .nav-icon { box-sizing: content-box; padding: 8px; border-radius: 13px; }
+body.neu-theme .nav-item.is-active:not(.nav-record) .nav-icon { background: var(--neu-base); box-shadow: var(--neu-inset); }
+body.neu-theme .nav-record .nav-icon { border-color: var(--neu-base); background: var(--neu-gold); box-shadow: var(--neu-control); }
+body.neu-theme .navigation-menu-grid > button { margin-block: 3px; }
+body.neu-theme .navigation-menu-grid > button[aria-current="page"] .navigation-menu-icon { filter: none; }
+
+/* Inset controls retain native affordances; color/range/checkbox inputs are not skinned. */
+body.neu-theme :is(input:not([type="hidden"]):not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]), select, textarea) {
+  min-width: 0; min-height: 44px;
+  border: 1px solid #ffffff0c; border-radius: 12px;
+  background: var(--neu-base); box-shadow: var(--neu-inset);
+  caret-color: var(--neu-gold);
+}
+body.neu-theme :is(input, textarea)::placeholder { color: #aab4c1; opacity: 1; }
+body.neu-theme :is(input, select, textarea)[aria-invalid="true"] { border-color: #ff9aaa; outline: 1px solid #ff9aaa; }
+body.neu-theme :is(input, select, textarea):disabled { opacity: .6; cursor: not-allowed; }
+body.neu-theme :is(input[type="checkbox"], input[type="radio"], input[type="range"]) { accent-color: var(--neu-gold); }
+body.neu-theme :is(.menu-search, .session-member-search) { border: 1px solid #ffffff0c; border-radius: 12px; background: var(--neu-base); box-shadow: var(--neu-inset); }
+body.neu-theme :is(.menu-search, .session-member-search) input { border: 0; background: transparent; box-shadow: none; }
+body.neu-theme :is(.menu-search, .session-member-search):focus-within { outline: 2px solid var(--neu-gold); outline-offset: 3px; }
+body.neu-theme :is(.menu-search, .session-member-search) input:focus-visible { outline: none; }
+
+/* Raised controls. Use named targets, never a universal button background. */
+body.neu-theme :is(.neu-button, .league-action, .solid-action, .hub-primary-button,
+  .session-start-button, .header-menu-button, .icon-button, .top-return-button,
+  .podium-detail, .podium-controls button, .review-controls button, .replay-toggle,
+  .share-result-trigger, .share-result-export, .record-option,
+  .navigation-menu-footer > button, .negative-score, .score-next-seat) {
+  min-height: 44px; border: 1px solid #ffffff0b; border-radius: 12px;
+  background: var(--neu-base); box-shadow: var(--neu-control);
+  color: var(--neu-text); text-shadow: none;
+  transition: box-shadow .15s ease, background-color .15s ease, color .15s ease;
+}
+body.neu-theme .app-content .top-return-button { padding-inline: 14px; }
+body.neu-theme .record-option { padding: 18px; margin-top: 14px; }
+body.neu-theme .score-next-seat { padding-inline: 12px; justify-content: center; margin-top: 12px; }
+body.neu-theme .negative-score { padding-inline: 10px; }
+body.neu-theme :is(.league-action-primary, .solid-action, .hub-primary-button,
+  .session-start-button, .share-result-export, .neu-primary) {
+  color: #242116; background: linear-gradient(145deg,#e7d3ab,#cbb17f);
+  border-color: #ecd9b2; box-shadow: 4px 4px 10px #171c22, -3px -3px 9px #42433e, inset 1px 1px 0 #fff5;
+}
+body.neu-theme :is(.league-action-danger, .neu-danger) { color: #ffb5be; border-color: #a16b76; background: #352b32; }
+body.neu-theme :is(.neu-button, .league-action, .solid-action, .hub-primary-button,
+  .session-start-button, .header-menu-button, .icon-button, .top-return-button,
+  .podium-detail, .podium-controls button, .review-controls button, .replay-toggle,
+  .share-result-trigger, .share-result-export, .record-option,
+  .navigation-menu-footer > button, .negative-score, .score-next-seat):active:not(:disabled) {
+  box-shadow: var(--neu-inset); transform: none;
+}
+body.neu-theme :is(.league-action, .solid-action, .hub-primary-button, .session-start-button, .neu-button, .record-option, .review-controls button, .share-result-export):disabled {
+  background: var(--neu-base); color: var(--neu-muted); border-color: transparent;
+  box-shadow: var(--neu-inset); opacity: .55; cursor: not-allowed;
+}
+
+/* Segmented selection uses a pressed well + a persistent gold marker. */
+body.neu-theme .app-content :is(.period-buttons, .density-switch, .podium-picks, .review-format),
+body.neu-theme .share-format-switch {
+  padding: 6px; gap: 6px; border: 0; border-radius: 16px;
+  background: var(--neu-base); box-shadow: var(--neu-inset);
+}
+body.neu-theme :is(.period-buttons, .density-switch, .podium-picks, .review-format, .share-format-switch, .match-result-progress) button,
+body.neu-theme :is(.desktop-nav-group, .navigation-menu-grid, .updates-sidebar) button {
+  min-height: 44px; border: 1px solid transparent; border-radius: 10px;
+  color: var(--neu-muted); background: transparent; box-shadow: none;
+}
+body.neu-theme :is(.period-buttons, .density-switch, .podium-picks, .review-format, .share-format-switch, .match-result-progress) button[aria-pressed="true"],
+body.neu-theme .match-result-progress button[aria-selected="true"],
+body.neu-theme :is(.desktop-nav-group, .navigation-menu-grid, .updates-sidebar) button[aria-current="page"] {
+  color: var(--neu-gold); background: var(--neu-base);
+  border-bottom-color: var(--neu-gold); box-shadow: var(--neu-inset); font-weight: 700;
+}
+body.neu-theme .app-content .updates-sidebar { background: var(--neu-base); border-radius: 16px; box-shadow: var(--neu-control); }
+body.neu-theme .updates-sidebar nav { padding: 8px; }
+body.neu-theme .updates-content :is(.updates-intro, .updates-version-header, .updates-footer) { padding-inline: 0; }
+body.neu-theme .updates-content .updates-table-wrap { margin-inline: 0; box-shadow: var(--neu-inset); border-radius: 12px; }
+body.neu-theme .updates-table th, body.neu-theme .updates-table td { border-color: var(--premium-line); }
+
+/* Ranking, history and entry: depth belongs to the group, not to every datum. */
+body.neu-theme .app-content .podium-spotlight { background: var(--neu-base); border: 0; border-radius: 22px; box-shadow: var(--neu-raised); }
+body.neu-theme .app-content .podium-feature { background: var(--neu-base); }
+body.neu-theme .app-content .podium-info { padding-left: 18px; }
+body.neu-theme .app-content .podium-controls { padding-inline: 16px; }
+body.neu-theme .app-content .leaderboard-list { padding-inline: 12px; border-radius: 18px; box-shadow: var(--neu-inset); }
+body.neu-theme .app-content .editorial-history { padding-inline: 18px; border: 0; border-radius: 18px; background: var(--neu-base); box-shadow: var(--neu-control); }
+body.neu-theme .app-content .editorial-history > div { background: transparent; }
+body.neu-theme .app-content .editorial-table { border: 0; border-radius: 12px; box-shadow: var(--neu-inset); }
+body.neu-theme .app-content .score-seat { padding: 16px; border: 1px solid #ffffff09; border-radius: 18px; background: var(--neu-base); box-shadow: var(--neu-control); }
+body.neu-theme .app-content .score-seat.seat-focused { border-color: var(--neu-gold); box-shadow: var(--neu-control); }
+body.neu-theme .app-content .score-seat:has([aria-invalid="true"]) { border-color: #ff9aaa; }
+body.neu-theme .session-member-list { padding: 8px; gap: 6px; border: 0; border-radius: 14px; box-shadow: var(--neu-inset); }
+body.neu-theme .session-member-row { border: 1px solid transparent; border-radius: 10px; }
+body.neu-theme .session-member-row[data-selected="true"] { border-color: #dec59450; background: #dec5940c; box-shadow: inset 2px 2px 5px #171c2266; }
+body.neu-theme .rank-ladder-card { padding-inline: 8px; }
+body.neu-theme .rank-ladder-toggle { min-height: 56px; }
+
+/* Portals, feedback and loading need the same treatment as normal pages. */
+body.neu-theme :is(.mobile-sheet, .confirm-dialog-panel) > .absolute.pointer-events-none { display: none; }
+body.neu-theme .confirm-dialog-panel { border-radius: 24px; }
+body.neu-theme .empty-state { padding-inline: 20px; color: var(--neu-muted); }
+body.neu-theme .empty-state > svg { padding: 16px; box-sizing: content-box; border-radius: 50%; box-shadow: var(--neu-inset); opacity: 1; color: var(--neu-gold); }
+body.neu-theme .empty-state p { color: var(--neu-muted); opacity: 1; }
+body.neu-theme .mobile-sheet > button[aria-label="閉じる"] { background: var(--neu-base); border-radius: 12px; min-width: 44px; min-height: 44px; box-shadow: var(--neu-control); }
+body.neu-theme .error-banner { background: #352b32; border-color: #a16b76; box-shadow: var(--neu-control); }
+body.neu-theme .error-banner > svg { filter: none; }
+body.neu-theme :is(.skeleton-heading-card, .skeleton-feature-card, .skeleton-wide-panel, .skeleton-form-panel) { background: var(--neu-base); border-color: transparent; box-shadow: var(--neu-control); }
+body.neu-theme .gold-tile { box-shadow: var(--neu-raised); border-color: var(--neu-edge); }
+body.neu-theme .gold-tile-bloom { opacity: .25; }
+body.neu-theme .pull-refresh-indicator { background: var(--neu-base); box-shadow: var(--neu-control); }
+
+/* TOP remains a single viewport scene: no enclosing panel or new vertical space. */
+body.neu-theme .top-viewport, body.neu-theme .mahjong-home-menu { background: var(--neu-base); }
+body.neu-theme .mahjong-home-menu { --jk-bg: var(--neu-base); --jk-muted: var(--neu-muted); --jk-gold: var(--neu-gold); }
+body.neu-theme .mahjong-home-menu .jk-glow { background: radial-gradient(ellipse at 50% 28%,#ffffff04,transparent 65%); }
+body.neu-theme .mahjong-home-menu :is(.jk-arrow, .jk-open) { border-color: #ffffff12; box-shadow: var(--neu-control); }
+body.neu-theme .mahjong-home-menu .jk-arrow { background: var(--neu-base); }
+body.neu-theme .mahjong-home-menu .jk-open { background: linear-gradient(145deg,#e7d3ab,#cbb17f); color: #242116; }
+body.neu-theme .mahjong-home-menu :is(.jk-arrow, .jk-open):active { box-shadow: var(--neu-inset); transform: none; }
+body.neu-theme .mahjong-home-menu .jk-menu[aria-pressed="true"] { box-shadow: var(--neu-inset); border-radius: 10px; }
+body.neu-theme .mahjong-home-menu .jk-menu { padding-inline: 5px; }
+
+/* Visible focus and contrast never depend on a subtle shadow alone. */
+body.neu-theme :is(button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--neu-gold); outline-offset: 3px;
+}
+body.neu-theme :is(.session-member-row, .podium-spotlight, .mahjong-home-menu) :focus-visible { outline-offset: -3px; }
+body.neu-theme :is(.app-content, .room-gate, .navigation-menu-panel, .mobile-sheet, .confirm-dialog-panel) :is(.text-slate-500, .text-slate-600, .text-slate-700) { color: var(--neu-muted); }
+body.neu-theme :is(.updates-intro p, .updates-version-header p, .updates-sidebar button > small, .updates-footer,
+  .season-active-heading p, .season-create-card p, .season-archive-title small, .season-archive-grid footer,
+  .season-overview-grid span, .session-live-meta, .session-title-field > span, .navigation-menu-footer small,
+  .share-result-hint, .podium-controls > span) { color: var(--neu-muted); }
+@media (hover: hover) {
+  body.neu-theme :is(.neu-button, .league-action, .header-menu-button, .icon-button, .record-option, .top-return-button):hover:not(:disabled) { border-color: #dec59480; }
+}
+@media (max-width: 600px) {
+  body.neu-theme { --neu-radius: 18px; --neu-raised: 5px 5px 13px #191d23, -4px -4px 12px #353c45; }
+  body.neu-theme .app-content .score-seat { padding: 12px; }
+  body.neu-theme .app-content .podium-info { padding-left: 12px; }
+  body.neu-theme .app-content .leaderboard-list { padding-inline: 8px; }
+  body.neu-theme .period-buttons { max-width: 100%; }
+}
+@media (max-width: 360px) {
+  body.neu-theme .mahjong-home-menu .jk-menu { padding-inline: 2px; }
+  body.neu-theme .app-content .podium-info { padding-left: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.neu-theme :is(button, input, select, textarea) { transition: none; }
+}
+@media (prefers-contrast: more) {
+  body.neu-theme { --neu-edge: #a8b4c4; --premium-line: #a8b4c4; --neu-control: 0 0 0 1px #a8b4c4; --neu-raised: 0 0 0 1px #a8b4c4; --neu-inset: inset 0 0 0 1px #a8b4c4; }
+}
+@media (forced-colors: active) {
+  body.neu-theme { --neu-base: Canvas; --neu-text: CanvasText; --neu-muted: CanvasText; --neu-gold: Highlight; --neu-edge: ButtonText; --premium-line: ButtonText; --neu-raised: none; --neu-control: none; --neu-inset: none; --neu-float: none; }
+  body.neu-theme :is(button, input, select, textarea) { border: 1px solid ButtonText; }
+  body.neu-theme :is([aria-pressed="true"], [aria-selected="true"], [aria-current="page"], .session-member-row[data-selected="true"]) { outline: 2px solid Highlight; outline-offset: -3px; }
+}
