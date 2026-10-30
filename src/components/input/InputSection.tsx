@@ -35,7 +35,7 @@ export function InputSection({ onNavigateToPlayers, onResultComplete, startSettl
           if (!useAppStore.getState().roomCode) throw new Error('Room disconnected');
           const title = currentSession?.title ?? '本日の対局';
           const historyBefore = useAppStore.getState().history;
-          const completedDay: DayRecord = { ...day, id: `result-${Date.now()}`, date: new Date().toISOString() };
+          const completedDay: DayRecord = { ...day, id: `result-${Date.now()}`, date: new Date().toISOString(), ...(currentSession ? { session: currentSession } : {}) };
           await finalizeDay(day);
           haptic('success');
           setSavedDay({ day: completedDay, title, historyBefore });

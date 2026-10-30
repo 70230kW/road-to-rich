@@ -6,6 +6,10 @@ import { AppShell } from '../src/App';
 import { useAppStore, defaultSettings } from '../src/store/useAppStore';
 import '../src/index.css';
 import '../src/styles/experience.css';
+import '../src/styles/editorial.css';
+import '../src/styles/quality.css';
+import { calcDaySettlement, calcGameSettlement } from '../src/lib/calc';
+import type { DayRecord } from '../src/types';
 
 if (!import.meta.env.DEV) throw new Error('UI fixture is development-only');
 const store = useAppStore;
@@ -25,6 +29,23 @@ store.setState({ ...disabled, roomCode: 'UI-PREVIEW-NO-SAVE', connectionStatus: 
 });
 localStorage.setItem('road-to-rich-welcome-v1', 'seen');
 const params = new URLSearchParams(location.search);
+if (params.has('quality')) {
+  const players = store.getState().players;
+  const history: DayRecord[] = Array.from({ length: 4 }, (_, dayIndex) => {
+    const games = Array.from({ length: 12 }, (_, index) => ({
+      id: `qa-${dayIndex}-${index}`,
+      scores: calcGameSettlement(players.map((player, seat) => ({ playerId: player.id, rawScore: [42000, 28000, 18000, 12000][(seat + index + dayIndex) % 4] })), defaultSettings),
+      ...(index === 9 ? { note: '検証用の対局メモ。最後まで接戦。' } : {}),
+    }));
+    const date = `2026-10-${String(22 + dayIndex).padStart(2, '0')}T12:00:00+09:00`;
+    const chips = Object.fromEntries(players.map(player => [player.id, 0]));
+    return { id: `qa-day-${dayIndex}`, date, games, chips, chipRate: 200, tableFee: 4000,
+      settlement: calcDaySettlement(games, chips, 4000, 200),
+      session: { id: `qa-session-${dayIndex}`, title: `検証用 第${dayIndex + 1}回対局会`, participantIds: players.map(player => player.id), startedAt: date },
+    };
+  });
+  store.setState({ history });
+}
 if (params.has('fallback')) Object.defineProperty(window, 'WebGL2RenderingContext', { value: undefined, configurable: true });
 if (params.has('reduced')) {
   const match = window.matchMedia.bind(window);

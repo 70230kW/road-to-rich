@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Crown, Medal, Sparkles, Target, Trophy } from 'lucide-react';
 import type { DayRecord, Player, Settings } from '../../types';
 import { computeRanking } from '../../lib/stats';
@@ -10,7 +10,8 @@ import { ScrambleText } from '../common/ScrambleText';
 import { RankBadge } from '../common/RankBadge';
 import { ResultShareButton } from '../share/ResultShareButton';
 
-const RESULT_STEPS = ['最終結果', 'リーグ変動', 'ハイライト'] as const;
+const MatchReplay = lazy(() => import('../history/MatchReplay').then(module => ({ default: module.MatchReplay })));
+const RESULT_STEPS = ['最終結果', 'リーグ変動', 'ハイライト', '振り返り'] as const;
 
 export function MatchResultSequence({
   title,
@@ -123,6 +124,7 @@ export function MatchResultSequence({
           </div>
           <ResultShareButton title={title} date={new Date(resultDay.date).toLocaleDateString('ja-JP')} rows={finalRows.map((row, index) => ({ id: row.id, name: row.name, profit: row.profit, color: row.color, rank: index + 1 }))} hanchanCount={resultDay.games.length} />
         </>}
+        {step === 3 && <Suspense fallback={<p role="status">振り返りを読み込み中…</p>}><MatchReplay day={resultDay} players={players} historyBefore={historyBefore} /></Suspense>}
       </div>
 
       <div className="match-result-controls">
