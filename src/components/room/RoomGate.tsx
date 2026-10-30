@@ -24,7 +24,7 @@ function Shell({ children }: { children: ReactNode }) {
 function ConfigMissingScreen() {
   return (
     <Shell>
-      <div className="neu-surface bg-panel-2/70 border border-amber-700/50 rounded-3xl p-6 md:p-8 backdrop-blur-md space-y-4">
+      <div className="glass-surface bg-panel-2/70 border border-amber-700/50 rounded-3xl p-6 md:p-8 backdrop-blur-md space-y-4">
         <div className="flex items-center gap-3 text-amber-400">
           <AlertTriangle className="w-6 h-6" />
           <h2 className="font-black text-lg tracking-wide">Firebase 設定が見つかりません</h2>
@@ -121,7 +121,7 @@ export function RoomGate({ children }: { children: ReactNode }) {
 
   return (
     <Shell>
-      <div className="neu-surface bg-panel-2/70 border border-slate-700/50 rounded-3xl p-6 md:p-8 backdrop-blur-md space-y-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] relative overflow-hidden">
+      <div className="glass-surface bg-panel-2/70 border border-slate-700/50 rounded-3xl p-6 md:p-8 backdrop-blur-md space-y-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] relative overflow-hidden">
         <div className="absolute -top-20 -right-20 w-48 h-48 bg-cyan-500/10 blur-[60px] rounded-full pointer-events-none" />
 
         <div className="relative z-10 flex items-center gap-3">

@@ -51,14 +51,14 @@ export function ConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="neu-button flex-1 px-5 py-3 rounded-xl font-bold border-2 border-slate-700/60 text-slate-300 hover:bg-slate-800 hover:border-slate-600 hover:text-white transition-all tracking-wide"
+            className="glass-button flex-1 px-5 py-3 rounded-xl font-bold border-2 border-slate-700/60 text-slate-300 hover:bg-slate-800 hover:border-slate-600 hover:text-white transition-all tracking-wide"
           >
             {cancelLabel}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className={`neu-button ${danger ? 'neu-danger' : 'neu-primary'} flex-1 px-5 py-3 rounded-xl font-black tracking-wide transition-all border ${
+            className={`glass-button ${danger ? 'glass-danger' : 'glass-primary'} flex-1 px-5 py-3 rounded-xl font-black tracking-wide transition-all border ${
               danger
                 ? 'bg-rose-600/90 hover:bg-rose-500 border-rose-400/50 text-white shadow-[0_0_20px_rgba(244,63,94,0.3)]'
                 : 'bg-cyan-600/90 hover:bg-cyan-500 border-cyan-400/50 text-white shadow-[0_0_20px_rgb(var(--accent-rgb-500)/0.3)]'
