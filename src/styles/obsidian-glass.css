@@ -1,0 +1,290 @@
+/* OBSIDIAN / JADE — black glass, jade signals, brass details.
+   Named surfaces only. Body scope includes portals; tile art and exports stay intact. */
+body.glass-theme {
+  --glass-base: #0b0d10; /* PR #99 league background */
+  --glass-top: #090d10; /* PR #99 TOP background */
+  --glass-text: #eef2ef;
+  --glass-muted: #aab8bf;
+  --glass-gold: #d9bd82;
+  --glass-signal: #78edda;
+  --glass-danger: #ff9aaf;
+  --glass-edge: #adcbd426;
+  --glass-panel-fill: #131b20;
+  --glass-chrome-fill: #10171c;
+  --glass-panel: linear-gradient(135deg, #d5f7ff09, transparent 38%), var(--glass-panel-fill);
+  --glass-chrome: linear-gradient(115deg, #bcebe90a, transparent 45%), var(--glass-chrome-fill);
+  --glass-shadow: 0 16px 40px #00000030, inset 0 1px 0 #e6ffff0d;
+  --glass-float: 0 24px 64px #0009, inset 0 1px 0 #d9ffff14;
+  --glass-control: inset 0 1px 0 #e6ffff0a, 0 4px 12px #0002;
+  --glass-field: inset 0 1px 4px #0005;
+  --glass-selected: inset 0 -2px 0 var(--glass-signal), 0 0 18px #78edda0a;
+  --glass-halo: 0 0 22px #78edda12;
+  --glass-radius: 16px;
+  --glass-pad: clamp(16px, 2.5vw, 28px);
+  --color-abyss: var(--glass-base);
+  --color-panel: #11171d;
+  --color-panel-2: #161e25;
+  --color-panel-3: #0e1319;
+  --premium-line: var(--glass-edge);
+  --premium-muted: var(--glass-muted);
+  --premium-gold: var(--glass-gold);
+  --ui-text: var(--glass-text);
+  --ui-muted: var(--glass-muted);
+  /* Fix the UI signal hue locally; underlying seasonal data/palette is unchanged. */
+  --color-cyan-50: #edfffb; --color-cyan-100: #cefff5; --color-cyan-200: #a0f9e9;
+  --color-cyan-300: #78edda; --color-cyan-400: #4cdec9; --color-cyan-500: #26bba7;
+  --color-cyan-600: #168c7f; --color-cyan-700: #146c63; --color-cyan-800: #15564f;
+  --color-cyan-900: #12443f; --color-cyan-950: #082a29;
+  --color-blue-50: var(--color-cyan-50); --color-blue-100: var(--color-cyan-100);
+  --color-blue-200: var(--color-cyan-200); --color-blue-300: var(--color-cyan-300);
+  --color-blue-400: var(--color-cyan-400); --color-blue-500: var(--color-cyan-500);
+  --color-blue-600: var(--color-cyan-600); --color-blue-700: var(--color-cyan-700);
+  --color-blue-800: var(--color-cyan-800); --color-blue-900: var(--color-cyan-900);
+  --color-blue-950: var(--color-cyan-950);
+  --accent-rgb-500: 38 187 167; --accent-rgb-400: 76 222 201; --accent-rgb-300: 120 237 218;
+  background: var(--glass-base); color: var(--glass-text); color-scheme: dark;
+}
+/* Static light, not an animated particle layer. No new full-screen blur pass. */
+body.glass-theme .premium-background {
+  background: radial-gradient(ellipse at 95% 0%, #36cbb915, transparent 45%),
+    radial-gradient(ellipse at 0% 70%, #d9bd8208, transparent 40%);
+}
+body.glass-theme ::selection { background: #78edda38; color: #f2fffc; }
+
+/* A few large panes; nested statistics remain open, not boxes within boxes. */
+body.glass-theme :is(.app-content, .room-gate) :is(
+  .premium-panel, .unified-panel, .unified-section, .editorial-section,
+  .hub-career, .hub-match, .hub-panel, .performance-hero, .ranking-target,
+  .rank-hero, .rank-progress-card, .player-add-panel, .setting-card,
+  .match-session-setup, .match-session-live, .match-result-stage,
+  .trophy-overview, .collection-card, .season-active-card, .season-create-card,
+  .updates-content, .recent-trends, .match-replay, .save-receipt, .glass-surface) {
+  min-width: 0; padding: var(--glass-pad);
+  border: 1px solid var(--glass-edge); border-radius: var(--glass-radius);
+  background: var(--glass-panel); box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+body.glass-theme .app-content :is(.unified-panel, .unified-section, .editorial-section) :is(.unified-panel, .editorial-section, .recent-trends, .match-replay) {
+  border: 0; border-top: 1px solid var(--glass-edge); border-radius: 0;
+  padding: 22px 0; background: transparent; box-shadow: none;
+}
+body.glass-theme .app-content :is(.page-overview, .season-overview-grid, .kpi-grid) {
+  padding: 18px 0; gap: 18px; border: 0; border-block: 1px solid var(--glass-edge);
+  border-radius: 0; background: transparent; box-shadow: none;
+}
+body.glass-theme .app-content :is(.page-overview, .season-overview-grid) > div { background: transparent; }
+body.glass-theme .app-content :is(.rule-card, .player-roster-card, .season-archive-grid article) {
+  padding: 20px; border: 1px solid var(--glass-edge); border-radius: 12px;
+  background: linear-gradient(120deg, #b9e4ef05, transparent), #10171acc;
+  box-shadow: none; transform: none;
+}
+body.glass-theme .app-content :is(.section-heading, .content-section-header, .editorial-stat, .editorial-row) { box-shadow: none; }
+body.glass-theme .app-content .section-heading { background: transparent; border: 0; }
+body.glass-theme .app-content .section-heading-icon {
+  width: 30px; height: 32px; flex-shrink: 0; border: 0; border-radius: 0;
+  background: transparent; color: var(--glass-signal); box-shadow: none;
+}
+body.glass-theme .app-content .section-heading-icon svg { filter: drop-shadow(0 0 7px #78edda35); }
+body.glass-theme :is(.eyebrow, .section-kicker) { letter-spacing: .16em; }
+body.glass-theme .app-content .save-check { background: #78edda0c; border-color: #78edda60; box-shadow: var(--glass-halo); }
+body.glass-theme .app-content :is(.rule-index, .section-heading::after) { display: none; }
+
+/* Suspended black glass. Default is opaque enough when backdrop-filter is absent. */
+body.glass-theme :is(.app-content > .app-header, .room-gate .app-header, .desktop-nav,
+  .navigation-menu-panel, .mobile-sheet, .confirm-dialog-panel, .record-sheet,
+  .share-result-dialog, .score-save-bar, .live-standings-bar, .receipt-toast) {
+  background: var(--glass-chrome); border-color: var(--glass-edge);
+  box-shadow: var(--glass-float); color: var(--glass-text);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+body.glass-theme .app-content > .app-header { border-radius: 14px; border-top-color: #78edda38; }
+body.glass-theme .room-gate .app-header { padding: 16px; border-radius: 14px; margin-bottom: 28px; }
+body.glass-theme .desktop-nav { border-radius: 16px; padding: 18px 12px; }
+body.glass-theme .navigation-menu-footer { background: #080d11a8; }
+body.glass-theme .period-filter { background: transparent; }
+body.glass-theme .bottom-nav {
+  background: var(--glass-chrome); border-top: 1px solid #78edda2e;
+  box-shadow: 0 -12px 36px #0005, inset 0 1px 0 #e0ffff05;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+body.glass-theme .nav-item { color: var(--glass-muted); }
+body.glass-theme .nav-item.is-active { color: var(--glass-signal); }
+body.glass-theme .nav-item:not(.nav-record) .nav-icon { box-sizing: content-box; padding: 8px; border-radius: 10px; }
+body.glass-theme .nav-item.is-active:not(.nav-record) .nav-icon {
+  background: #78edda0b; box-shadow: var(--glass-selected); filter: drop-shadow(0 0 6px #78edda30);
+}
+body.glass-theme .nav-record .nav-icon {
+  border-color: var(--glass-base); background: var(--glass-gold); color: #191b16;
+  box-shadow: 0 0 24px #d9bd821c;
+}
+body.glass-theme .navigation-menu-grid > button { margin-block: 3px; }
+body.glass-theme :is(.navigation-menu-grid > button[aria-current="page"] .navigation-menu-icon, .desktop-nav button[aria-current="page"] svg) { filter: drop-shadow(0 0 6px #78edda30); }
+
+/* Crisp data-entry fields, not sculpted foam. Native control semantics are preserved. */
+body.glass-theme :is(input:not([type="hidden"], [type="range"], [type="checkbox"], [type="radio"], [type="color"], [type="file"], [type="button"], [type="submit"]), select, textarea) {
+  min-width: 0; min-height: 44px; border: 1px solid #a8c3ce38; border-radius: 8px;
+  background: #080d12d9; box-shadow: var(--glass-field); caret-color: var(--glass-signal);
+}
+body.glass-theme select option { background: #11171d; color: var(--glass-text); }
+body.glass-theme :is(input, textarea)::placeholder { color: var(--glass-muted); opacity: 1; }
+body.glass-theme :is(input, select, textarea)[aria-invalid="true"] { border-color: var(--glass-danger); outline: 1px solid var(--glass-danger); }
+body.glass-theme :is(input, select, textarea):disabled { opacity: .6; cursor: not-allowed; }
+body.glass-theme :is(input[type="checkbox"], input[type="radio"], input[type="range"]) { accent-color: var(--glass-signal); }
+body.glass-theme :is(.menu-search, .session-member-search) {
+  border: 1px solid #a8c3ce38; border-radius: 8px; background: #080d12d9; box-shadow: var(--glass-field);
+}
+body.glass-theme :is(.menu-search, .session-member-search) input { border: 0; background: transparent; box-shadow: none; }
+body.glass-theme :is(.menu-search, .session-member-search):focus-within { outline: 2px solid var(--glass-signal); outline-offset: 3px; }
+body.glass-theme :is(.menu-search, .session-member-search) input:focus-visible { outline: none; }
+
+/* Glass actions, with gold reserved for commit/open and rose for destructive actions. */
+body.glass-theme :is(.glass-button, .league-action, .solid-action, .hub-primary-button,
+  .session-start-button, .header-menu-button, .icon-button, .top-return-button,
+  .podium-detail, .podium-controls button, .review-controls button, .replay-toggle,
+  .share-result-trigger, .share-result-export, .record-option,
+  .navigation-menu-footer > button, .negative-score, .score-next-seat) {
+  min-height: 44px; border: 1px solid #adcbd436; border-radius: 10px;
+  background: linear-gradient(135deg, #d2fff909, transparent), #111a20e6;
+  box-shadow: var(--glass-control); color: var(--glass-text); text-shadow: none;
+  transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+body.glass-theme .app-content .top-return-button { padding-inline: 14px; }
+body.glass-theme .record-option { padding: 18px; margin-top: 14px; }
+body.glass-theme .score-next-seat { padding-inline: 12px; justify-content: center; margin-top: 12px; }
+body.glass-theme .negative-score { padding-inline: 10px; }
+body.glass-theme :is(.league-action-primary, .solid-action, .hub-primary-button,
+  .session-start-button, .share-result-export, .glass-primary) {
+  color: #191b16; background: linear-gradient(110deg, #ebd7ad, #d9bd82);
+  border-color: #f2dfb770; box-shadow: inset 0 1px 0 #fff5, 0 0 24px #d9bd8214;
+}
+body.glass-theme :is(.league-action-danger, .glass-danger) { color: var(--glass-danger); border-color: #ff9aaf70; background: #26141de6; box-shadow: none; }
+body.glass-theme :is(.glass-button, .league-action, .solid-action, .hub-primary-button,
+  .session-start-button, .header-menu-button, .icon-button, .top-return-button,
+  .podium-detail, .podium-controls button, .review-controls button, .replay-toggle,
+  .share-result-trigger, .share-result-export, .record-option,
+  .navigation-menu-footer > button, .negative-score, .score-next-seat):active:not(:disabled) {
+  box-shadow: inset 0 2px 6px #0005; transform: none;
+}
+body.glass-theme :is(.league-action, .solid-action, .hub-primary-button, .session-start-button, .glass-button, .record-option, .review-controls button, .share-result-export):disabled {
+  background: #13191e; color: var(--glass-muted); border-color: var(--glass-edge);
+  box-shadow: none; opacity: .5; cursor: not-allowed;
+}
+
+/* Jade is a state signal: a hard underline survives without bloom or transparency. */
+body.glass-theme .app-content :is(.period-buttons, .density-switch, .podium-picks, .review-format),
+body.glass-theme .share-format-switch {
+  padding: 4px; gap: 4px; border: 1px solid var(--glass-edge); border-radius: 10px;
+  background: #090f14b8; box-shadow: none;
+}
+body.glass-theme :is(.period-buttons, .density-switch, .podium-picks, .review-format, .share-format-switch, .match-result-progress) button,
+body.glass-theme :is(.desktop-nav-group, .navigation-menu-grid, .updates-sidebar) button {
+  min-height: 44px; border: 1px solid transparent; border-radius: 6px;
+  color: var(--glass-muted); background: transparent; box-shadow: none;
+}
+body.glass-theme :is(.period-buttons, .density-switch, .podium-picks, .review-format, .share-format-switch, .match-result-progress) button[aria-pressed="true"],
+body.glass-theme .match-result-progress button[aria-selected="true"],
+body.glass-theme :is(.desktop-nav-group, .navigation-menu-grid, .updates-sidebar) button[aria-current="page"] {
+  color: var(--glass-signal); background: #78edda0b;
+  border-bottom-color: var(--glass-signal); box-shadow: var(--glass-selected); font-weight: 700;
+}
+body.glass-theme .app-content .updates-sidebar { background: var(--glass-chrome); border: 1px solid var(--glass-edge); border-radius: 12px; box-shadow: none; }
+body.glass-theme .updates-sidebar nav { padding: 8px; }
+body.glass-theme .updates-content :is(.updates-intro, .updates-version-header, .updates-footer) { padding-inline: 0; }
+body.glass-theme .updates-content .updates-table-wrap { margin-inline: 0; border-radius: 0; box-shadow: none; }
+body.glass-theme .updates-table th, body.glass-theme .updates-table td { border-color: var(--glass-edge); }
+
+/* Ranking and data stay typographic; the physical tile is still the hero. */
+body.glass-theme .app-content .podium-spotlight { background: var(--glass-panel); border: 1px solid var(--glass-edge); border-radius: 16px; box-shadow: var(--glass-shadow); }
+body.glass-theme .app-content .podium-feature { background: radial-gradient(ellipse at 80% 40%, #78edda08, transparent 62%); }
+body.glass-theme .app-content .podium-info { padding-left: 18px; }
+body.glass-theme .app-content .podium-controls { padding-inline: 16px; }
+body.glass-theme .app-content .leaderboard-list { padding-inline: 0; border-radius: 0; box-shadow: none; }
+body.glass-theme .app-content .leaderboard-row.is-selected-player { background: linear-gradient(90deg, #78edda09, transparent); border-left: 2px solid var(--glass-signal); }
+body.glass-theme .app-content .editorial-history { padding-inline: 18px; border: 1px solid var(--glass-edge); border-radius: 12px; background: var(--glass-panel); box-shadow: none; }
+body.glass-theme .app-content .editorial-history > div { background: transparent; }
+body.glass-theme .app-content .editorial-table { border-block: 1px solid var(--glass-edge); border-radius: 0; box-shadow: none; }
+body.glass-theme .app-content .score-seat { padding: 16px; border: 1px solid var(--glass-edge); border-radius: 12px; background: #0c1319b3; box-shadow: none; }
+body.glass-theme .app-content .score-seat.seat-focused { border-color: #78edda90; box-shadow: var(--glass-halo); }
+body.glass-theme .app-content .score-seat:has([aria-invalid="true"]) { border-color: var(--glass-danger); box-shadow: none; }
+body.glass-theme .session-member-list { padding: 0; gap: 0; border: 0; border-block: 1px solid var(--glass-edge); border-radius: 0; box-shadow: none; }
+body.glass-theme .session-member-row { border: 0; border-bottom: 1px solid var(--glass-edge); border-radius: 0; }
+body.glass-theme .session-member-row[data-selected="true"] { background: #78edda09; box-shadow: inset 2px 0 0 var(--glass-signal); }
+body.glass-theme .rank-ladder-card { padding-inline: 8px; }
+body.glass-theme .rank-ladder-toggle { min-height: 56px; }
+
+/* Feedback and portals use the same visual grammar as normal pages. */
+body.glass-theme :is(.mobile-sheet, .confirm-dialog-panel) > .absolute.pointer-events-none { display: none; }
+body.glass-theme .confirm-dialog-panel { border-radius: 16px; }
+body.glass-theme .empty-state { padding-inline: 20px; color: var(--glass-muted); }
+body.glass-theme .empty-state > svg { opacity: 1; color: var(--glass-signal); filter: drop-shadow(0 0 10px #78edda25); }
+body.glass-theme .empty-state p { color: var(--glass-muted); opacity: 1; }
+body.glass-theme .mobile-sheet > button[aria-label="閉じる"] { background: #111a20; border: 1px solid var(--glass-edge); border-radius: 10px; min-width: 44px; min-height: 44px; box-shadow: none; }
+body.glass-theme .error-banner { background: #26141df2; border-color: #ff9aaf70; box-shadow: none; }
+body.glass-theme .error-banner > svg { filter: none; }
+body.glass-theme :is(.skeleton-heading-card, .skeleton-feature-card, .skeleton-wide-panel, .skeleton-form-panel) { background: var(--glass-panel); border-color: var(--glass-edge); box-shadow: none; }
+body.glass-theme .gold-tile { border-color: #d9bd824d; box-shadow: 0 0 24px #d9bd8214; }
+body.glass-theme .gold-tile-bloom { opacity: .35; }
+body.glass-theme .pull-refresh-indicator { background: var(--glass-chrome); border-color: #78edda45; box-shadow: var(--glass-halo); }
+
+/* TOP: preserve PR #99 typography, composition and scroll lock. No new decorations. */
+body.glass-theme .top-viewport, body.glass-theme .mahjong-home-menu { background: var(--glass-top); }
+body.glass-theme .mahjong-home-menu { --jk-bg: var(--glass-top); --jk-muted: var(--glass-muted); --jk-gold: var(--glass-gold); --jk-line: var(--glass-edge); }
+body.glass-theme .mahjong-home-menu .jk-glow { background: radial-gradient(ellipse at 70% 32%, #78edda0c, transparent 48%), radial-gradient(ellipse at 25% 65%, #d9bd8205, transparent 50%); }
+body.glass-theme .mahjong-home-menu :is(.jk-arrow, .jk-open) { border-color: #adcbd438; box-shadow: var(--glass-control); }
+body.glass-theme .mahjong-home-menu .jk-arrow { background: #111a20cc; }
+body.glass-theme .mahjong-home-menu .jk-open { background: linear-gradient(110deg, #ebd7ad, #d9bd82); color: #191b16; box-shadow: 0 0 24px #d9bd8214; }
+body.glass-theme .mahjong-home-menu :is(.jk-arrow, .jk-open):active { box-shadow: var(--glass-field); transform: none; }
+body.glass-theme .mahjong-home-menu .jk-menu[aria-pressed="true"] { background: transparent; box-shadow: none; }
+body.glass-theme .mahjong-home-menu .jk-menu[aria-pressed="true"]::before { background: var(--glass-signal); box-shadow: 0 0 12px #78edda55; }
+body.glass-theme .mahjong-home-menu .jk-menu[aria-pressed="true"] .jk-menu-number { color: var(--glass-signal); }
+
+/* Blur only floating chrome and a handful of hero panes, never every row/control.
+   Prefix covers older Safari; unsupported browsers retain opaque black surfaces. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  body.glass-theme { --glass-panel-fill: #111a20d9; --glass-chrome-fill: #0b1219e8; }
+  body.glass-theme :is(.app-content > .app-header, .room-gate .app-header, .desktop-nav,
+    .bottom-nav, .navigation-menu-panel, .mobile-sheet, .confirm-dialog-panel,
+    .record-sheet, .share-result-dialog, .score-save-bar, .live-standings-bar) {
+    -webkit-backdrop-filter: blur(16px) saturate(125%); backdrop-filter: blur(16px) saturate(125%);
+  }
+  body.glass-theme .app-content :is(.hub-career, .performance-hero, .rank-hero) {
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  }
+}
+
+/* Visible focus and readable secondary text, independent of translucency or glow. */
+body.glass-theme :is(button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2px solid var(--glass-signal); outline-offset: 3px; }
+body.glass-theme :is(.session-member-row, .podium-spotlight, .mahjong-home-menu) :focus-visible { outline-offset: -3px; }
+body.glass-theme :is(.app-content, .room-gate, .navigation-menu-panel, .mobile-sheet, .confirm-dialog-panel) :is(.text-slate-500, .text-slate-600, .text-slate-700) { color: var(--glass-muted); }
+body.glass-theme :is(.updates-intro p, .updates-version-header p, .updates-sidebar button > small, .updates-footer,
+  .season-active-heading p, .season-create-card p, .season-archive-title small, .season-archive-grid footer,
+  .season-overview-grid span, .session-live-meta, .session-title-field > span, .navigation-menu-footer small,
+  .share-result-hint, .podium-controls > span) { color: var(--glass-muted); }
+@media (hover: hover) {
+  body.glass-theme :is(.glass-button, .league-action, .header-menu-button, .icon-button, .record-option, .top-return-button, .jk-arrow):hover:not(:disabled) { border-color: #78edda70; box-shadow: var(--glass-halo); }
+  body.glass-theme :is(.league-action-danger, .glass-danger):hover:not(:disabled) { border-color: var(--glass-danger); box-shadow: 0 0 16px #ff9aaf14; }
+}
+@media (max-width: 600px) {
+  body.glass-theme { --glass-radius: 14px; }
+  body.glass-theme .app-content .score-seat { padding: 12px; }
+  body.glass-theme .app-content .podium-info { padding-left: 12px; }
+  body.glass-theme .period-buttons { max-width: 100%; }
+}
+@media (max-width: 360px) { body.glass-theme .app-content .podium-info { padding-left: 8px; } }
+@media (prefers-reduced-motion: reduce) {
+  body.glass-theme :is(button, input, select, textarea) { transition: none; }
+}
+/* Disable decorative transparency at the material layer, including portal content. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+  body.glass-theme { --glass-panel-fill: #131b20; --glass-chrome-fill: #10171c; }
+  body.glass-theme *, body.glass-theme *::before, body.glass-theme *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  body.glass-theme :is(.premium-background, .jk-glow) { display: none; }
+}
+@media (prefers-contrast: more) {
+  body.glass-theme { --glass-edge: #91aab5; --glass-muted: #d1dde2; --glass-shadow: none; --glass-float: none; --glass-halo: none; }
+}
+@media (forced-colors: active) {
+  body.glass-theme { --glass-base: Canvas; --glass-top: Canvas; --glass-text: CanvasText; --glass-muted: CanvasText; --glass-gold: Highlight; --glass-signal: Highlight; --glass-edge: ButtonText; --glass-panel: Canvas; --glass-chrome: Canvas; --glass-shadow: none; --glass-float: none; --glass-control: none; --glass-field: none; --glass-selected: none; --glass-halo: none; }
+  body.glass-theme :is(button, input, select, textarea) { border: 1px solid ButtonText; }
+  body.glass-theme :is([aria-pressed="true"], [aria-selected="true"], [aria-current="page"], .session-member-row[data-selected="true"]) { outline: 2px solid Highlight; outline-offset: -3px; }
+}

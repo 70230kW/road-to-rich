@@ -4,7 +4,7 @@ import './index.css'
 import './styles/experience.css'
 import './styles/editorial.css'
 import './styles/quality.css'
-import './styles/neumorphic.css'
+import './styles/obsidian-glass.css'
 import App from './App.tsx'
 import { applySeasonalTheme } from './lib/seasonalTheme'
 

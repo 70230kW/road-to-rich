@@ -5,7 +5,7 @@ import { defaultSettings, useAppStore } from '../store/useAppStore';
 import { calcDaySettlement, calcGameSettlement } from '../lib/calc';
 
 beforeEach(() => {
-  document.body.classList.add('neu-theme');
+  document.body.classList.add('glass-theme');
   localStorage.clear(); localStorage.setItem('road-to-rich-welcome-v1', 'seen');
   vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
   HTMLDialogElement.prototype.showModal = function () { this.open = true; };
@@ -16,7 +16,7 @@ beforeEach(() => {
   useAppStore.setState({ roomCode: 'theme-test', connectionStatus: 'synced', players, settings: defaultSettings,
     currentSession: null, currentDayGames: games, history: [{ id: 'day', date: new Date().toISOString(), games, chips, chipRate: 200, tableFee: 4000, settlement: calcDaySettlement(games, chips, 4000, 200) }], refreshRoom: vi.fn(async () => {}) });
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); document.body.classList.remove('neu-theme'); Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal'); Reflect.deleteProperty(HTMLDialogElement.prototype, 'close'); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); document.body.classList.remove('glass-theme'); Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal'); Reflect.deleteProperty(HTMLDialogElement.prototype, 'close'); });
 
 it('reaches all 14 destinations with the shared theme and preserves TOP selection and record entry', async () => {
   render(<AppShell />);
@@ -26,7 +26,7 @@ it('reaches all 14 destinations with the shared theme and preserves TOP selectio
     fireEvent.click(screen.getByRole('button', { name: 'メニューを開く' }));
     fireEvent.click(within(screen.getByRole('dialog', { name: 'メニュー' })).getByRole('button', { name: menu }));
     expect(await screen.findByRole('heading', { name: heading })).toBeInTheDocument();
-    expect(document.body).toHaveClass('neu-theme');
+    expect(document.body).toHaveClass('glass-theme');
     expect(document.body).not.toHaveClass('top-scroll-locked');
   }
   fireEvent.click(screen.getByRole('button', { name: 'TOPに戻る' }));

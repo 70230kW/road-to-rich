@@ -8,7 +8,7 @@ import '../src/index.css';
 import '../src/styles/experience.css';
 import '../src/styles/editorial.css';
 import '../src/styles/quality.css';
-import '../src/styles/neumorphic.css';
+import '../src/styles/obsidian-glass.css';
 import { calcDaySettlement, calcGameSettlement } from '../src/lib/calc';
 import type { DayRecord } from '../src/types';
 
