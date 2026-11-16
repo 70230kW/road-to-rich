@@ -1,0 +1,4 @@
+interface:
+  display_name: "じゃんかね開発"
+  short_description: "じゃんかねの仕様整理から実装・検証・レビューまでを一貫して進める"
+  default_prompt: "$jankane-development を使い、じゃんかねの今回の変更を仕様・デザイン・集計ルールに沿って実装し、必要な検証とレビューまで進めてください。"
