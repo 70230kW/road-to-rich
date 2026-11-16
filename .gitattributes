@@ -1,0 +1,3 @@
+# Keep pinned skill checksums and generated entry points identical across platforms.
+.agents/** text eol=lf
+.claude/** text eol=lf

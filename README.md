@@ -60,6 +60,15 @@ npm test          # ユニットテスト
 npm run build     # 型チェック + 本番ビルド
 ```
 
+## AI開発スキル
+
+Codex・Claude Code向けに、じゃんかね専用の開発フローと8本の専門スキルを同梱しています。作業の入口は `AGENTS.md`、使い方と用途別の依頼例は [AI開発環境ガイド](docs/development/README.md) を参照してください。
+
+```bash
+npm run skills:check  # スキル・参照資料・Claude Codeの入口を確認
+npm run check        # スキル確認 + lint + テスト + 型チェック・本番ビルド
+```
+
 ## Firebase セットアップ
 
 1. **Firestore を有効化**: Firebase Console > 構築 > Firestore Database > データベースの作成（ネイティブモード、ロケーションは任意）。
