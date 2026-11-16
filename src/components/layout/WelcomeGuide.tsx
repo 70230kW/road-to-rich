@@ -2,7 +2,7 @@ import { BarChart3, Plus, Trophy, UserRound, X } from 'lucide-react';
 
 const items = [
   { icon: UserRound, title: '名前を選ぶ', text: '上部のフローティングメニューから自分の名前を選択します。' },
-  { icon: Plus, title: '対局を記録', text: '中央の「対局を記録」から半荘結果を入力します。' },
+  { icon: Plus, title: '対局入力', text: '中央の「対局入力」から、1半荘の記録・対局会の開始・本日の精算を選べます。' },
   { icon: BarChart3, title: '成績を分析', text: 'ダッシュボードで収支や勝率の変化を確認できます。' },
   { icon: Trophy, title: '段位・実績を育てる', text: '通算収支や達成条件に応じてキャリアが進みます。' },
 ];

@@ -42,10 +42,10 @@
     .mahjong-home-menu .jk-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
     .mahjong-home-menu .jk-menu{position:relative;background:transparent;border:0;border-radius:3px;padding:9px 0 10px;min-height:59px;text-align:left;font-size:13px;letter-spacing:.02em;color:#929e97;}
     .mahjong-home-menu .jk-menu::before{content:"";position:absolute;top:-19px;left:0;width:0;height:2px;background:var(--jk-gold);transition:width .2s ease;}
-    .mahjong-home-menu .jk-menu[aria-pressed="true"]{color:var(--jk-ink);}
-    .mahjong-home-menu .jk-menu[aria-pressed="true"]::before{width:100%;}
+    .mahjong-home-menu .jk-menu[aria-current="true"]{color:var(--jk-ink);}
+    .mahjong-home-menu .jk-menu[aria-current="true"]::before{width:100%;}
     .mahjong-home-menu .jk-menu-number{display:block;font-size:11px;letter-spacing:.12em;color:#89988c;margin-bottom:7px;font-variant-numeric:tabular-nums;}
-    .mahjong-home-menu .jk-menu[aria-pressed="true"] .jk-menu-number{color:var(--jk-gold);}
+    .mahjong-home-menu .jk-menu[aria-current="true"] .jk-menu-number{color:var(--jk-gold);}
     .mahjong-home-menu .jk-footer{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:11px 0 22px;}
     .mahjong-home-menu .jk-hint{color:#99a69d;font-size:11px;letter-spacing:.02em;line-height:1.6;}
     .mahjong-home-menu .jk-arrows{display:flex;gap:8px;flex-shrink:0;}

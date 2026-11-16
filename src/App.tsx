@@ -2,7 +2,7 @@ import { DesktopNav } from './components/layout/DesktopNav';
 import { PlayerContext } from './components/layout/PlayerContext';
 import { RankPromotion } from './components/layout/RankPromotion';
 import { lazy, Suspense, useCallback, useState, type CSSProperties } from 'react';
-import { ArrowLeft, BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, House, Plus, ScrollText, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
+import { BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, House, Plus, ScrollText, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { RecordSheet } from './components/layout/RecordSheet';
 import { useAppStore } from './store/useAppStore';
@@ -16,6 +16,7 @@ import { WelcomeGuide } from './components/layout/WelcomeGuide';
 import { OnlineStatusBar } from './components/layout/OnlineStatusBar';
 import { PullToRefresh } from './components/layout/PullToRefresh';
 import { useScoreWorkspace } from './components/input/useScoreWorkspace';
+import type { InputMode } from './lib/inputMode';
 
 
 // Secondary screens are loaded on demand.
@@ -54,7 +55,7 @@ const TopSection = lazy(() => import('./components/home/TopSection').then((m) =>
 const PRIMARY_TABS: PrimaryTabDef[] = [
   { id: 'top', name: 'TOP', icon: House },
   { id: 'ranking', name: '順位表', icon: Crown },
-  { id: 'input', name: '記録', icon: Plus },
+  { id: 'input', name: '対局入力', icon: Plus },
   { id: 'history', name: '対戦履歴', icon: History },
 ];
 
@@ -87,9 +88,10 @@ export function AppShell() {
   const scoreWorkspace = useScoreWorkspace(activeTab === 'input' || activeTab === 'history');
   const [homeMenuIndex, setHomeMenuIndex] = useState(0);
   const [isRecordOpen, setIsRecordOpen] = useState(false);
-  const [startSettling, setStartSettling] = useState(false);
+  const [inputMode, setInputMode] = useState<InputMode>('single');
   const [inputKey, setInputKey] = useState(0);
   const gameCount = useAppStore(s => s.currentDayGames.length);
+  const session = useAppStore(s => s.currentSession);
   const refreshRoom = useAppStore(s => s.refreshRoom);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [showGuide, setShowGuide] = useState(() => {
@@ -100,9 +102,15 @@ export function AppShell() {
   const selectTab = useCallback((id: string) => {
     setActiveTab(id);
     setIsMoreOpen(false);
+    setIsRecordOpen(false);
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
   const closeMenu = useCallback(() => setIsMoreOpen(false), []);
+  const openInput = useCallback((mode: InputMode) => {
+    setInputMode(mode);
+    setInputKey(key => key + 1);
+    selectTab('input');
+  }, [selectTab]);
   const selectMenuTab = useCallback((id: string) => {
     if (id === 'input') {
       setIsMoreOpen(false);
@@ -116,7 +124,7 @@ export function AppShell() {
   if (activeTab === 'top') return (
     <main className="top-viewport">
       <Suspense fallback={<span className="sr-only" role="status">TOPを読み込み中</span>}>
-        <TopSection menuIndex={homeMenuIndex} onMenuChange={setHomeMenuIndex} onOpenMatch={() => { setStartSettling(false); setInputKey(key => key + 1); selectTab('input'); }} onNavigate={selectTab} />
+        <TopSection menuIndex={homeMenuIndex} onMenuChange={setHomeMenuIndex} onOpenMatch={() => openInput('single')} onNavigate={selectTab} />
       </Suspense>
     </main>
   );
@@ -130,16 +138,14 @@ export function AppShell() {
         <div className="app-workspace relative z-10">
           <DesktopNav primary={PRIMARY_TABS} other={OTHER_TABS} activeTab={activeTab} onSelect={id => id === 'input' ? setIsRecordOpen(true) : selectTab(id)} />
           <div className="app-content">
-            <Header playerSelect={<PlayerContext />} onOpenMenu={() => setIsMoreOpen(true)} />
-            <RoomBadge />
+            <Header playerSelect={<PlayerContext />} roomBadge={<RoomBadge />} onBackToTop={() => selectTab('top')} onOpenMenu={() => setIsMoreOpen(true)} />
             <RankPromotion />
 
-            <main className="min-h-[500px] pt-5">
-              {activeTab !== 'top' && <button type="button" className="top-return-button" onClick={() => selectTab('top')}><ArrowLeft size={17} aria-hidden="true" />TOPに戻る</button>}
+            <main className="league-main min-h-[500px]">
               <div key={activeTab} className="relative z-10 screen-transition">
                 <Suspense fallback={<TabSkeleton tab={activeTab} />}>
-                  {activeTab === 'input' && <InputSection key={inputKey} startSettling={startSettling} onNavigateToPlayers={() => selectTab('players')} onResultComplete={() => selectTab('top')} />}
-                  {activeTab === 'home' && <LeagueHomeSection onOpenRecord={() => setIsRecordOpen(true)} onOpenMatch={() => { setStartSettling(false); setInputKey(key => key + 1); selectTab('input'); }} onNavigate={selectTab} />}
+                  {activeTab === 'input' && <InputSection key={inputKey} initialMode={inputMode} onNavigateToPlayers={() => selectTab('players')} onResultComplete={() => selectTab('top')} />}
+                  {activeTab === 'home' && <LeagueHomeSection onOpenRecord={() => session || gameCount ? setIsRecordOpen(true) : openInput('single')} onOpenMatch={() => openInput(session || gameCount ? 'single' : 'session')} onNavigate={selectTab} />}
                   {activeTab === 'dashboard' && <DashboardSection />}
                   {activeTab === 'history' && <HistorySection />}
                   {activeTab === 'ranking' && <RankingSection />}
@@ -170,12 +176,7 @@ export function AppShell() {
           onOpenMore={() => setIsMoreOpen(true)}
         />
 
-        {isRecordOpen && <RecordSheet gameCount={gameCount} onClose={() => setIsRecordOpen(false)} onSelect={settle => {
-          setStartSettling(settle);
-          setInputKey(key => key + 1);
-          setIsRecordOpen(false);
-          selectTab('input');
-        }} />}
+        {isRecordOpen && <RecordSheet gameCount={gameCount} hasSession={Boolean(session)} onClose={() => setIsRecordOpen(false)} onSelect={openInput} />}
 
         {isMoreOpen && (
           <MoreMenu tabs={ALL_TABS} activeTab={activeTab} onSelect={selectMenuTab} onRefresh={refreshRoom} onClose={closeMenu} />

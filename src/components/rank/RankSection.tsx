@@ -16,14 +16,19 @@ export function RankSection() {
   const { activeId } = useViewContext();
   const statuses = useMemo(() => computePlayerRankStatuses(history, players), [history, players]);
   const groups = useMemo(() => groupRankTiers().reverse().map((group) => ({ ...group, levels: [...group.levels].reverse() })), []);
-  const [expandedGroups, setExpandedGroups] = useState<Set<RankGroup>>(() => new Set(['魂天']));
+  const currentStatus = statuses[activeId];
+  const expansionKey = `${activeId}:${currentStatus?.group ?? ''}`;
+  const [expansion, setExpansion] = useState(() => ({ key: expansionKey, groups: new Set<RankGroup>(currentStatus ? [currentStatus.group] : []) }));
+  const expandedGroups = expansion.key === expansionKey ? expansion.groups : new Set<RankGroup>(currentStatus ? [currentStatus.group] : []);
+  // Reset only this UI state on a new player/rank, including returning to a previous player.
+  if (expansion.key !== expansionKey) setExpansion({ key: expansionKey, groups: expandedGroups });
 
   const toggleGroup = (group: RankGroup) => {
-    setExpandedGroups((prev) => {
-      const next = new Set(prev);
+    setExpansion(() => {
+      const next = new Set(expandedGroups);
       if (next.has(group)) next.delete(group);
       else next.add(group);
-      return next;
+      return { key: expansionKey, groups: next };
     });
   };
 
@@ -38,7 +43,7 @@ export function RankSection() {
   }, [players, statuses]);
 
   const scrollToTierList = () => {
-    document.getElementById('rank-tier-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('rank-tier-list')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
   };
 
   if (players.length === 0) {
@@ -116,6 +121,7 @@ export function RankSection() {
       >
         <div className="rank-ladder-heading"><div><span className="eyebrow">RANK LADDER</span><h3>段位一覧</h3></div><div className="rank-ladder-direction"><TrendingUp size={15} /><span>上ほど高段位</span></div></div>
         <p className="text-[11px] text-slate-500 mb-6">魂天を頂点に、現在の累計収支から段位を判定します。タップすると各段位の条件を確認できます。</p>
+        {currentStatus && <div className="rank-ladder-current"><strong>現在 {currentStatus.levelName}（通算）</strong><span>{currentStatus.nextLevelName ? `${currentStatus.nextLevelName}まであと ¥${currentStatus.profitToNextLevel!.toLocaleString()}` : '最高段位に到達'}</span></div>}
         <div className="rank-ladder">
           {groups.map((g, idx) => {
             const theme = RANK_GROUP_THEME[g.group];
@@ -131,7 +137,7 @@ export function RankSection() {
             return (
               <div key={g.group} className={`rank-ladder-card ${isTop ? 'is-top' : ''} ${isBottom ? 'is-bottom' : ''} ${theme.border} ${theme.bg}`}>
                 <span className="rank-ladder-index">{String(idx + 1).padStart(2, '0')}</span>
-                <button
+                {isTop ? <div className="rank-ladder-toggle"><span className={`rank-ladder-name ${theme.text}`}><Sparkles size={16} />{g.group}</span><span className="font-mono text-xs sm:text-sm text-slate-300">収支 {rangeText}</span></div> : <button
                   type="button"
                   onClick={() => toggleGroup(g.group)}
                   aria-expanded={isExpanded}
@@ -143,15 +149,16 @@ export function RankSection() {
                     <span className="font-mono text-xs sm:text-sm text-slate-300">収支 {rangeText}</span>
                     <ChevronDown className={`w-4 h-4 shrink-0 ${theme.text} transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </div>
-                </button>
+                </button>}
 
-                {isExpanded && (
+                {!isTop && isExpanded && (
                   <div className="px-5 pb-4 space-y-1.5">
                     {g.levels.map((tier) => (
-                      <div key={tier.name} className="flex items-center justify-between gap-2 bg-abyss/50 rounded-lg px-4 py-2">
-                        <span className={`font-bold text-xs shrink-0 ${theme.text}`}>{tier.name}</span>
-                        <span className="font-mono text-[11px] text-slate-400 text-right whitespace-nowrap">
+                      <div key={tier.name} aria-current={tier.name === currentStatus?.levelName ? 'true' : undefined} className="rank-tier-row flex items-center justify-between gap-2 bg-abyss/50 rounded-lg px-4 py-2">
+                        <span className={`font-bold text-xs shrink-0 ${theme.text}`}>{tier.name}{tier.name === currentStatus?.levelName && <small> 現在</small>}</span>
+                        <span className="font-mono text-[11px] text-slate-400 text-right">
                           収支 {formatSignedYen(tier.minProfit)} 以上
+                          {tier.name === currentStatus?.nextLevelName && <small className="block text-gold">あと ¥{currentStatus.profitToNextLevel!.toLocaleString()}</small>}
                         </span>
                       </div>
                     ))}

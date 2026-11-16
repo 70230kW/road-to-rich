@@ -94,10 +94,10 @@ export function DayCard({
         className="w-full text-left p-5 md:p-6 bg-abyss/40 flex justify-between items-center cursor-pointer group relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-        <div className="relative z-10">
-          <div className="font-mono text-cyan-300 font-black text-lg md:text-xl tracking-widest drop-shadow-md">
-            {formatDate(day.date)}
-          </div>
+        <div className="relative z-10 history-summary">
+          <div className="history-summary-title"><strong>{day.session?.title ?? '通常対局'}</strong><span className="settlement-status">精算済み</span></div>
+          <p className="history-summary-date">{formatDate(day.date)} · {new Date(day.date).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</p>
+          <p className="history-summary-players" title={participantIds.map(name).join('、')}>{participantIds.slice(0, 3).map(name).join('、')}{participantIds.length > 3 ? ` ほか${participantIds.length - 3}人` : ''}</p>
           <div className="text-xs text-slate-400 mt-2 flex flex-wrap items-center gap-3 md:gap-4 font-bold tracking-wider">
             <span className="bg-panel-3 border border-cyan-900/50 px-3 py-1 rounded-md text-cyan-400">
               {day.games.length} 半荘

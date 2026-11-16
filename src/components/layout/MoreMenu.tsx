@@ -30,7 +30,7 @@ export function MoreMenu({
   const panelRef = useRef<HTMLElement>(null);
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [query, setQuery] = useState('');
-  const visibleTabs = tabs.filter(tab => (tab.id === 'input' ? '対局を記録 精算' : tab.name).includes(query.trim()));
+  const visibleTabs = tabs.filter(tab => (tab.id === 'input' ? `${tab.name} 記録 半荘 対局会 精算` : tab.name).includes(query.trim()));
   const [refreshState, setRefreshState] = useState<RefreshState>('idle');
 
   useEffect(() => {
@@ -111,7 +111,7 @@ export function MoreMenu({
                       onClick={() => onSelect(tab.id)}
                     >
                       <Icon className="navigation-menu-icon" />
-                      <span>{tab.id === 'input' ? '対局を記録' : tab.name}</span>
+                      <span>{tab.name}</span>
                       {isActive && <i>表示中</i>}
                     </button>
                   );

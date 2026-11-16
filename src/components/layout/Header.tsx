@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Menu } from 'lucide-react';
+import { ArrowLeft, Menu } from 'lucide-react';
 import { GlitchText } from '../common/GlitchText';
 
-export function Header({ playerSelect, onOpenMenu }: { playerSelect?: ReactNode; onOpenMenu?: () => void }) {
+export function Header({ playerSelect, roomBadge, onBackToTop, onOpenMenu }: { playerSelect?: ReactNode; roomBadge?: ReactNode; onBackToTop?: () => void; onOpenMenu?: () => void }) {
   const [compact, setCompact] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -22,16 +22,17 @@ export function Header({ playerSelect, onOpenMenu }: { playerSelect?: ReactNode;
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   return (
-    <header ref={headerRef} className={`app-header ${compact ? 'is-compact' : ''}`}>
-      <div className="brand-lockup">
+    <header ref={headerRef} className={`app-header ${onBackToTop ? 'app-header-inline' : ''} ${compact ? 'is-compact' : ''}`}>
+      {onBackToTop ? <button type="button" data-pull-ignore className="top-return-button" onClick={onBackToTop}><ArrowLeft size={14} aria-hidden="true" /><span>TOPに戻る</span></button> : <div className="brand-lockup">
         <h1 className="font-brand text-lg tracking-wider text-white">
           <GlitchText text="じゃんかね" />
         </h1>
         <p className="eyebrow mt-1">
           <GlitchText text="ROAD TO RICH" />
         </p>
-      </div>
+      </div>}
       <div className="header-actions">
+        {roomBadge}
         {playerSelect ?? <span className="league-label"><span /> MAHJONG LEAGUE</span>}
         {onOpenMenu && (
           <button

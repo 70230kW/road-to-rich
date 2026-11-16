@@ -1,5 +1,5 @@
 import { adjacentProfitGap, gapToHigher, rankPositions, rankingComparison } from '../../lib/rankingMovement';
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { Crown, ChevronRight } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import {
@@ -19,7 +19,7 @@ import { EmptyState } from '../common/EmptyState';
 import { RankBadge } from '../common/RankBadge';
 import { PlayerDetailModal } from './PlayerDetailModal';
 import { ScrambleText } from '../common/ScrambleText';
-import { PodiumSpotlight } from './PodiumSpotlight';
+const PodiumSpotlight = lazy(() => import('./PodiumSpotlight').then(m => ({ default: m.PodiumSpotlight })));
 
 export function RankingSection() {
   const fullHistory = useAppStore((s) => s.history);
@@ -41,6 +41,7 @@ export function RankingSection() {
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [density, setDensity] = useState<'simple' | 'detail'>('simple');
   const [amountMode, setAmountMode] = useState<'actual' | 'gap'>('actual');
+  const [showPodium, setShowPodium] = useState(false);
 
   const amountDisplay = (rowIndex: number) => {
     const row = rows[rowIndex];
@@ -69,18 +70,20 @@ export function RankingSection() {
   const selectedRadarRow = radarRows.find((r) => r.playerId === selectedPlayerId) ?? null;
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" trailing={seasonSelect} />
-
-      {activeRow && <section className="ranking-target"><div><span className="eyebrow">YOUR NEXT TARGET</span><h3>{activeRow.name} · <ScrambleText text={String(positions[activeId])} />位</h3></div><p>{gap === null ? '現在トップの収支です' : <>上位の収支まで <strong><ScrambleText text={`¥${Math.ceil(gap).toLocaleString()}`} /></strong></>}</p></section>}
-      <div className="section-kicker"><span className="eyebrow">THE LEADERBOARD</span><span>{rows.length}人の雀士 · 場代抜き収支順（円）</span></div>
-      <PodiumSpotlight onOpen={setSelectedPlayerId} entries={rows.slice(0, 3).map((row, idx) => {
+    <div className="ranking-screen animate-fade-in">
+      <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" />
+      <div className="ranking-toolbar">
+        {seasonSelect}
+        <div className="ranking-view-controls"><div><span>情報量</span><div className="density-switch" role="group" aria-label="順位表の表示密度"><button type="button" aria-pressed={density === 'simple'} onClick={() => setDensity('simple')}>シンプル</button><button type="button" aria-pressed={density === 'detail'} onClick={() => setDensity('detail')}>詳細</button></div></div><div><span>金額表示</span><div className="density-switch" role="group" aria-label="順位表の金額表示"><button type="button" aria-pressed={amountMode === 'actual'} onClick={() => setAmountMode('actual')}>収支額</button><button type="button" aria-pressed={amountMode === 'gap'} onClick={() => setAmountMode('gap')}>差額</button></div></div></div>
+      </div>
+      <button type="button" className="podium-disclosure" aria-expanded={showPodium} aria-controls="ranking-podium" onClick={() => setShowPodium(!showPodium)}><Crown size={17} />{showPodium ? '3D表彰台を閉じる' : '3D表彰台を見る（上位3人）'}<ChevronRight size={16} className={showPodium ? 'rotate-90' : ''} /></button>
+      {showPodium && <div id="ranking-podium"><Suspense fallback={<p role="status">表彰台を読み込み中…</p>}><PodiumSpotlight onOpen={setSelectedPlayerId} entries={rows.slice(0, 3).map((row, idx) => {
           const amount = amountDisplay(idx);
           return { id: row.playerId, name: row.name, place: positions[row.playerId], tier: rankStatuses[row.playerId]?.levelName,
             amount: amount.value, amountLabel: amount.label, positive: (amountMode === 'actual' ? row.totalProfitWithoutFee : adjacentProfitGap(rows, idx)?.amount ?? 0) >= 0,
             hanchanCount: row.hanchanCount, avgRank: row.avgRank, topRate: rateStats[row.playerId]?.topRate, rentaiRate: rateStats[row.playerId]?.rentaiRate };
-        })} />
-      <div className="section-kicker ranking-list-heading"><h3>すべての雀士</h3><div className="ranking-view-controls"><div><span>情報量</span><div className="density-switch" role="group" aria-label="順位表の表示密度"><button type="button" aria-pressed={density === 'simple'} onClick={() => setDensity('simple')}>シンプル</button><button type="button" aria-pressed={density === 'detail'} onClick={() => setDensity('detail')}>詳細</button></div></div><div><span>金額表示</span><div className="density-switch" role="group" aria-label="順位表の金額表示"><button type="button" aria-pressed={amountMode === 'actual'} onClick={() => setAmountMode('actual')}>収支額</button><button type="button" aria-pressed={amountMode === 'gap'} onClick={() => setAmountMode('gap')}>差額</button></div></div></div></div>
+        })} /></Suspense></div>}
+      <div className="section-kicker ranking-list-heading"><h3>すべての雀士</h3><span>{rows.length}人 · 場代抜き収支順（円）</span></div>
       <div className={`leaderboard-list is-${density}`}>
         {rows.map((row, idx) => {
           const amount = amountDisplay(idx);
@@ -102,6 +105,8 @@ export function RankingSection() {
           );
         })}
       </div>
+
+      {activeRow && <section className="ranking-target"><div><span className="eyebrow">YOUR NEXT TARGET</span><h3>{activeRow.name} · <ScrambleText text={String(positions[activeId])} />位</h3></div><p>{gap === null ? '現在トップの収支です' : <>上位の収支まで <strong><ScrambleText text={`¥${Math.ceil(gap).toLocaleString()}`} /></strong></>}</p></section>}
 
       {selectedRow && (
         <PlayerDetailModal

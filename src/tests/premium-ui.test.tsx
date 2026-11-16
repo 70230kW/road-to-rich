@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, cleanup, within } from '@testing-library/react';
+import { act, render, screen, fireEvent, cleanup, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { DashboardSection } from '../components/dashboard/DashboardSection';
 import { RankingSection } from '../components/ranking/RankingSection';
@@ -14,7 +14,7 @@ describe('premium league screens', () => {
   it('switches personal metrics without changing stored results, including empty seasons', () => {
     seed(); render(<DashboardSection />);
     expect(screen.getByText('100.0%')).toBeInTheDocument();
-    useViewPreferences.getState().update('__local__', {playerId:'b'});
+    act(() => useViewPreferences.getState().update('__local__', {playerId:'b'}));
     cleanup(); render(<DashboardSection />);
     expect(screen.getByText('0.0%')).toBeInTheDocument();
     expect(screen.getByText('2.00')).toBeInTheDocument();
@@ -23,9 +23,11 @@ describe('premium league screens', () => {
     expect(screen.getByText('この期間の成績はありません')).toBeInTheDocument();
     expect(useAppStore.getState().history).toEqual(history);
   });
-  it('renders a two-player podium and keeps details available', () => {
+  it('opens a two-player podium on demand and keeps details available', async () => {
     seed(); render(<RankingSection />);
-    expect(screen.getByRole('button',{name:'1位 春樹の成績詳細'})).toBeInTheDocument();
+    expect(screen.queryByRole('article')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', {name:'3D表彰台を見る（上位3人）'}));
+    expect(await screen.findByRole('button',{name:'1位 春樹の成績詳細'}, { timeout: 5000 })).toBeInTheDocument();
     const spotlight = within(screen.getByRole('article'));
     expect(spotlight.getAllByText('100.0%')).toHaveLength(2);
     expect(spotlight.getByText('1.00位')).toBeInTheDocument();
@@ -45,7 +47,7 @@ describe('premium league screens', () => {
     useAppStore.setState({history:[{...history[0],settlement:{...history[0].settlement,a:{...history[0].settlement.a,totalWithoutFee:600000},b:{...history[0].settlement.b,totalWithoutFee:-200000}}}]});
     render(<RankSection />);
     expect(screen.getByText('最高段位に到達しました！')).toBeInTheDocument();
-    useViewPreferences.getState().update('__local__', {playerId:'b'});
+    act(() => useViewPreferences.getState().update('__local__', {playerId:'b'}));
     cleanup(); render(<RankSection />);
     expect(screen.getByText('¥120,000')).toBeInTheDocument();
     expect(screen.getByRole('progressbar').getAttribute('value')).toBe('0');

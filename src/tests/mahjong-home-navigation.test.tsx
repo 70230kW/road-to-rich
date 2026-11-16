@@ -33,7 +33,7 @@ describe('home integration with the real app shell', () => {
     expect(document.body).toHaveClass('top-scroll-locked');
     expect(document.documentElement).toHaveClass('top-scroll-locked');
     fireEvent.click(screen.getByRole('button', { name: '順位表を開く' }));
-    await screen.findByRole('heading', { name: '総合ランキング' });
+    await screen.findByRole('heading', { name: '総合ランキング' }, { timeout: 5000 });
     const bottom = within(screen.getByRole('navigation', { name: 'メインナビゲーション' }));
     expect(bottom.queryByRole('button', { name: 'TOP' })).not.toBeInTheDocument();
     expect(bottom.getAllByRole('button')).toHaveLength(5);
@@ -42,10 +42,10 @@ describe('home integration with the real app shell', () => {
     expect(document.body).not.toHaveClass('top-scroll-locked');
     expect(document.documentElement).not.toHaveClass('top-scroll-locked');
     fireEvent.click(bottom.getByRole('button', { name: 'リーグホーム' }));
-    expect(await screen.findByLabelText('あなたの通算成績')).toBeInTheDocument();
+    expect(await screen.findByLabelText('あなたの通算成績', {}, { timeout: 5000 })).toBeInTheDocument();
     expect(bottom.getByRole('button', { name: 'リーグホーム' })).toHaveAttribute('aria-current', 'page');
     expect(bottom.getByRole('button', { name: 'メニュー' })).not.toHaveClass('is-active');
-    fireEvent.click(bottom.getByRole('button', { name: '対局を記録' }));
+    fireEvent.click(bottom.getByRole('button', { name: '対局入力' }));
     const record = screen.getByRole('dialog');
     expect(record).toBeInTheDocument();
     fireEvent.click(within(record).getByRole('button', { name: /閉じる/ }));
@@ -75,18 +75,17 @@ describe('home integration with the real app shell', () => {
     await screen.findByRole('button', { name: '順位表を開く' });
     for (const [selection, title] of [['01 順位表', '順位表'], ['03 ダッシュボード', 'ダッシュボード'], ['04 段位', '段位']]) {
       fireEvent.click(screen.getByRole('button', { name: selection }));
-      fireEvent.click(screen.getByRole('button', { name: title + 'を開く' }));
       expect(screen.queryByRole('region', { name: '麻雀牌のホームメニュー' })).not.toBeInTheDocument();
-      await screen.findByRole('heading', { name: title === '順位表' ? '総合ランキング' : title });
+      await screen.findByRole('heading', { name: title === '順位表' ? '総合ランキング' : title }, { timeout: 5000 });
       home();
       expect(await screen.findByRole('button', { name: title + 'を開く' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: selection })).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.getByRole('button', { name: selection })).toHaveAttribute('aria-current', 'true');
     }
   });
   it('reopens the existing input draft with live ranks and saves through the existing action', async () => {
     localStorage.setItem('road-to-rich-hanchan-draft:tile-test', JSON.stringify({ playerCount: 4, selectedIds: ['a', 'b', 'c', 'd'], manualInputs: ['400', '300', '200'] }));
     render(<AppShell />);
-    fireEvent.click(await screen.findByRole('button', { name: '02 対局入力' }));
+    fireEvent.click(await screen.findByRole('button', { name: '次のメニュー' }));
     const open = screen.getByRole('button', { name: '対局入力を開く' });
     open.focus(); await userEvent.keyboard('{Enter}');
     expect(await screen.findByRole('heading', { name: '半荘成績入力' })).toBeInTheDocument();

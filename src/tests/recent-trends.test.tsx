@@ -69,8 +69,9 @@ describe('equal-sample recent trends', () => {
     act(() => useViewPreferences.getState().update('quality-dashboard', { playerId: 'b' }));
     expect(trends.queryByRole('table')).not.toBeInTheDocument();
     act(() => useViewPreferences.getState().update('quality-dashboard', { playerId: 'a', period: 'custom', customSeason: { year: 2025, month: 'all' } }));
-    expect(trends.getByText(/比較できる半荘がありません/)).toBeInTheDocument();
+    expect(screen.getByText('この期間の成績はありません')).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: '数字で見る、最近の変化' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '通算' }));
-    expect(trends.getByRole('table')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: '数字で見る、最近の変化' })).getByRole('table')).toBeInTheDocument();
   });
 });

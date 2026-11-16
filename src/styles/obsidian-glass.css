@@ -234,9 +234,9 @@ body.glass-theme .mahjong-home-menu :is(.jk-arrow, .jk-open) { border-color: #ad
 body.glass-theme .mahjong-home-menu .jk-arrow { background: #111a20cc; }
 body.glass-theme .mahjong-home-menu .jk-open { background: linear-gradient(110deg, #ebd7ad, #d9bd82); color: #191b16; box-shadow: 0 0 24px #d9bd8214; }
 body.glass-theme .mahjong-home-menu :is(.jk-arrow, .jk-open):active { box-shadow: var(--glass-field); transform: none; }
-body.glass-theme .mahjong-home-menu .jk-menu[aria-pressed="true"] { background: transparent; box-shadow: none; }
-body.glass-theme .mahjong-home-menu .jk-menu[aria-pressed="true"]::before { background: var(--glass-signal); box-shadow: 0 0 12px #78edda55; }
-body.glass-theme .mahjong-home-menu .jk-menu[aria-pressed="true"] .jk-menu-number { color: var(--glass-signal); }
+body.glass-theme .mahjong-home-menu .jk-menu[aria-current="true"] { background: transparent; box-shadow: none; }
+body.glass-theme .mahjong-home-menu .jk-menu[aria-current="true"]::before { background: var(--glass-signal); box-shadow: 0 0 12px #78edda55; }
+body.glass-theme .mahjong-home-menu .jk-menu[aria-current="true"] .jk-menu-number { color: var(--glass-signal); }
 
 /* Blur only floating chrome and a handful of hero panes, never every row/control.
    Prefix covers older Safari; unsupported browsers retain opaque black surfaces. */
