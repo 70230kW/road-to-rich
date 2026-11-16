@@ -12,12 +12,17 @@ export function HistorySection() {
   const updateDay = useAppStore((s) => s.updateDay);
   const deleteDay = useAppStore((s) => s.deleteDay);
   const currentDayGames = useAppStore((s) => s.currentDayGames);
+  const currentSession = useAppStore((s) => s.currentSession);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [month, setMonth] = useState('all');
   const [playerId, setPlayerId] = useState('all');
   const [status, setStatus] = useState<'all' | 'settled' | 'pending'>('all');
 
-  const months = useMemo(() => [...new Set(history.map((day) => day.date.slice(0, 7)))].sort().reverse(), [history]);
+  const pendingDate = currentSession?.startedAt ?? new Date().toISOString();
+  const months = useMemo(() => [...new Set([...history.map((day) => day.date.slice(0, 7)), ...(currentDayGames.length ? [pendingDate.slice(0, 7)] : [])])].sort().reverse(), [history, currentDayGames.length, pendingDate]);
+  const pendingMatches = currentDayGames.length > 0 && (month === 'all' || pendingDate.startsWith(month)) &&
+    (playerId === 'all' || currentDayGames.some(game => game.scores.some(score => score.playerId === playerId)));
+  const pendingPlayers = players.filter(player => currentDayGames.some(game => game.scores.some(score => score.playerId === player.id)));
   const sorted = useMemo(() => [...history]
     .filter((day) => month === 'all' || day.date.startsWith(month))
     .filter((day) => playerId === 'all' || day.games.some((game) => game.scores.some((score) => score.playerId === playerId)))
@@ -41,7 +46,7 @@ export function HistorySection() {
         <label><span>参加雀士</span><select value={playerId} onChange={(event) => setPlayerId(event.target.value)}><option value="all">すべて</option>{players.map((player) => <option key={player.id} value={player.id}>{player.name}</option>)}</select></label>
         <label><span>状態</span><select value={status} onChange={(event) => setStatus(event.target.value as typeof status)}><option value="all">すべて</option><option value="settled">精算済み</option><option value="pending">未精算</option></select></label>
       </section>
-      {(status === 'all' || status === 'pending') && currentDayGames.length > 0 && <section className="pending-history"><strong>本日の未精算記録</strong><span>{currentDayGames.length}半荘</span><small>「記録」から精算すると正式な履歴に追加されます。</small></section>}
+      {(status === 'all' || status === 'pending') && pendingMatches && <section className="pending-history"><strong>{currentSession?.title ?? '本日の対局'}</strong><span className="settlement-status is-pending">未精算 · {currentDayGames.length}半荘</span><p>{pendingPlayers.slice(0, 3).map(player => player.name).join('、')}{pendingPlayers.length > 3 ? ` ほか${pendingPlayers.length - 3}人` : ''}</p><small>「対局入力」の「本日の精算」から保存すると正式な履歴に追加されます。</small></section>}
       <div className="space-y-5">
         {status !== 'pending' && sorted.map((day) => (
           <DayCard
@@ -56,8 +61,8 @@ export function HistorySection() {
             historyBefore={history}
           />
         ))}
-        {status !== 'pending' && sorted.length === 0 && <EmptyState icon={History} message="該当する履歴がありません" hint="絞り込み条件を変更してください。" />}
-        {status === 'pending' && currentDayGames.length === 0 && <EmptyState icon={History} message="未精算の記録はありません" hint="記録中の対局がある場合はここに表示されます。" />}
+        {status !== 'pending' && sorted.length === 0 && !(status === 'all' && pendingMatches) && <EmptyState icon={History} message="該当する履歴がありません" hint="絞り込み条件を変更してください。" />}
+        {status === 'pending' && !pendingMatches && <EmptyState icon={History} message="該当する未精算の記録はありません" hint="記録中の対局がある場合はここに表示されます。絞り込み条件もご確認ください。" />}
       </div>
     </div>
   );

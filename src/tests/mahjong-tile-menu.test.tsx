@@ -84,11 +84,12 @@ describe('tile menu interaction and fallback', () => {
     fireEvent.keyDown(root, { key: 'ArrowLeft' }); expect(screen.getByRole('button', { name: '段位を開く' })).toBeInTheDocument();
     fireEvent.keyDown(root, { key: 'ArrowRight' }); expect(screen.getByRole('button', { name: '順位表を開く' })).toBeInTheDocument();
     fireEvent.keyDown(root, { key: 'End' }); fireEvent.keyDown(root, { key: 'Home' });
+    expect(onOpen).not.toHaveBeenCalled();
     for (const [name, id] of [['02 対局入力', 'input'], ['03 ダッシュボード', 'dashboard'], ['04 段位', 'rank'], ['01 順位表', 'ranking']]) {
       fireEvent.click(screen.getByRole('button', { name }));
-      fireEvent.click(screen.getByRole('button', { name: name.slice(3) + 'を開く' }));
       expect(onOpen).toHaveBeenLastCalledWith(id);
     }
+    expect(onOpen).toHaveBeenCalledTimes(4);
   });
   it('does not navigate after horizontal drag, synthetic click, vertical gesture or cancellation', () => {
     const onOpen = vi.fn(); const { container } = render(<MahjongTileMenu onOpen={onOpen} />);

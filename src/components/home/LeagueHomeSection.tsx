@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ArrowUpRight, ArrowRight, Crown, Gamepad2, History, Plus } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { useViewContext } from '../../store/useViewPreferences';
@@ -18,11 +18,14 @@ export function LeagueHomeSection({ onOpenRecord, onOpenMatch, onNavigate }: {
   const games = useAppStore(s => s.currentDayGames);
   const session = useAppStore(s => s.currentSession);
   const { activeId } = useViewContext();
+  const [recentScope, setRecentScope] = useState<'mine' | 'league'>('mine');
   const ranking = useMemo(() => computeRanking(history, players), [history, players]);
   const positions = useMemo(() => rankPositions(ranking), [ranking]);
   const statuses = useMemo(() => computePlayerRankStatuses(history, players), [history, players]);
   const rates = useMemo(() => computePlayerRateStats(history, players), [history, players]);
-  const recent = useMemo(() => [...history].sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).slice(0, 3), [history]);
+  const recent = useMemo(() => [...history]
+    .filter(day => recentScope === 'league' || day.games.some(game => game.scores.some(score => score.playerId === activeId)))
+    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).slice(0, 3), [history, recentScope, activeId]);
   const player = players.find(p => p.id === activeId);
   const row = ranking.find(r => r.playerId === activeId);
   const status = statuses[activeId];
@@ -55,9 +58,11 @@ export function LeagueHomeSection({ onOpenRecord, onOpenMatch, onNavigate }: {
         {row && <p className="hub-ranking-note">{gap === null ? '現在、リーグトップの収支です。' : 'ひとつ上の収支まで、あと' + Math.ceil(gap).toLocaleString() + '円。'}</p>}
         {!ranking.length && <div className="hub-empty"><Crown size={24} /><p>最初の精算から、順位が動き出します。</p><button type="button" onClick={onOpenMatch}>対局を始める<ArrowRight size={16} /></button></div>}
       </section>
-      <section className="hub-panel"><div className="hub-panel-heading"><h3><History size={18} />最近の対局</h3><button type="button" onClick={() => onNavigate('history')}>履歴へ<ArrowUpRight size={16} /></button></div><p className="hub-caption">選択中の雀士の収支・場代込み</p>
-        {recent.map(day => { const entry = day.settlement[activeId]; return <button type="button" key={day.id} className="hub-history-row" onClick={() => onNavigate('history')}><span className="hub-date"><strong>{new Date(day.date).getDate()}</strong><small>{new Date(day.date).getMonth() + 1}月</small></span><span><strong>{day.session?.title ?? '通常対局'}</strong><small>{new Date(day.date).getFullYear()}年 · {day.games.length}半荘</small></span><em className={entry && entry.totalWithFee < 0 ? 'profit-negative' : 'profit-positive'}>{entry ? formatSignedYen(entry.totalWithFee) + '円' : '不参加'}</em></button>; })}
-        {!recent.length && <div className="hub-empty"><History size={24} /><p>仲間との対局が、ここに積み重なります。</p><span>精算後に結果を表示します。</span></div>}
+      <section className="hub-panel" aria-label="最近の対局"><div className="hub-panel-heading"><h3><History size={18} />最近の対局</h3><button type="button" onClick={() => onNavigate('history')}>履歴へ<ArrowUpRight size={16} /></button></div>
+        <div className="scope-switch" role="group" aria-label="最近の対局の表示対象"><button type="button" aria-pressed={recentScope === 'mine'} onClick={() => setRecentScope('mine')}>自分の対局</button><button type="button" aria-pressed={recentScope === 'league'} onClick={() => setRecentScope('league')}>リーグ全体</button></div>
+        <p className="hub-caption">{recentScope === 'mine' ? `${player?.name ?? '自分'}の参加記録` : 'リーグ全員の記録'} · 最新3件／収支は自分の場代込み</p>
+        {recent.map(day => { const entry = day.settlement[activeId]; return <button type="button" key={day.id} className="hub-history-row" onClick={() => onNavigate('history')}><span className="hub-date"><strong>{new Date(day.date).getDate()}</strong><small>{new Date(day.date).getMonth() + 1}月</small></span><span><strong>{day.session?.title ?? '通常対局'}</strong><small>{new Date(day.date).getFullYear()}年 · {day.games.length}半荘 · 精算済み</small></span><em className={!entry ? 'muted' : entry.totalWithFee < 0 ? 'profit-negative' : 'profit-positive'}>{entry ? formatSignedYen(entry.totalWithFee) + '円' : '不参加'}</em></button>; })}
+        {!recent.length && <div className="hub-empty"><History size={24} /><p>{recentScope === 'mine' ? 'あなたが参加した対局はまだありません。' : '仲間との対局が、ここに積み重なります。'}</p><span>精算後に結果を表示します。</span></div>}
       </section>
     </div>
   </div>;

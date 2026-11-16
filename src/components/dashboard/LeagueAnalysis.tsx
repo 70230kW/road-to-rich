@@ -71,14 +71,13 @@ export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
   const selectedRow = selectedIdx >= 0 ? rankingRows[selectedIdx] : null;
   const selectedRadarRow = radarRows.find((r) => r.playerId === selectedPlayerId) ?? null;
   const totalHanchans = history.reduce((sum, day) => sum + day.games.length, 0);
+  const careerInsights = fullHistory.length > 0 && <details className="league-career-insights"><summary>通算の実績・目標と今月のハイライト</summary><p className="scope-caption">この欄は期間フィルターの対象外です。実績・目標は通算、ハイライトは今月の記録を使用します。</p><MilestoneBanner history={fullHistory} players={players} /><MonthlyHighlightsSection history={fullHistory} players={players} /><GoalProgressSection history={fullHistory} players={players} goals={goals} /></details>;
 
   if (history.length === 0) {
     return (
       <div className="space-y-8">
         <SectionHeader icon={BarChart3} title="リーグ全体の分析" accent="cyan" description="全雀士の戦績を、多角的な指標と推移で読み解きます。" trailing={fullHistory.length > 0 ? seasonSelect : undefined} />
-        {fullHistory.length > 0 && <MilestoneBanner history={fullHistory} players={players} />}
-        {fullHistory.length > 0 && <MonthlyHighlightsSection history={fullHistory} players={players} />}
-        {fullHistory.length > 0 && <GoalProgressSection history={fullHistory} players={players} goals={goals} />}
+        {careerInsights}
         <EmptyState icon={BarChart3} message="分析データがありません" hint="対局を記録して精算を保存すると、ここに統計が表示されます。" />
         {showReport && (
           <SeasonReportModal seasonLabel={seasonLabel} data={seasonReportData} players={players} onClose={() => setShowReport(false)} />
@@ -98,11 +97,7 @@ export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
         <div><span>登録雀士</span><strong><ScrambleText text={`${players.length}人`} /></strong></div>
       </div>
 
-      <MilestoneBanner history={fullHistory} players={players} />
-
-      <MonthlyHighlightsSection history={fullHistory} players={players} />
-
-      <GoalProgressSection history={fullHistory} players={players} goals={goals} />
+      {careerInsights}
 
       <section className="unified-section"><div className="content-section-header"><div><span className="eyebrow">LEAGUE LEADERS</span><h3>リーグトップ指標</h3></div><small>カードをタップして詳細を表示</small></div><div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
         <StatCard

@@ -20,7 +20,7 @@ const PHASE_LABELS: Record<PullPhase, string> = {
 
 function isGestureBlocked(target: EventTarget | null): boolean {
   return target instanceof Element && Boolean(target.closest(
-    'input, textarea, select, [contenteditable="true"], [role="dialog"], [data-pull-ignore]',
+    'button, a, input, textarea, select, summary, [contenteditable="true"], [role="dialog"], [data-pull-ignore]',
   ));
 }
 

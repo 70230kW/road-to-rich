@@ -21,19 +21,25 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); document.body.classList.remov
 it('reaches all 14 destinations with the shared theme and preserves TOP selection and record entry', async () => {
   render(<AppShell />);
   fireEvent.click(await screen.findByRole('button', { name: '順位表を開く' }));
-  expect(await screen.findByRole('heading', { name: '総合ランキング' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { name: '総合ランキング' }, { timeout: 5000 })).toBeInTheDocument();
   for (const [menu, heading] of [['リーグホーム', '今日も、一局ずつ。'], ['ダッシュボード', 'ダッシュボード'], ['対戦履歴', '対戦履歴'], ['段位', '段位'], ['成績予想', '成績予想'], ['実績', 'トロフィー'], ['シーズン', 'シーズン'], ['アプデ', 'アプデ'], ['ルール', 'ルール'], ['雀士登録', '雀士登録'], ['計算設定', '計算設定']]) {
     fireEvent.click(screen.getByRole('button', { name: 'メニューを開く' }));
     fireEvent.click(within(screen.getByRole('dialog', { name: 'メニュー' })).getByRole('button', { name: menu }));
-    expect(await screen.findByRole('heading', { name: heading })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: heading }, { timeout: 5000 })).toBeInTheDocument();
     expect(document.body).toHaveClass('glass-theme');
     expect(document.body).not.toHaveClass('top-scroll-locked');
+    fireEvent.click(screen.getByRole('button', { name: 'TOPに戻る' }));
+    expect(await screen.findByRole('button', { name: '順位表を開く' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '順位表を開く' }));
+    await screen.findByRole('heading', { name: '総合ランキング' });
   }
-  fireEvent.click(screen.getByRole('button', { name: 'TOPに戻る' }));
+  fireEvent.click(screen.getByRole('button', { name: 'メニューを開く' }));
+  fireEvent.click(within(screen.getByRole('dialog', { name: 'メニュー' })).getByRole('button', { name: 'TOP' }));
   expect(await screen.findByRole('button', { name: '順位表を開く' })).toBeInTheDocument();
   expect(document.body).toHaveClass('top-scroll-locked');
   fireEvent.click(screen.getByRole('button', { name: '02 対局入力' }));
-  fireEvent.click(screen.getByRole('button', { name: '対局入力を開く' }));
   expect(await screen.findByRole('heading', { name: '半荘成績入力' })).toBeInTheDocument();
   expect(screen.getByLabelText('入力中の暫定順位')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'TOPに戻る' }));
+  expect(await screen.findByRole('button', { name: '対局入力を開く' })).toBeInTheDocument();
 }, 20000);

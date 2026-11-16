@@ -9,6 +9,7 @@ import '../src/styles/experience.css';
 import '../src/styles/editorial.css';
 import '../src/styles/quality.css';
 import '../src/styles/obsidian-glass.css';
+import '../src/styles/flow-review.css';
 import { calcDaySettlement, calcGameSettlement } from '../src/lib/calc';
 import type { DayRecord } from '../src/types';
 
@@ -26,11 +27,13 @@ store.setState({ ...disabled, roomCode: 'UI-PREVIEW-NO-SAVE', connectionStatus: 
   addGame: async game => { const id = crypto.randomUUID(); store.setState(s => ({ currentDayGames: [...s.currentDayGames, { ...game, id }] })); return id; },
   removeGame: async id => { store.setState(s => ({ currentDayGames: s.currentDayGames.filter(game => game.id !== id) })); },
   clearSession: async () => { store.setState({ currentSession: null }); },
+  startSession: async (title, participantIds) => { store.setState({ currentSession: { id: crypto.randomUUID(), title, participantIds, startedAt: new Date().toISOString() } }); },
+  finalizeDay: async day => { store.setState(s => ({ history: [...s.history, { ...day, id: crypto.randomUUID(), date: new Date().toISOString(), ...(s.currentSession ? { session: s.currentSession } : {}) }], currentDayGames: [], currentSession: null })); },
   refreshRoom: async () => {},
 });
 localStorage.setItem('road-to-rich-welcome-v1', 'seen');
 const params = new URLSearchParams(location.search);
-if (params.has('quality')) {
+if (params.has('quality') || params.has('flows')) {
   const players = store.getState().players;
   const history: DayRecord[] = Array.from({ length: 4 }, (_, dayIndex) => {
     const games = Array.from({ length: 12 }, (_, index) => ({
@@ -46,6 +49,17 @@ if (params.has('quality')) {
     };
   });
   store.setState({ history });
+}
+if (params.has('flows')) {
+  const players = [...store.getState().players, { id: 'qa-e', name: 'テスト雀士E', color: '#78edda' }];
+  const history = Array.from({ length: 3 }, (_, index) => {
+    const participantIds = players.slice(1).map(player => player.id);
+    const games = [{ id: `flow-game-${index}`, scores: calcGameSettlement(participantIds.map((playerId, seat) => ({ playerId, rawScore: [40000, 30000, 20000, 10000][seat] })), defaultSettings) }];
+    const date = `2026-10-30T${10 + index}:00:00+09:00`;
+    const chips = Object.fromEntries(participantIds.map(id => [id, 0]));
+    return { id: `flow-day-${index}`, date, games, chips, chipRate: 200, tableFee: 4000, settlement: calcDaySettlement(games, chips, 4000, 200), session: { id: `flow-session-${index}`, title: ['昼の部', '夕方の部', '夜の部'][index], participantIds, startedAt: date } };
+  });
+  store.setState(s => ({ players, history: [...s.history, ...history], currentSession: null }));
 }
 if (params.has('fallback')) Object.defineProperty(window, 'WebGL2RenderingContext', { value: undefined, configurable: true });
 if (params.has('reduced')) {

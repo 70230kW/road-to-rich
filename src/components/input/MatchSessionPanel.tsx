@@ -10,7 +10,7 @@ function defaultTitle() {
   return `${new Date().toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })} 対局会`;
 }
 
-export function MatchSessionPanel({ onSettle }: { onSettle: () => void }) {
+export function MatchSessionPanel({ onSettle, onStarted }: { onSettle: () => void; onStarted?: () => void }) {
   const players = useAppStore((s) => s.players);
   const settings = useAppStore((s) => s.settings);
   const games = useAppStore((s) => s.currentDayGames);
@@ -40,7 +40,7 @@ export function MatchSessionPanel({ onSettle }: { onSettle: () => void }) {
         <div className="session-setup-footer"><small data-ready={canStart}>{startHint}</small><button type="button" className="session-start-button" disabled={!canStart || saving} onClick={async () => {
           if (!canStart || saving) return;
           setSaving(true); setStartError(false);
-          try { await startSession(title, selectedIds); haptic('success'); }
+          try { await startSession(title, selectedIds); haptic('success'); onStarted?.(); }
           catch { setStartError(true); }
           finally { setSaving(false); }
         }}><Play size={17} aria-hidden="true" />{saving ? '開始中…' : `${selectedIds.length}人で対局会を開始`}</button></div>

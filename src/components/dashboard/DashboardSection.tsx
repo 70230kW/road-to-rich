@@ -1,7 +1,7 @@
 import { useViewContext } from '../../store/useViewPreferences';
 import { RankEmblem } from '../common/RankEmblem';
 import { lazy, Suspense, useMemo, useState } from 'react';
-import { BarChart3, ChevronDown } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { computeRanking, computePlayerRateStats } from '../../lib/stats';
 import { computePlayerRankStatuses } from '../../lib/rankLevel';
@@ -19,8 +19,8 @@ const LeagueAnalysis = lazy(() => import('./LeagueAnalysis').then(m => ({ defaul
 export function DashboardSection() {
   const history = useAppStore(s => s.history);
   const players = useAppStore(s => s.players);
-  const { season, activeId } = useViewContext();
-  const [showDetails, setShowDetails] = useState(false);
+  const { season, activeId, setPeriod } = useViewContext();
+  const [scope, setScope] = useState<'personal' | 'league'>('personal');
   const filtered = useMemo(() => filterHistoryBySeason(history, season), [history, season]);
   const rows = useMemo(() => computeRanking(filtered, players), [filtered, players]);
   const rates = useMemo(() => computePlayerRateStats(filtered, players), [filtered, players]);
@@ -36,10 +36,16 @@ export function DashboardSection() {
 
   return <div className="space-y-7 animate-fade-in">
     <SectionHeader icon={BarChart3} title="ダッシュボード" />
+    <div className="scope-switch" role="group" aria-label="ダッシュボードの表示対象"><button type="button" aria-pressed={scope === 'personal'} onClick={() => setScope('personal')}>個人成績</button><button type="button" aria-pressed={scope === 'league'} onClick={() => setScope('league')}>リーグ全体</button></div>
     <PeriodFilter />
-    {players.length === 0 ? <EmptyState icon={BarChart3} message="最初の一戦から、キャリアが始まる。" hint="雀士を登録し、対局を記録すると個人成績が表示されます。" /> : <>
+    <p className="scope-caption">{scope === 'personal' ? players.find(p => p.id === activeId)?.name ?? '個人' : 'リーグ全員'}の成績 · {formatSeasonLabel(season)}</p>
+    {scope === 'league' ? <Suspense fallback={<TabSkeleton tab="dashboard" compact label="リーグ分析を読み込み中" />}><LeagueAnalysis season={season} /></Suspense> : players.length === 0 ? <EmptyState icon={BarChart3} message="最初の一戦から、キャリアが始まる。" hint="雀士を登録し、対局を記録すると個人成績が表示されます。" /> : games.length === 0 ? <section className="period-empty">
+      <EmptyState icon={BarChart3} message="この期間の成績はありません" hint="選択中の雀士が参加した半荘は0件です。期間を切り替えてご確認ください。" />
+      {season !== 'all' && <button type="button" className="action-primary" onClick={() => setPeriod('all')}>通算を見る</button>}
+      {status && <p className="scope-caption">通算段位：{status.levelName}（期間フィルターの対象外）</p>}
+    </section> : <>
       <section className="performance-hero player-career-card">
-        <div className="career-card-heading">{status && <RankEmblem status={status} compact />}<div><p className="eyebrow">PLAYER PROFILE</p><h3>{players.find(p => p.id === activeId)?.name}</h3></div><span className="text-gold">{status?.levelName}</span></div>
+        <div className="career-card-heading">{status && <RankEmblem status={status} compact />}<div><p className="eyebrow">PLAYER PROFILE</p><h3>{players.find(p => p.id === activeId)?.name}</h3></div><span className="text-gold">通算 {status?.levelName}</span></div>
         <div className="section-kicker"><span className="eyebrow">YOUR PERFORMANCE</span><span>{formatSeasonLabel(season)}</span></div>
         <p className="hero-label">{season === 'all' ? '累計収支' : '期間収支'} <span>場代抜き・円</span></p>
         <p className={`hero-number ${(row?.totalProfitWithoutFee ?? 0) >= 0 ? 'profit-positive' : 'profit-negative'}`}><ScrambleText text={row ? formatSignedYen(row.totalProfitWithoutFee) : '—'} /></p>
@@ -49,7 +55,7 @@ export function DashboardSection() {
       <div className="kpi-grid">
         {[['平均順位', row?.avgRank?.toFixed(2) ?? '—'], ['トップ率', formatRatePercentage(rate?.topRate)], ['ラス率', formatRatePercentage(rate?.lastRate)], ['半荘数', String(row?.hanchanCount ?? 0)]].map(([label, value]) => <div key={label} className="kpi"><span>{label}</span><strong><ScrambleText text={value} /></strong></div>)}
       </div>
-      {status && <section className="rank-progress-card"><div><span className="eyebrow">CAREER RANK</span><strong className="text-gold">{status.levelName}</strong></div>
+      {status && <section className="rank-progress-card"><div><span className="eyebrow">通算段位</span><strong className="text-gold">{status.levelName}</strong></div><small>期間フィルターの対象外</small>
         <progress className="rank-progress" value={status.progressRatio} max={1} aria-label="次の段位への進捗" />
         <small>{status.nextLevelName ? <>{status.nextLevelName}まであと <ScrambleText text={`¥${status.profitToNextLevel!.toLocaleString()}`} /></> : '最高段位に到達'}</small>
       </section>}
@@ -64,7 +70,5 @@ export function DashboardSection() {
       </div> : <EmptyState icon={BarChart3} message="この期間の成績はありません" hint="期間または雀士を切り替えると、ほかの記録を確認できます。" />}
       <RecentTrends history={filtered} playerId={activeId} periodLabel={formatSeasonLabel(season)} />
     </>}
-    <button type="button" className="details-toggle" aria-expanded={showDetails} aria-controls="league-analysis" onClick={() => setShowDetails(!showDetails)}>リーグ全体の分析 {showDetails ? 'を閉じる' : 'を見る'}<ChevronDown size={18} className={showDetails ? 'rotate-180' : ''} /></button>
-    {showDetails && <div id="league-analysis"><Suspense fallback={<TabSkeleton tab="dashboard" compact label="リーグ分析を読み込み中" />}><LeagueAnalysis season={season} /></Suspense></div>}
   </div>;
 }

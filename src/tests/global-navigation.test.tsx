@@ -52,7 +52,7 @@ describe('global navigation', () => {
         tabs={[
           { id: 'ranking', name: '順位表', icon: Crown },
           { id: 'dashboard', name: 'ダッシュボード', icon: BarChart3 },
-          { id: 'input', name: '記録', icon: Plus },
+          { id: 'input', name: '対局入力', icon: Plus },
         ]}
         activeTab="ranking"
         onSelect={onSelect}
@@ -63,6 +63,8 @@ describe('global navigation', () => {
 
     expect(screen.getByRole('dialog', { name: 'メニュー' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /順位表/ })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: '対局入力' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '対局を記録' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'ダッシュボード' }));
     expect(onSelect).toHaveBeenCalledWith('dashboard');
 
@@ -72,6 +74,17 @@ describe('global navigation', () => {
 });
 
 describe('pull to refresh', () => {
+  it('does not swallow a tap with finger movement on navigation controls', () => {
+    const onRefresh = vi.fn(), onBack = vi.fn();
+    render(<PullToRefresh onRefresh={onRefresh}><button onClick={onBack}>TOPに戻る</button></PullToRefresh>);
+    const back = screen.getByRole('button');
+    fireEvent.touchStart(back, { touches: [{ clientY: 0 }] });
+    expect(fireEvent.touchMove(back, { touches: [{ clientY: 12 }] })).toBe(true);
+    fireEvent.touchEnd(back, { touches: [] });
+    fireEvent.click(back);
+    expect(onBack).toHaveBeenCalledOnce();
+    expect(onRefresh).not.toHaveBeenCalled();
+  });
   it('refreshes after the user pulls beyond the threshold at the top of the screen', async () => {
     const onRefresh = vi.fn().mockResolvedValue(undefined);
     render(<PullToRefresh onRefresh={onRefresh}><main>画面内容</main></PullToRefresh>);

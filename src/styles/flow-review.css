@@ -1,0 +1,93 @@
+/* Compact navigation and explicit scopes; keep the obsidian glass material. */
+body.glass-theme .app-content > .app-header-inline {
+  gap: 8px;
+  padding: 8px;
+  margin-bottom: 0;
+}
+body.glass-theme .app-header-inline .top-return-button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  gap: 4px;
+  padding: 6px;
+  margin: 0;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.app-header-inline .header-actions { gap: 6px; min-width: 0; }
+.app-header-inline .header-player-select { flex: 1 1 120px; min-width: 0; max-width: 220px; }
+.app-header-inline .header-player-select > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+body.glass-theme .app-header-inline .header-player-select select { min-height: 44px; font-size: 16px; }
+.app-header-inline .header-menu-button { flex: 0 0 44px; width: 44px; height: 44px; }
+.room-badge { flex: 0 1 140px; min-width: 0; }
+.room-badge-button { display: flex; align-items: center; gap: 5px; width: 100%; min-height: 44px; color: var(--premium-muted); font-size: 11px; }
+.room-status-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.room-code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.room-badge-button svg { flex-shrink: 0; }
+.league-main { padding-top: 16px; }
+
+body.glass-theme .ranking-screen { display: grid; gap: 14px; }
+body.glass-theme .app-content .ranking-screen .section-heading { padding: 0; margin: 0; }
+.ranking-toolbar { display: grid; gap: 10px; }
+body.glass-theme .ranking-toolbar .period-filter { position: static; margin: 0; padding: 0; backdrop-filter: none; }
+.ranking-toolbar .period-detail { margin-top: 5px; }
+body.glass-theme .ranking-toolbar .period-buttons { gap: 3px; }
+body.glass-theme .ranking-toolbar .period-buttons button { min-width: 0; min-height: 44px; padding: 8px 4px; font-size: 12px; }
+.ranking-toolbar .ranking-view-controls { justify-content: space-between; gap: 6px 12px; }
+.ranking-toolbar .ranking-view-controls > div { gap: 5px; }
+.ranking-toolbar .ranking-view-controls > div > span { font-size: 10px; }
+body.glass-theme .ranking-toolbar .density-switch button { min-height: 44px; padding-inline: 9px; }
+.podium-disclosure { display: flex; align-items: center; gap: 8px; min-height: 44px; width: 100%; padding: 8px 0; color: var(--premium-gold); font-size: 12px; text-align: left; border-bottom: 1px solid var(--premium-line); }
+.podium-disclosure > svg:last-child { margin-left: auto; }
+.ranking-screen .ranking-list-heading { margin: 0; gap: 4px; }
+.ranking-screen .ranking-list-heading h3 { font-size: 15px; }
+.ranking-screen .ranking-list-heading > span { font-size: 10px; }
+body.glass-theme .ranking-screen .leaderboard-row { min-height: 76px; padding-block: 12px; }
+.ranking-screen .ranking-target { margin-top: 16px; }
+
+.scope-switch, .input-mode-switch { display: flex; gap: 8px; border-bottom: 1px solid var(--premium-line); }
+.scope-switch button, .input-mode-switch button { flex: 1; min-width: 0; min-height: 46px; padding: 8px 6px; border-bottom: 2px solid transparent; color: var(--premium-muted); font-size: 13px; line-height: 1.5; }
+.scope-switch button[aria-pressed="true"], .input-mode-switch button[aria-pressed="true"] { border-bottom-color: var(--glass-signal, #78edda); color: var(--glass-signal, #78edda); background: #78edda06; }
+.input-mode-switch button:disabled { opacity: .45; cursor: not-allowed; }
+.scope-caption, .input-mode-hint { color: var(--premium-muted); font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; }
+.period-empty { text-align: center; }
+.period-empty .action-primary { min-height: 44px; padding: 10px 24px; margin-bottom: 20px; border-radius: 8px; background: #78edda; color: #09110f; font-weight: 700; }
+.league-career-insights { border-block: 1px solid var(--premium-line); }
+.league-career-insights > summary { padding-block: 14px; min-height: 48px; cursor: pointer; font-size: 13px; }
+.league-career-insights[open] > * + * { margin-bottom: 20px; }
+body.glass-theme .input-workspace .hanchan-form .score-save-bar {
+  position: static;
+  width: 100%;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  margin-top: 24px;
+  box-shadow: none;
+}
+body.glass-theme .input-workspace .hanchan-form:has(.score-save-bar) { padding-bottom: 0; }
+.history-summary { min-width: 0; padding-right: 10px; }
+.history-summary-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.history-summary-title > strong { font-size: 17px; overflow-wrap: anywhere; }
+.settlement-status { display: inline-block; color: var(--glass-signal, #78edda); font-size: 10px; white-space: nowrap; padding: 3px 7px; border: 1px solid #78edda33; border-radius: 4px; }
+.settlement-status.is-pending { color: var(--premium-gold); border-color: #cdb78055; }
+.history-summary-date, .history-summary-players { font-size: 12px; color: var(--premium-muted); line-height: 1.7; margin-top: 6px; overflow-wrap: anywhere; }
+.history-summary-players { color: #d2d9dc; }
+.rank-ladder-current { display: grid; gap: 6px; padding: 14px 0; margin-bottom: 16px; border-block: 1px solid #78edda33; font-size: 13px; }
+.rank-ladder-current span { color: var(--premium-gold); }
+.rank-tier-row[aria-current="true"] { outline: 1px solid #78edda66; }
+.rank-tier-row small { font-size: 10px; }
+
+@media (max-width: 420px) {
+  .app-workspace { padding-inline: 12px; }
+  body.glass-theme .app-content > .app-header-inline { gap: 5px; padding: 6px; }
+  .app-header-inline .header-actions { gap: 4px; }
+  .app-header-inline .room-badge { flex-basis: 64px; }
+  .app-header-inline .room-badge-button svg { display: none; }
+  .app-header-inline .header-player-select { flex-basis: 85px; }
+  .ranking-toolbar .ranking-view-controls > div { flex-direction: column; align-items: flex-start; gap: 0; }
+  .input-mode-switch { gap: 2px; }
+  .input-mode-switch button { font-size: 12px; }
+}
+@media (min-width: 768px) {
+  .ranking-toolbar { grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 24px; }
+  .ranking-toolbar .ranking-view-controls { padding-top: 3px; }
+}

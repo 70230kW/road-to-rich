@@ -29,4 +29,18 @@ describe('shared league presentation', () => {
       expect(getComputedStyle(screen.getByRole('button', { name: '保存' })).minHeight).toBe('48px');
     } finally { style.remove(); }
   });
+  it('keeps the score save controls inside the form and the ranking period out of sticky flow', () => {
+    const style = document.createElement('style');
+    style.textContent = readFileSync('src/styles/flow-review.css', 'utf8');
+    document.head.append(style);
+    document.body.classList.add('glass-theme');
+    try {
+      const { container } = render(<div className="app-content"><header className="app-header app-header-inline"><button className="top-return-button">TOPに戻る</button></header><div className="input-workspace"><fieldset className="hanchan-form"><div className="score-save-bar">保存</div></fieldset></div><div className="ranking-toolbar"><div className="period-filter">期間</div></div></div>);
+      expect(getComputedStyle(container.querySelector('.score-save-bar')!).position).toBe('static');
+      expect(getComputedStyle(container.querySelector('.score-save-bar')!).transform).toBe('none');
+      expect(getComputedStyle(container.querySelector('.period-filter')!).position).toBe('static');
+      expect(getComputedStyle(screen.getByRole('button')).marginBottom).toBe('0px');
+      expect(getComputedStyle(screen.getByRole('button')).minHeight).toBe('44px');
+    } finally { style.remove(); document.body.classList.remove('glass-theme'); }
+  });
 });
