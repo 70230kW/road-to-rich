@@ -18,7 +18,7 @@ export function MonthlyHighlightsSection({ history, players }: { history: DayRec
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {highlights.mvp && (
           <div className="editorial-row bg-abyss/80 p-5 rounded-2xl border border-yellow-700/50">
-            <div className="flex items-center text-[10px] font-black text-yellow-500 tracking-widest uppercase mb-2">
+            <div className="flex items-center text-xs font-black text-yellow-500 tracking-widest uppercase mb-2">
               <Sparkles className="w-3.5 h-3.5 mr-1.5" /> 今月のMVP
             </div>
             <div className="font-black text-lg text-slate-100 truncate">{highlights.mvp.name}</div>
@@ -27,7 +27,7 @@ export function MonthlyHighlightsSection({ history, players }: { history: DayRec
         )}
         {highlights.worst && (
           <div className="editorial-row bg-abyss/80 p-5 rounded-2xl border border-slate-700/60">
-            <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-2">
+            <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-2">
               <TrendingDown className="w-3.5 h-3.5 mr-1.5" /> 今月の受難
             </div>
             <div className="font-black text-lg text-slate-100 truncate">{highlights.worst.name}</div>
@@ -36,7 +36,7 @@ export function MonthlyHighlightsSection({ history, players }: { history: DayRec
         )}
         {highlights.mostTobi && (
           <div className="editorial-row bg-abyss/80 p-5 rounded-2xl border border-rose-800/50">
-            <div className="flex items-center text-[10px] font-black text-rose-500 tracking-widest uppercase mb-2">
+            <div className="flex items-center text-xs font-black text-rose-500 tracking-widest uppercase mb-2">
               <Skull className="w-3.5 h-3.5 mr-1.5" /> 今月のトビ王
             </div>
             <div className="font-black text-lg text-slate-100 truncate">{highlights.mostTobi.name}</div>

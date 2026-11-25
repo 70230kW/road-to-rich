@@ -1,0 +1,15 @@
+/* Shared reading sizes. Keep the black glass / jade / gold material. */
+:root { --text-body: 14px; --text-meta: 12px; --text-label: 11px; }
+body.glass-theme { font-size: var(--text-body); }
+body.glass-theme :is(button, select, input, textarea) { touch-action: manipulation; }
+body.glass-theme :is(button, select, input:not([type="checkbox"]):not([type="radio"]):not([type="range"])) { min-height: 44px; }
+body.glass-theme :is(input, select, textarea) { scroll-margin-block: 120px; }
+body.glass-theme :is(.desktop-nav nav button, .navigation-menu-grid button, .input-mode-switch button, .scope-switch button, .period-buttons button, .density-switch button, .history-filters select) { font-size: var(--text-body); }
+body.glass-theme :is(.scope-caption, .input-mode-hint, .section-heading-description, .review-caption) { font-size: var(--text-body); line-height: 1.75; }
+body.glass-theme :is(.bottom-nav-label, .app-header-inline .top-return-button, .room-badge-button) { font-size: var(--text-meta); }
+body.glass-theme :is(button, a, input, select, summary):focus-visible { outline: 2px solid var(--glass-signal, #78edda); outline-offset: 3px; }
+body.glass-theme :is(.updates-table td, .updates-table th) { font-size: var(--text-body); }
+@media (max-width: 767px) {
+  body.glass-theme :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { font-size: 16px; }
+  .league-main { min-width: 0; }
+}

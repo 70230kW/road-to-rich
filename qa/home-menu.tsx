@@ -10,6 +10,7 @@ import '../src/styles/editorial.css';
 import '../src/styles/quality.css';
 import '../src/styles/obsidian-glass.css';
 import '../src/styles/flow-review.css';
+import '../src/styles/ux-review.css';
 import { calcDaySettlement, calcGameSettlement } from '../src/lib/calc';
 import type { DayRecord } from '../src/types';
 

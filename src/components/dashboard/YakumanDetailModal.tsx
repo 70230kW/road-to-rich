@@ -26,7 +26,7 @@ export function YakumanDetailModal({
         <div className="relative z-10 flex items-start justify-between gap-4 mb-4">
           <div>
             {yakuman.isDouble && (
-              <div className="text-[10px] font-black text-purple-400 tracking-[0.2em] uppercase mb-1">ダブル役満</div>
+              <div className="text-xs font-black text-purple-400 tracking-[0.2em] uppercase mb-1">ダブル役満</div>
             )}
             <h3 id="yakuman-detail-title" className="text-2xl font-black text-slate-100 tracking-wide">
               {yakuman.name}

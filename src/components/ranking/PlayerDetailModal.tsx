@@ -52,7 +52,7 @@ export function PlayerDetailModal({
         </div>
 
         <div className="relative z-10 bg-abyss/90 p-5 rounded-2xl border border-slate-800/80 mb-6">
-          <div className="text-[10px] font-black text-slate-500 mb-1 tracking-[0.2em] uppercase">Total Profit</div>
+          <div className="text-xs font-black text-slate-500 mb-1 tracking-[0.2em] uppercase">Total Profit</div>
           <div
             className={`font-mono text-3xl font-black ${
               row.totalProfitWithoutFee >= 0
@@ -67,13 +67,13 @@ export function PlayerDetailModal({
 
         <div className="relative z-10 grid grid-cols-2 gap-3">
           <div className="bg-abyss/60 p-4 rounded-2xl border border-slate-800/80">
-            <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1.5">
+            <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-1.5">
               <Gamepad2 className="w-3.5 h-3.5 mr-1.5 text-cyan-500" /> 半荘数
             </div>
             <div className="font-mono text-xl font-black text-slate-100">{row.hanchanCount}</div>
           </div>
           <div className="bg-abyss/60 p-4 rounded-2xl border border-slate-800/80">
-            <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1.5">
+            <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-1.5">
               <TrendingUp className="w-3.5 h-3.5 mr-1.5 text-fuchsia-500" /> 平均着順
             </div>
             <div className="font-mono text-xl font-black text-slate-100">
@@ -81,7 +81,7 @@ export function PlayerDetailModal({
             </div>
           </div>
           <div className="bg-abyss/60 p-4 rounded-2xl border border-slate-800/80">
-            <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1.5">
+            <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-1.5">
               <Zap className="w-3.5 h-3.5 mr-1.5 text-yellow-500" /> 平均チップ（1日）
             </div>
             <div className={`font-mono text-xl font-black ${(row.avgChips ?? 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
@@ -89,7 +89,7 @@ export function PlayerDetailModal({
             </div>
           </div>
           <div className="bg-abyss/60 p-4 rounded-2xl border border-slate-800/80">
-            <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1.5">
+            <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-1.5">
               <Coins className="w-3.5 h-3.5 mr-1.5 text-rose-400" /> チップ累計
             </div>
             <div className={`font-mono text-xl font-black ${(radarRow?.chipTotal ?? 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
@@ -97,7 +97,7 @@ export function PlayerDetailModal({
             </div>
           </div>
           <div className="bg-abyss/60 p-4 rounded-2xl border border-slate-800/80">
-            <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1.5">
+            <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-1.5">
               <Award className="w-3.5 h-3.5 mr-1.5 text-amber-400" /> 最高素点
             </div>
             <div className="font-mono text-xl font-black text-slate-100">
@@ -105,7 +105,7 @@ export function PlayerDetailModal({
             </div>
           </div>
           <div className="bg-abyss/60 p-4 rounded-2xl border border-slate-800/80">
-            <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1.5">
+            <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-1.5">
               <Crown className="w-3.5 h-3.5 mr-1.5 text-emerald-400" /> 1日最高勝ち額
             </div>
             <div className="font-mono text-xl font-black text-slate-100">
@@ -115,30 +115,30 @@ export function PlayerDetailModal({
         </div>
 
         <div className="relative z-10 bg-abyss/60 p-5 rounded-2xl border border-slate-800/80 mt-3">
-          <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-3">
+          <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-3">
             <Crown className="w-3.5 h-3.5 mr-1.5 text-yellow-500" /> 着順の勝率
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1">
+              <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-1">
                 <Crown className="w-3 h-3 mr-1 text-yellow-500" /> トップ率
               </div>
               <div className="font-mono text-lg font-black text-yellow-300">{formatRatePercentage(rateStats.topRate, '-')}</div>
             </div>
             <div>
-              <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1">
+              <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-1">
                 <TrendingUp className="w-3 h-3 mr-1 text-emerald-500" /> 連対率
               </div>
               <div className="font-mono text-lg font-black text-emerald-300">{formatRatePercentage(rateStats.rentaiRate, '-')}</div>
             </div>
             <div>
-              <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1">
+              <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-1">
                 <TrendingDown className="w-3 h-3 mr-1 text-rose-500" /> ラス率
               </div>
               <div className="font-mono text-lg font-black text-rose-300">{formatRatePercentage(rateStats.lastRate, '-')}</div>
             </div>
             <div>
-              <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1">
+              <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-1">
                 <Skull className="w-3 h-3 mr-1 text-fuchsia-500" /> トビ率
               </div>
               <div className="font-mono text-lg font-black text-fuchsia-300">{formatRatePercentage(rateStats.tobiRate, '-')}</div>
@@ -148,7 +148,7 @@ export function PlayerDetailModal({
 
         {rankCounts.some((c) => c > 0) && (
           <div className="relative z-10 bg-abyss/60 p-5 rounded-2xl border border-slate-800/80 mt-3">
-            <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-3">
+            <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-3">
               <BarChart3 className="w-3.5 h-3.5 mr-1.5 text-cyan-500" /> 着順分布
             </div>
             <RankCountBars counts={rankCounts} />
@@ -157,7 +157,7 @@ export function PlayerDetailModal({
 
         {yakumanAchievements.length > 0 && (
           <div className="relative z-10 bg-abyss/60 p-5 rounded-2xl border border-slate-800/80 mt-3">
-            <div className="flex items-center text-[10px] font-black text-slate-500 tracking-widest uppercase mb-3">
+            <div className="flex items-center text-xs font-black text-slate-500 tracking-widest uppercase mb-3">
               <Sparkles className="w-3.5 h-3.5 mr-1.5 text-purple-400" /> 達成役満
             </div>
             <div className="space-y-2">
@@ -170,7 +170,7 @@ export function PlayerDetailModal({
                   >
                     <span className="font-bold text-purple-100 text-sm flex items-center">
                       {def?.name ?? a.yakumanId}
-                      {def?.isDouble && <span className="ml-1.5 text-[8px] font-black text-purple-400 font-mono">W</span>}
+                      {def?.isDouble && <span className="ml-1.5 text-xs font-black text-purple-400 font-mono">W</span>}
                     </span>
                     <span className="text-xs text-slate-500 font-mono">{formatDate(a.date)}</span>
                   </div>

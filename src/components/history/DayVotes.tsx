@@ -73,7 +73,7 @@ export function DayVotes({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <div className="flex items-center text-[10px] font-black text-yellow-400 tracking-widest uppercase mb-2.5">
+        <div className="flex items-center text-xs font-black text-yellow-400 tracking-widest uppercase mb-2.5">
           <Crown className="w-3.5 h-3.5 mr-1.5" /> 本日のMVP
         </div>
         <VoteList
@@ -86,7 +86,7 @@ export function DayVotes({
         />
       </div>
       <div>
-        <div className="flex items-center text-[10px] font-black text-rose-400 tracking-widest uppercase mb-2.5">
+        <div className="flex items-center text-xs font-black text-rose-400 tracking-widest uppercase mb-2.5">
           <Skull className="w-3.5 h-3.5 mr-1.5" /> 本日の戦犯
         </div>
         <VoteList

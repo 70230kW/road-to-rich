@@ -409,7 +409,7 @@ export function HanchanForm({
                 <Scale className="w-4 h-4 text-cyan-500 shrink-0" />
                 順位点を編集
                 {isRankPointsChanged && (
-                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-cyan-950/60 text-cyan-300 border border-cyan-500/30">
+                  <span className="text-xs font-black px-1.5 py-0.5 rounded-full bg-cyan-950/60 text-cyan-300 border border-cyan-500/30">
                     変更中
                   </span>
                 )}
@@ -421,13 +421,13 @@ export function HanchanForm({
 
             {isRankPointsOpen && (
               <div className="px-4 pb-4 space-y-3">
-                <p className="text-[11px] text-slate-500 leading-relaxed">
+                <p className="text-xs text-slate-500 leading-relaxed">
                   終電などで東場のみで打ち切った半荘など、この半荘だけ順位点を変えたいときに編集してください。次の半荘には引き継がれません。
                 </p>
                 <div className={`grid grid-cols-2 gap-2.5 ${playerCount === 4 ? 'sm:grid-cols-4' : 'sm:grid-cols-3'}`}>
                   {activeRankPoints.map((v, i) => (
                     <div key={i} className="space-y-1">
-                      <label className="text-[10px] font-bold text-slate-500 tracking-wide">{i + 1}着</label>
+                      <label className="text-xs font-bold text-slate-500 tracking-wide">{i + 1}着</label>
                       <input
                         type="number"
                         value={v}
@@ -468,7 +468,7 @@ export function HanchanForm({
                 const order = tieOrderOverrides[group.score] ?? group.playerIds;
                 return (
                   <div key={group.score} className="space-y-2">
-                    <div className="text-[11px] text-slate-400 font-mono">
+                    <div className="text-xs text-slate-400 font-mono">
                       素点 {(group.score / 100).toLocaleString()}00点 が同点
                     </div>
                     {order.map((id, i) => (

@@ -164,7 +164,7 @@ export function AppShell() {
               </div>
             </main>
 
-            <footer className="text-center py-8 text-[10px] text-slate-700 font-mono tracking-[0.2em] uppercase">
+            <footer className="text-center py-8 text-xs text-slate-700 font-mono tracking-[0.2em] uppercase">
               じゃんかね — Provided by K.Waga
             </footer>
           </div>

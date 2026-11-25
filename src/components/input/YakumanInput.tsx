@@ -103,7 +103,7 @@ export function YakumanInput({
       {isAdding && (
         <div className="bg-abyss/80 border border-purple-500/30 rounded-xl p-4 space-y-4">
           <div>
-            <label className="block text-[11px] font-black text-slate-400 tracking-widest uppercase mb-2">成就者</label>
+            <label className="block text-xs font-black text-slate-400 tracking-widest uppercase mb-2">成就者</label>
             <div className="flex flex-wrap gap-2">
               {participantIds.map((pid) => (
                 <button
@@ -123,7 +123,7 @@ export function YakumanInput({
           </div>
 
           <div>
-            <label className="block text-[11px] font-black text-slate-400 tracking-widest uppercase mb-2">
+            <label className="block text-xs font-black text-slate-400 tracking-widest uppercase mb-2">
               役満（複合する場合は複数選択可）
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-64 overflow-y-auto pr-1">
@@ -150,7 +150,7 @@ export function YakumanInput({
                       className="accent-purple-500"
                     />
                     {y.name}
-                    {y.isDouble && <span className="text-[9px] text-purple-400 font-mono">W</span>}
+                    {y.isDouble && <span className="text-xs text-purple-400 font-mono">W</span>}
                   </label>
                 );
               })}

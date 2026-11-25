@@ -45,7 +45,7 @@ export function RecordedGamesList({
                 {g.rankPointsUsed && (
                   <span
                     title="この半荘だけ順位点を変更しています"
-                    className="shrink-0 flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-cyan-950/60 text-cyan-300 border border-cyan-500/30"
+                    className="shrink-0 flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded-full bg-cyan-950/60 text-cyan-300 border border-cyan-500/30"
                   >
                     <Scale className="w-3 h-3" /> 順位点変更
                   </span>
@@ -54,7 +54,7 @@ export function RecordedGamesList({
                   {sorted.map((s) => (
                     <span key={s.playerId} className="flex items-center gap-1.5 text-slate-300">
                       <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                        className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${
                           s.point >= 0 ? 'bg-emerald-950/50 text-emerald-400' : 'bg-rose-950/50 text-rose-400'
                         }`}
                       >
@@ -93,7 +93,7 @@ export function RecordedGamesList({
                   {events.map((event) => (
                     <span
                       key={event.id}
-                      className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-950/50 text-purple-300 border border-purple-500/30"
+                      className="text-xs font-bold px-2 py-0.5 rounded-full bg-purple-950/50 text-purple-300 border border-purple-500/30"
                     >
                       {name(event.playerId)}:{' '}
                       {event.yakumanIds.map((id) => findYakuman(id)?.name ?? id).join(' + ')}

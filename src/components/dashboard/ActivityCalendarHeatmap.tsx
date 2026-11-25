@@ -67,7 +67,7 @@ export function ActivityCalendarHeatmap({
           {DAY_LABELS.map((label, i) => (
             <div
               key={label}
-              className="h-[11px] sm:h-[13px] w-4 text-[8px] sm:text-[9px] text-slate-600 font-mono leading-[11px] sm:leading-[13px]"
+              className="h-[11px] sm:h-[13px] w-4 text-xs sm:text-xs text-slate-600 font-mono leading-[11px] sm:leading-[13px]"
             >
               {i % 2 === 1 ? label : ''}
             </div>
@@ -76,7 +76,7 @@ export function ActivityCalendarHeatmap({
         <div className="flex gap-[3px]">
           {weeks.map((week) => (
             <div key={week[0].key} className="flex flex-col gap-[3px]">
-              <div className="h-[14px] text-[8px] sm:text-[9px] text-slate-500 font-mono whitespace-nowrap">
+              <div className="h-[14px] text-xs sm:text-xs text-slate-500 font-mono whitespace-nowrap">
                 {monthLabelForWeek(week) ?? ''}
               </div>
               {week.map((d) =>

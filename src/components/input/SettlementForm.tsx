@@ -159,7 +159,7 @@ export function SettlementForm({
                 className={`w-2 h-2 rounded-full mr-2 animate-pulse ${chipsBalanced ? 'bg-fuchsia-400' : 'bg-rose-400'}`}
               />
               チップ精算 (±枚数)
-              <span className="ml-auto font-mono normal-case tracking-normal text-[11px] text-slate-500">
+              <span className="ml-auto font-mono normal-case tracking-normal text-xs text-slate-500">
                 合計 {chipTotal > 0 ? '+' : ''}
                 {chipTotal}枚
               </span>
@@ -235,7 +235,7 @@ export function SettlementForm({
                     </span>
 
                     <div className="flex items-center justify-between gap-3 bg-panel-3 px-4 py-2.5 rounded-xl border border-slate-800">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">場代抜き</span>
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">場代抜き</span>
                       <span
                         className={`font-mono font-black text-lg ${
                           entry.totalWithoutFee >= 0 ? 'text-slate-200' : 'text-rose-400'
@@ -245,7 +245,7 @@ export function SettlementForm({
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-3 bg-panel-3 px-4 py-2.5 rounded-xl border border-cyan-900/50">
-                      <span className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest flex items-center gap-1">
+                      <span className="text-xs font-bold text-cyan-500 uppercase tracking-widest flex items-center gap-1">
                         <ChevronsRight className="w-3 h-3" /> 場代込み（最終）
                       </span>
                       <span

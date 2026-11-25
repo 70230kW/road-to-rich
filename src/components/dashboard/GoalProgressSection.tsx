@@ -44,7 +44,7 @@ export function GoalProgressSection({
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              {gp.achieved && <div className="text-[10px] text-emerald-400 font-black mt-1.5">達成！</div>}
+              {gp.achieved && <div className="text-xs text-emerald-400 font-black mt-1.5">達成！</div>}
             </div>
           );
         })}
