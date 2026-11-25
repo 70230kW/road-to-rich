@@ -2,7 +2,7 @@ import { useUnsavedNavigation } from '../../store/useNavigation';
 import { SaveReceipt } from './SaveReceipt';
 import { SectionHeader } from '../common/SectionHeader';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AlertTriangle, ArrowRight, ChevronDown, ChevronUp, Gamepad2, Plus, RotateCcw, Scale, Target, UserPlus } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Check, ChevronDown, ChevronUp, Gamepad2, Plus, RotateCcw, Scale, Target, UserPlus } from 'lucide-react';
 import type { Game, GameScore, Player, PlayerCount, Settings, YakumanEvent } from '../../types';
 import {
   calcGameSettlement,
@@ -288,7 +288,7 @@ export function HanchanForm({
         setYakumanEvents([]); setRankPointsOverride(null); setShowDraftNotice(false);
       }}>下書きをクリア</button></div>}
       <ol className="input-progress" aria-label="対局入力の進行状況">
-        {['雀士選択', '点数入力', '内容確認', '保存準備OK'].map((label, index) => <li key={label} className={index < inputStep ? 'is-complete' : index === inputStep ? 'is-current' : ''} aria-current={index === inputStep ? 'step' : undefined}><span>{index + 1}</span><small>{label}</small></li>)}
+        {['雀士選択', '点数入力', '内容確認', '保存準備OK'].map((label, index) => <li key={label} className={index < inputStep ? 'is-complete' : index === inputStep ? 'is-current' : ''} aria-current={index === inputStep ? 'step' : undefined}><span aria-hidden="true">{index < inputStep ? <Check size={16} /> : index + 1}</span><small>{label}<span className="sr-only">{index < inputStep ? '（完了）' : index === inputStep ? '（現在）' : '（未完了）'}</span></small></li>)}
       </ol>
 
       {notEnoughPlayers ? (

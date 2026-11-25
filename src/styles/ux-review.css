@@ -40,3 +40,10 @@ body.glass-theme .hanchan-form .score-save-bar .solid-action:disabled { opacity:
 .hanchan-form .yakuman-input[data-has-events="true"] { border-color: #b597d766; }
 .draft-notice { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: center; color: var(--premium-muted); font-size: var(--text-meta); border-bottom: 1px solid var(--premium-line); }
 .draft-notice button { color: var(--glass-signal); text-decoration: underline; text-underline-offset: 4px; }
+
+.input-progress li { color: #838e98; }
+.input-progress li.is-complete { color: var(--glass-signal); }
+.input-progress li.is-complete > span { display: grid; place-items: center; background: transparent; border-color: #78edda55; }
+.input-progress li.is-current { color: var(--glass-gold); font-weight: 800; }
+.input-progress li.is-current > span { background: var(--glass-gold); color: #131610; border-color: var(--glass-gold); }
+.input-progress small { font-size: var(--text-meta); }
