@@ -149,7 +149,7 @@ export function RivalrySection({ history, players }: { history: DayRecord[]; pla
                 <div key={p.playerId} className={`editorial-row bg-abyss/80 p-5 rounded-2xl border ${theme.border} text-center min-w-0`}>
                   <div className="font-black text-slate-100 text-lg truncate mb-1">{nameOf(p.playerId)}</div>
                   <div className={`font-mono text-4xl font-black ${theme.text} ${theme.glow}`}>{p.wins}</div>
-                  <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mt-1">WINS</div>
+                  <div className="text-xs text-slate-500 font-mono uppercase tracking-widest mt-1">WINS</div>
                 </div>
               );
             })}

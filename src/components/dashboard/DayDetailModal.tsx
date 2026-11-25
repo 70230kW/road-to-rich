@@ -59,7 +59,7 @@ function DaySessionBlock({ day, players }: { day: DayRecord; players: Player[] }
           const entry = day.settlement[pid];
           return (
             <div key={pid} className="bg-panel-2/60 p-3.5 rounded-xl border border-slate-700/80">
-              <div className="text-[11px] font-bold text-slate-400 mb-1.5">{name(pid)}</div>
+              <div className="text-xs font-bold text-slate-400 mb-1.5">{name(pid)}</div>
               <div
                 className={`font-mono font-black text-lg ${
                   entry.totalWithFee >= 0 ? 'text-emerald-400' : 'text-rose-400'
@@ -72,10 +72,10 @@ function DaySessionBlock({ day, players }: { day: DayRecord; players: Player[] }
         })}
       </div>
 
-      <h5 className="text-[10px] font-black text-blue-400 mb-3 tracking-[0.2em] uppercase">半荘マトリックス</h5>
+      <h5 className="text-xs font-black text-blue-400 mb-3 tracking-[0.2em] uppercase">半荘マトリックス</h5>
       <MatrixTable day={day} participantIds={participantIds} players={players} />
 
-      <h5 className="text-[10px] font-black text-emerald-400 mt-6 mb-3 tracking-[0.2em] uppercase">半荘別 獲得金額</h5>
+      <h5 className="text-xs font-black text-emerald-400 mt-6 mb-3 tracking-[0.2em] uppercase">半荘別 獲得金額</h5>
       <PointMatrixTable day={day} participantIds={participantIds} players={players} />
 
       {notedGames.length > 0 && (

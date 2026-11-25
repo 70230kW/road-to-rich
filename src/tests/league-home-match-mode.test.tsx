@@ -110,7 +110,7 @@ describe('live standings during input', () => {
     );
 
     expect(screen.getByText('入力中の半荘を反映')).toBeInTheDocument();
-    const rows = within(screen.getByLabelText('入力中の暫定順位')).getAllByText(/和賀|佐野/);
+    const rows = within(screen.getByLabelText('入力中の暫定順位')).getAllByText(/^(和賀|佐野)$/);
     expect(rows.map((row) => row.textContent)).toEqual(['佐野', '和賀']);
   });
 });

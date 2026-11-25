@@ -24,7 +24,7 @@ const PodiumSpotlight = lazy(() => import('./PodiumSpotlight').then(m => ({ defa
 export function RankingSection() {
   const fullHistory = useAppStore((s) => s.history);
   const players = useAppStore((s) => s.players);
-  const { season, activeId } = useViewContext();
+  const { season, activeId, setPeriod } = useViewContext();
   const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
 
   const rows = useMemo(() => computeRanking(history, players), [history, players]);
@@ -56,11 +56,12 @@ export function RankingSection() {
 
   const seasonSelect = <PeriodFilter />;
 
-  if (rows.length === 0) {
+  if (history.length === 0 || rows.length === 0) {
     return (
       <div className="space-y-8">
-        <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" trailing={seasonSelect} />
-        <EmptyState icon={Crown} message="ランキングデータがありません" hint="精算を保存すると、雀士ごとの累計成績が表示されます。" />
+        <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" />
+        {seasonSelect}
+        <div className="period-empty"><EmptyState icon={Crown} message={season === 'all' ? 'ランキングデータがありません' : 'この期間の対局はありません'} hint="期間を変更してください。精算を保存すると順位表に反映されます。" />{season !== 'all' && <button type="button" className="action-primary" onClick={() => setPeriod('all')}>通算を見る</button>}</div>
       </div>
     );
   }
@@ -72,9 +73,9 @@ export function RankingSection() {
   return (
     <div className="ranking-screen animate-fade-in">
       <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" />
+      {seasonSelect}
       <div className="ranking-toolbar">
-        {seasonSelect}
-        <div className="ranking-view-controls"><div><span>情報量</span><div className="density-switch" role="group" aria-label="順位表の表示密度"><button type="button" aria-pressed={density === 'simple'} onClick={() => setDensity('simple')}>シンプル</button><button type="button" aria-pressed={density === 'detail'} onClick={() => setDensity('detail')}>詳細</button></div></div><div><span>金額表示</span><div className="density-switch" role="group" aria-label="順位表の金額表示"><button type="button" aria-pressed={amountMode === 'actual'} onClick={() => setAmountMode('actual')}>収支額</button><button type="button" aria-pressed={amountMode === 'gap'} onClick={() => setAmountMode('gap')}>差額</button></div></div></div>
+        <div className="ranking-view-controls"><div><span>情報量</span><div className="density-switch" role="group" aria-label="順位表の表示密度"><button type="button" aria-pressed={density === 'simple'} onClick={() => setDensity('simple')}>シンプル</button><button type="button" aria-pressed={density === 'detail'} onClick={() => setDensity('detail')}>詳細</button></div></div><div><span>金額表示</span><div className="density-switch" role="group" aria-label="順位表の金額表示"><button type="button" aria-pressed={amountMode === 'actual'} onClick={() => setAmountMode('actual')}>収支</button><button type="button" aria-pressed={amountMode === 'gap'} onClick={() => setAmountMode('gap')}>順位差額</button></div></div></div>
       </div>
       <button type="button" className="podium-disclosure" aria-expanded={showPodium} aria-controls="ranking-podium" onClick={() => setShowPodium(!showPodium)}><Crown size={17} />{showPodium ? '3D表彰台を閉じる' : '3D表彰台を見る（上位3人）'}<ChevronRight size={16} className={showPodium ? 'rotate-90' : ''} /></button>
       {showPodium && <div id="ranking-podium"><Suspense fallback={<p role="status">表彰台を読み込み中…</p>}><PodiumSpotlight onOpen={setSelectedPlayerId} entries={rows.slice(0, 3).map((row, idx) => {
@@ -106,7 +107,7 @@ export function RankingSection() {
         })}
       </div>
 
-      {activeRow && <section className="ranking-target"><div><span className="eyebrow">YOUR NEXT TARGET</span><h3>{activeRow.name} · <ScrambleText text={String(positions[activeId])} />位</h3></div><p>{gap === null ? '現在トップの収支です' : <>上位の収支まで <strong><ScrambleText text={`¥${Math.ceil(gap).toLocaleString()}`} /></strong></>}</p></section>}
+      {activeRow && <section className="ranking-target"><div><span className="eyebrow">YOUR NEXT TARGET</span><h3>{activeRow.name} · <ScrambleText text={String(positions[activeId])} />位</h3></div><p>{gap === null ? '現在トップの収支です' : <>上位の収支まで <strong><ScrambleText text={`${Math.ceil(gap).toLocaleString()}円`} /></strong></>}</p></section>}
 
       {selectedRow && (
         <PlayerDetailModal

@@ -178,7 +178,7 @@ export function TrophySection() {
                               {!isEarned && <Lock className="w-3.5 h-3.5 text-slate-600 shrink-0 mt-0.5" />}
                               {isEarned && <Trophy className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${theme.earnedText}`} />}
                             </div>
-                            <div className={`text-[11px] leading-relaxed mt-1 ${isEarned ? 'text-slate-300' : 'text-slate-600'}`}>
+                            <div className={`text-xs leading-relaxed mt-1 ${isEarned ? 'text-slate-300' : 'text-slate-600'}`}>
                               {isEarned ? trophy.description : '？？？？？？？？？？？？？？？？？？？？'}
                             </div>
                           </div>
@@ -250,10 +250,10 @@ export function TrophySection() {
                         </button>
                       </div>
                     </div>
-                    <div className="text-[11px] leading-relaxed mt-1 text-slate-500">
+                    <div className="text-xs leading-relaxed mt-1 text-slate-500">
                       {trophy.description || CUSTOM_TROPHY_CONDITION_LABELS[trophy.conditionType]}
                     </div>
-                    <div className="text-[10px] font-mono text-fuchsia-500/70 mt-1.5">
+                    <div className="text-xs font-mono text-fuchsia-500/70 mt-1.5">
                       {CUSTOM_TROPHY_CONDITION_LABELS[trophy.conditionType].replace('◯', trophy.conditionType === 'topRateAtLeast' ? trophy.threshold.toFixed(1) : String(trophy.threshold))}
                     </div>
                   </div>

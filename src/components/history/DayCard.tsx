@@ -20,6 +20,7 @@ export function DayCard({
   onUpdateDay,
   onDeleteDay,
   historyBefore = [],
+  activePlayerId,
 }: {
   day: DayRecord;
   players: Player[];
@@ -29,6 +30,7 @@ export function DayCard({
   onUpdateDay: (dayId: string, patch: Omit<DayRecord, 'id' | 'date'>) => void | Promise<void>;
   onDeleteDay: (dayId: string) => void;
   historyBefore?: DayRecord[];
+  activePlayerId?: string;
 }) {
   const [replayOpen, setReplayOpen] = useState(false);
   const replayId = useId();
@@ -40,6 +42,9 @@ export function DayCard({
     return players.filter((p) => seen.has(p.id)).map((p) => p.id);
   }, [day, players]);
 
+  const ownResult = activePlayerId ? day.settlement[activePlayerId] : undefined;
+  const ownScores = day.games.flatMap(game => game.scores.filter(score => score.playerId === activePlayerId));
+  const rankCount = Math.max(3, ...day.games.map(game => game.scores.length));
   const name = (id: string) => players.find((p) => p.id === id)?.name ?? '不明';
 
   const saveNote = (gameId: string, note: string) => {
@@ -97,7 +102,7 @@ export function DayCard({
         <div className="relative z-10 history-summary">
           <div className="history-summary-title"><strong>{day.session?.title ?? '通常対局'}</strong><span className="settlement-status">精算済み</span></div>
           <p className="history-summary-date">{formatDate(day.date)} · {new Date(day.date).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</p>
-          <p className="history-summary-players" title={participantIds.map(name).join('、')}>{participantIds.slice(0, 3).map(name).join('、')}{participantIds.length > 3 ? ` ほか${participantIds.length - 3}人` : ''}</p>
+          <p className="history-summary-players" title={participantIds.map(name).join('、')}>{participantIds.slice(0, participantIds.length <= 4 ? 4 : 3).map(name).join('、')}{participantIds.length > 4 ? ` ほか${participantIds.length - 3}人` : ''}</p>
           <div className="text-xs text-slate-400 mt-2 flex flex-wrap items-center gap-3 md:gap-4 font-bold tracking-wider">
             <span className="bg-panel-3 border border-cyan-900/50 px-3 py-1 rounded-md text-cyan-400">
               {day.games.length} 半荘
@@ -110,6 +115,9 @@ export function DayCard({
             <span>{participantIds.length}人参加</span>
           </div>
         </div>
+        {activePlayerId && <div className="history-personal-result">
+          {ownResult ? <><span>{name(activePlayerId)} · 場代込み</span><strong className={ownResult.totalWithFee < 0 ? 'profit-negative' : 'profit-positive'}>{formatSignedYen(ownResult.totalWithFee)}円</strong><small>{Array.from({ length: rankCount }, (_, index) => `${index + 1}位 ${ownScores.filter(score => score.rank === index + 1).length}回`).join(' / ')}</small></> : <span>不参加</span>}
+        </div>}
         <div
           className={`shrink-0 w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-500 relative z-10 ${
             isExpanded
@@ -164,8 +172,8 @@ export function DayCard({
                   >
                     {formatSignedYen(entry.totalWithoutFee)}
                   </div>
-                  <div className="text-[10px] text-slate-600 font-mono mt-1 pl-1">場代込み {formatSignedYen(entry.totalWithFee)}</div>
-                  <div className="text-[10px] text-slate-600 font-mono pl-1">
+                  <div className="text-xs text-slate-600 font-mono mt-1 pl-1">場代込み {formatSignedYen(entry.totalWithFee)}</div>
+                  <div className="text-xs text-slate-600 font-mono pl-1">
                     チップ {entry.chipCount > 0 ? '+' : ''}
                     {entry.chipCount}枚
                   </div>

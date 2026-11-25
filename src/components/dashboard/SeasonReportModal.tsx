@@ -75,18 +75,18 @@ export function SeasonReportModal({
 
           <div className="relative z-10 grid grid-cols-2 gap-3 mb-6">
             <div className="bg-abyss/70 p-4 rounded-2xl border border-slate-800/80 text-center">
-              <div className="text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1">総半荘数</div>
+              <div className="text-xs font-black text-slate-500 tracking-widest uppercase mb-1">総半荘数</div>
               <div className="font-mono text-2xl font-black text-slate-100">{data.hanchanCount}</div>
             </div>
             <div className="bg-abyss/70 p-4 rounded-2xl border border-slate-800/80 text-center">
-              <div className="text-[10px] font-black text-slate-500 tracking-widest uppercase mb-1">対局日数</div>
+              <div className="text-xs font-black text-slate-500 tracking-widest uppercase mb-1">対局日数</div>
               <div className="font-mono text-2xl font-black text-slate-100">{data.dayCount}</div>
             </div>
           </div>
 
           {data.champion && (
             <div className="relative z-10 bg-gradient-to-br from-yellow-950/40 to-abyss/70 p-5 rounded-2xl border border-yellow-600/40 mb-6 text-center">
-              <div className="flex items-center justify-center text-[10px] font-black text-yellow-500 tracking-widest uppercase mb-2">
+              <div className="flex items-center justify-center text-xs font-black text-yellow-500 tracking-widest uppercase mb-2">
                 <Crown className="w-3.5 h-3.5 mr-1.5" /> 覇者
               </div>
               <div className="font-black text-2xl text-slate-100">{data.champion.playerName}</div>
@@ -95,7 +95,7 @@ export function SeasonReportModal({
           )}
 
           <div className="relative z-10 mb-6">
-            <div className="flex items-center text-[10px] font-black text-cyan-400 tracking-widest uppercase mb-3">
+            <div className="flex items-center text-xs font-black text-cyan-400 tracking-widest uppercase mb-3">
               <Trophy className="w-3.5 h-3.5 mr-1.5" /> トロフィー獲得数
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -110,7 +110,7 @@ export function SeasonReportModal({
 
           {(data.hallOfFame.blowout || data.hallOfFame.comeback || data.hallOfFame.nailbiter || data.hallOfFame.bust) && (
             <div className="relative z-10 mb-6">
-              <div className="flex items-center text-[10px] font-black text-emerald-400 tracking-widest uppercase mb-3">
+              <div className="flex items-center text-xs font-black text-emerald-400 tracking-widest uppercase mb-3">
                 <Sparkles className="w-3.5 h-3.5 mr-1.5" /> 名場面
               </div>
               <div className="space-y-1.5 text-xs">
@@ -160,13 +160,13 @@ export function SeasonReportModal({
 
           {(data.topVotedMvp || data.topVotedHanzai) && (
             <div className="relative z-10">
-              <div className="flex items-center text-[10px] font-black text-yellow-400 tracking-widest uppercase mb-3">
+              <div className="flex items-center text-xs font-black text-yellow-400 tracking-widest uppercase mb-3">
                 <Gift className="w-3.5 h-3.5 mr-1.5" /> みんなの投票
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {data.topVotedMvp && (
                   <div className="bg-abyss/60 border border-yellow-700/40 rounded-xl px-3 py-2.5 text-center">
-                    <div className="flex items-center justify-center gap-1 text-[9px] font-black text-yellow-500 uppercase mb-1">
+                    <div className="flex items-center justify-center gap-1 text-xs font-black text-yellow-500 uppercase mb-1">
                       <Crown className="w-3 h-3" /> MVP
                     </div>
                     <div className="font-bold text-sm text-slate-200">{data.topVotedMvp.playerName}</div>
@@ -174,7 +174,7 @@ export function SeasonReportModal({
                 )}
                 {data.topVotedHanzai && (
                   <div className="bg-abyss/60 border border-rose-700/40 rounded-xl px-3 py-2.5 text-center">
-                    <div className="flex items-center justify-center gap-1 text-[9px] font-black text-rose-500 uppercase mb-1">
+                    <div className="flex items-center justify-center gap-1 text-xs font-black text-rose-500 uppercase mb-1">
                       <Skull className="w-3 h-3" /> 戦犯
                     </div>
                     <div className="font-bold text-sm text-slate-200">{data.topVotedHanzai.playerName}</div>

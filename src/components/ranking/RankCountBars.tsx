@@ -26,7 +26,7 @@ export function RankCountBars({ counts }: { counts: number[] }) {
                 style={{ height: barHeight, backgroundColor: color }}
               />
             </div>
-            <span className="text-[10px] sm:text-xs font-bold text-slate-400 font-mono">{i + 1}着</span>
+            <span className="text-xs sm:text-xs font-bold text-slate-400 font-mono">{i + 1}着</span>
           </div>
         );
       })}

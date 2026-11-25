@@ -30,7 +30,7 @@ export function YakumanBoard({ achievements }: { achievements: Record<string, Ya
               }`}
             >
               {y.isDouble && (
-                <span className="absolute top-1.5 right-1.5 text-[8px] font-black text-purple-400 font-mono">W</span>
+                <span className="absolute top-1.5 right-1.5 text-xs font-black text-purple-400 font-mono">W</span>
               )}
               <div
                 className={`font-black text-xs sm:text-sm tracking-wide ${achieved ? 'text-purple-100' : 'text-slate-400'}`}
@@ -38,7 +38,7 @@ export function YakumanBoard({ achievements }: { achievements: Record<string, Ya
                 {y.name}
               </div>
               {achieved && (
-                <div className="text-[10px] text-purple-400 font-mono mt-1">{achievements[y.id].length}回達成</div>
+                <div className="text-xs text-purple-400 font-mono mt-1">{achievements[y.id].length}回達成</div>
               )}
             </button>
           );

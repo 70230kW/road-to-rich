@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { HanchanForm } from '../components/input/HanchanForm';
 import { useScoreWorkspace } from '../components/input/useScoreWorkspace';
+import { navigate } from '../store/useNavigation';
 import { defaultSettings } from '../lib/defaults';
 import type { PlayerCount } from '../types';
 
@@ -10,8 +11,8 @@ const save = vi.fn(async () => 'saved');
 function form(count: PlayerCount = 4, draftKey?: string) {
   return render(<HanchanForm players={players} settings={{ ...defaultSettings, playerCount: count }} currentDayGames={[]} onAddGame={save} onRemoveGame={vi.fn()} onUpdateGameYakuman={vi.fn()} onStartSettling={vi.fn()} onNavigateToPlayers={vi.fn()} onSetPlayerCount={vi.fn()} draftKey={draftKey} />);
 }
-function selectPlayers(count = 4) { for (let i = 0; i < count; i++) fireEvent.change(screen.getByRole('combobox', { name: `席${i + 1}の雀士` }), { target: { value: players[i].id } }); }
-function score(seat: number) { return screen.getByRole('spinbutton', { name: `席${seat}の素点 (百点単位)` }); }
+function selectPlayers(count = 4) { for (let i = 0; i < count; i++) fireEvent.change(screen.getByRole('combobox', { name: `入力${i + 1}の雀士` }), { target: { value: players[i].id } }); }
+function score(seat: number) { return screen.getByRole('spinbutton', { name: `入力${seat}の素点 (百点単位)` }); }
 beforeEach(() => { localStorage.clear(); save.mockClear(); });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
@@ -30,9 +31,10 @@ describe('one-handed score entry', () => {
   });
   it('focuses the missing player, then the missing score with its inline explanation', () => {
     form();
-    fireEvent.click(screen.getByRole('button', { name: 'この半荘を記録する' }));
-    expect(screen.getByRole('combobox', { name: '席1の雀士' })).toHaveFocus();
-    expect(screen.getByRole('combobox', { name: '席1の雀士' })).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('button', { name: 'この半荘を記録する' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: '修正が必要な項目へ' }));
+    expect(screen.getByRole('combobox', { name: '入力1の雀士' })).toHaveFocus();
+    expect(screen.getByRole('combobox', { name: '入力1の雀士' })).toHaveAttribute('aria-invalid', 'true');
     selectPlayers();
     fireEvent.change(score(1), { target: { value: '250' } });
     fireEvent.click(screen.getByRole('button', { name: '入力を確認' }));
@@ -43,24 +45,43 @@ describe('one-handed score entry', () => {
   it('uses the near-field next button and handles auto-calculated seat selection', () => {
     form();
     fireEvent.click(screen.getAllByRole('button', { name: '次の雀士へ' })[0]);
-    expect(screen.getByRole('combobox', { name: '席2の雀士' })).toHaveFocus();
-    for (let i = 0; i < 3; i++) fireEvent.change(screen.getByRole('combobox', { name: `席${i + 1}の雀士` }), { target: { value: players[i].id } });
+    expect(screen.getByRole('combobox', { name: '入力2の雀士' })).toHaveFocus();
+    for (let i = 0; i < 3; i++) fireEvent.change(screen.getByRole('combobox', { name: `入力${i + 1}の雀士` }), { target: { value: players[i].id } });
     fireEvent.click(screen.getByRole('button', { name: '入力を確認' }));
-    expect(screen.getByRole('combobox', { name: '席4の雀士' })).toHaveFocus();
+    expect(screen.getByRole('combobox', { name: '入力4の雀士' })).toHaveFocus();
   });
   it('preserves draft restoration, negative amounts and explicit save', async () => {
     const key = 'quality-draft';
     form(3, key); selectPlayers(3);
     fireEvent.change(score(1), { target: { value: '50' } });
-    fireEvent.click(screen.getByRole('button', { name: '席1の素点の符号を切り替える' }));
+    fireEvent.click(screen.getByRole('button', { name: '入力1の素点の符号を切り替える' }));
     fireEvent.change(score(2), { target: { value: '350' } });
     expect(score(1)).toHaveValue(-50);
     expect(JSON.parse(localStorage.getItem(key)!).manualInputs).toEqual(['-50', '350']);
     cleanup(); form(3, key);
     expect(score(1)).toHaveValue(-50);
+    expect(screen.getByText('前回の入力を復元しました')).toBeInTheDocument();
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    expect(navigate('home')).toBe(false);
+    expect(confirm).toHaveBeenCalledOnce();
     fireEvent.click(screen.getByRole('button', { name: 'この半荘を記録する' }));
     await screen.findByRole('heading', { name: '半荘を保存しました' });
     expect(save).toHaveBeenCalledOnce();
+    expect(navigate('home')).toBe(true);
+    expect(confirm).toHaveBeenCalledOnce();
+  });
+  it('clears a restored draft only after confirmation without submitting it', () => {
+    const key = 'clear-draft';
+    localStorage.setItem(key, JSON.stringify({ playerCount: 4, selectedIds: ['a', 'b', 'c', 'd'], manualInputs: ['300', '', ''] }));
+    form(4, key);
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    fireEvent.click(screen.getByRole('button', { name: '下書きをクリア' }));
+    expect(score(1)).toHaveValue(300);
+    confirm.mockReturnValue(true);
+    fireEvent.click(screen.getByRole('button', { name: '下書きをクリア' }));
+    expect(score(1)).toHaveValue(null);
+    expect(screen.queryByText('前回の入力を復元しました')).not.toBeInTheDocument();
+    expect(save).not.toHaveBeenCalled();
   });
 });
 

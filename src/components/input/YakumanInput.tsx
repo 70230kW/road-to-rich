@@ -58,7 +58,7 @@ export function YakumanInput({
   };
 
   return (
-    <div className="bg-purple-950/20 border border-purple-500/30 rounded-2xl p-5 space-y-4">
+    <div className="yakuman-input space-y-4" data-has-events={events.length > 0}>
       <div className="flex items-center justify-between">
         <p className="text-xs font-black text-purple-300 tracking-wide flex items-center gap-2">
           <Sparkles className="w-4 h-4 shrink-0" /> 役満（あれば記録）
@@ -66,6 +66,7 @@ export function YakumanInput({
         {!isAdding && (
           <button
             type="button"
+            aria-expanded={isAdding}
             onClick={() => setIsAdding(true)}
             className="flex items-center gap-1 text-xs font-bold text-purple-300 hover:text-purple-100 bg-purple-500/10 hover:bg-purple-500/20 px-3 py-1.5 rounded-lg border border-purple-500/30 transition-colors"
           >
@@ -103,7 +104,7 @@ export function YakumanInput({
       {isAdding && (
         <div className="bg-abyss/80 border border-purple-500/30 rounded-xl p-4 space-y-4">
           <div>
-            <label className="block text-[11px] font-black text-slate-400 tracking-widest uppercase mb-2">成就者</label>
+            <label className="block text-xs font-black text-slate-400 tracking-widest uppercase mb-2">成就者</label>
             <div className="flex flex-wrap gap-2">
               {participantIds.map((pid) => (
                 <button
@@ -123,7 +124,7 @@ export function YakumanInput({
           </div>
 
           <div>
-            <label className="block text-[11px] font-black text-slate-400 tracking-widest uppercase mb-2">
+            <label className="block text-xs font-black text-slate-400 tracking-widest uppercase mb-2">
               役満（複合する場合は複数選択可）
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-64 overflow-y-auto pr-1">
@@ -150,7 +151,7 @@ export function YakumanInput({
                       className="accent-purple-500"
                     />
                     {y.name}
-                    {y.isDouble && <span className="text-[9px] text-purple-400 font-mono">W</span>}
+                    {y.isDouble && <span className="text-xs text-purple-400 font-mono">W</span>}
                   </label>
                 );
               })}

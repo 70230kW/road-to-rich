@@ -31,11 +31,11 @@
 .league-action:focus-visible { outline: 2px solid var(--premium-gold); outline-offset: 4px; }
 .replay-toggle { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; color: var(--premium-gold); font-size: 14px; }
 .hanchan-form :is(input, select) { scroll-margin-block: 170px 200px; }
-.hanchan-form .score-next-seat { display: flex; align-items: center; justify-content: end; gap: 8px; width: 100%; min-height: 44px; margin-top: 4px; color: #d8c49c; font-size: 13px; }
+.hanchan-form .score-next-seat { display: flex; align-items: center; justify-content: end; gap: 8px; width: 100%; min-height: 44px; margin-top: 4px; color: #d8c49c; font-size: var(--text-body); }
 .hanchan-form .negative-score { min-height: 44px; padding-inline: 8px; }
 .hanchan-form .score-save-bar { border-radius: 12px; border-color: var(--premium-line); gap: 10px 16px; }
 .hanchan-form .score-save-totals { flex: 1 1 240px; min-width: 0; font-size: 12px; }
-.hanchan-form .score-save-totals small { font-size: 11px; line-height: 1.7; }
+.hanchan-form .score-save-totals small { font-size: var(--text-meta); line-height: 1.7; }
 .hanchan-form .score-save-state { color: var(--ui-muted); }
 .hanchan-form .score-save-bar .solid-action { min-height: 48px; }
 .hanchan-form .score-save-totals:focus { outline: 2px solid var(--premium-gold); outline-offset: 4px; }

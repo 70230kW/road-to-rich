@@ -53,8 +53,8 @@ describe('personal league context', () => {
 });
 function form(count: PlayerCount, save: () => Promise<void>) {
   render(<HanchanForm players={players} settings={{playerCount:count,initialScore:25000,divider:10,rankPoints4:[30,10,-10,-30],rankPoints3:[20,0,-20]}} currentDayGames={[]} onAddGame={save} onRemoveGame={vi.fn()} onUpdateGameYakuman={vi.fn()} onStartSettling={vi.fn()} onNavigateToPlayers={vi.fn()} onSetPlayerCount={vi.fn()}/>);
-  for(let i=0;i<count;i++) fireEvent.change(screen.getByRole('combobox',{name:`席${i+1}の雀士`}),{target:{value:players[i].id}});
-  for(let i=0;i<count-1;i++) fireEvent.change(screen.getByRole('spinbutton',{name:`席${i+1}の素点 (百点単位)`}),{target:{value:String(300-i*50)}});
+  for(let i=0;i<count;i++) fireEvent.change(screen.getByRole('combobox',{name:`入力${i+1}の雀士`}),{target:{value:players[i].id}});
+  for(let i=0;i<count-1;i++) fireEvent.change(screen.getByRole('spinbutton',{name:`入力${i+1}の素点 (百点単位)`}),{target:{value:String(300-i*50)}});
 }
 describe('confirmed score saving', () => {
   it.each([3,4] as const)('waits for acknowledgement and prevents duplicate saves with %i players', async count => {
@@ -63,7 +63,7 @@ describe('confirmed score saving', () => {
     fireEvent.click(button); fireEvent.click(button);
     expect(save).toHaveBeenCalledTimes(1);
     expect(screen.queryByText('半荘を保存しました')).not.toBeInTheDocument();
-    expect(screen.getByRole('spinbutton',{name:'席1の素点 (百点単位)'})).toBeDisabled();
+    expect(screen.getByRole('spinbutton',{name:'入力1の素点 (百点単位)'})).toBeDisabled();
     await act(async()=>resolve());
     expect(screen.getByRole('heading',{name:'半荘を保存しました'})).toHaveFocus();
     expect(screen.getByRole('button',{name:'次の半荘へ'})).toBeInTheDocument();
@@ -72,7 +72,7 @@ describe('confirmed score saving', () => {
     const save=vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValue(undefined); form(4,save);
     fireEvent.click(screen.getByRole('button',{name:'この半荘を記録する'}));
     await waitFor(()=>expect(screen.getByText(/保存できませんでした/)).toBeInTheDocument());
-    expect(screen.getByRole('spinbutton',{name:'席1の素点 (百点単位)'})).toHaveValue(300);
+    expect(screen.getByRole('spinbutton',{name:'入力1の素点 (百点単位)'})).toHaveValue(300);
     fireEvent.click(screen.getByRole('button',{name:'この半荘を記録する'}));
     await screen.findByRole('heading',{name:'半荘を保存しました'});
     expect(save).toHaveBeenCalledTimes(2);

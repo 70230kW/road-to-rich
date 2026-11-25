@@ -1,3 +1,4 @@
+import { useUnsavedNavigation } from '../../store/useNavigation';
 import { useState } from 'react';
 import { CalendarDays, Flag, Play, RotateCcw, Users } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
@@ -23,6 +24,8 @@ export function MatchSessionPanel({ onSettle, onStarted }: { onSettle: () => voi
   const [confirmingClear, setConfirmingClear] = useState(false);
   const [saving, setSaving] = useState(false);
   const [startError, setStartError] = useState(false);
+  const [initialTitle] = useState(defaultTitle);
+  const clearGuard = useUnsavedNavigation(!session && (selection.length > 0 || title !== initialTitle), '未保存の対局会設定があります。移動すると設定は失われます。移動しますか？');
 
   if (!session) {
     const canStart = title.trim().length > 0 && selectedIds.length >= settings.playerCount;
@@ -40,7 +43,7 @@ export function MatchSessionPanel({ onSettle, onStarted }: { onSettle: () => voi
         <div className="session-setup-footer"><small data-ready={canStart}>{startHint}</small><button type="button" className="session-start-button" disabled={!canStart || saving} onClick={async () => {
           if (!canStart || saving) return;
           setSaving(true); setStartError(false);
-          try { await startSession(title, selectedIds); haptic('success'); onStarted?.(); }
+          try { await startSession(title, selectedIds); clearGuard(); haptic('success'); onStarted?.(); }
           catch { setStartError(true); }
           finally { setSaving(false); }
         }}><Play size={17} aria-hidden="true" />{saving ? '開始中…' : `${selectedIds.length}人で対局会を開始`}</button></div>

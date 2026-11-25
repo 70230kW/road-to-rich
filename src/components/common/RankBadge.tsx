@@ -47,7 +47,7 @@ export function RankBadge({ status }: { status: PlayerRankStatus }) {
   return (
     <span
       title={`累計収支 ${formatSignedYen(status.cumulativeProfit)}`}
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide whitespace-nowrap border ${theme.text} ${theme.border} ${theme.bg}`}
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-black tracking-wide whitespace-nowrap border ${theme.text} ${theme.border} ${theme.bg}`}
     >
       <Gauge className="w-2.5 h-2.5 shrink-0" /> {status.levelName}
     </span>

@@ -1,5 +1,6 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { navigate } from '../store/useNavigation';
 import { AppShell } from '../App';
 import { defaultSettings, useAppStore } from '../store/useAppStore';
 import { calcDaySettlement, calcGameSettlement } from '../lib/calc';
@@ -20,10 +21,12 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); document.body.classList.remov
 
 it('reaches all 14 destinations with the shared theme and preserves TOP selection and record entry', async () => {
   render(<AppShell />);
-  fireEvent.click(await screen.findByRole('button', { name: '順位表を開く' }));
+  expect(await screen.findByRole('button', { name: '対局入力を続ける（第2半荘）' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: '01 順位表' }));
   expect(await screen.findByRole('heading', { name: '総合ランキング' }, { timeout: 5000 })).toBeInTheDocument();
   for (const [menu, heading] of [['リーグホーム', '今日も、一局ずつ。'], ['ダッシュボード', 'ダッシュボード'], ['対戦履歴', '対戦履歴'], ['段位', '段位'], ['成績予想', '成績予想'], ['実績', 'トロフィー'], ['シーズン', 'シーズン'], ['アプデ', 'アプデ'], ['ルール', 'ルール'], ['雀士登録', '雀士登録'], ['計算設定', '計算設定']]) {
     fireEvent.click(screen.getByRole('button', { name: 'メニューを開く' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'メニューを検索' }), { target: { value: menu } });
     fireEvent.click(within(screen.getByRole('dialog', { name: 'メニュー' })).getByRole('button', { name: menu }));
     expect(await screen.findByRole('heading', { name: heading }, { timeout: 5000 })).toBeInTheDocument();
     expect(document.body).toHaveClass('glass-theme');
@@ -41,5 +44,24 @@ it('reaches all 14 destinations with the shared theme and preserves TOP selectio
   expect(await screen.findByRole('heading', { name: '半荘成績入力' })).toBeInTheDocument();
   expect(screen.getByLabelText('入力中の暫定順位')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'TOPに戻る' }));
-  expect(await screen.findByRole('button', { name: '対局入力を開く' })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: '対局入力を続ける（第2半荘）' })).toBeInTheDocument();
 }, 20000);
+
+
+it('promotes resume on TOP after starting a match during the same visit', async () => {
+  useAppStore.setState({ currentDayGames: [], startSession: vi.fn(async (title, participantIds) => {
+    useAppStore.setState({ currentSession: { id: 'new', title, participantIds, startedAt: new Date().toISOString() } });
+  }) });
+  navigate('home');
+  render(<AppShell />);
+  await screen.findByRole('heading', { name: '今日も、一局ずつ。' });
+  act(() => { navigate('input', { mode: 'session' }); });
+  await screen.findByRole('textbox', { name: '対局会名' });
+  for (const player of useAppStore.getState().players) fireEvent.click(screen.getByRole('checkbox', { name: player.name }));
+  fireEvent.click(screen.getByRole('button', { name: '4人で対局会を開始' }));
+  await screen.findByRole('heading', { name: '半荘成績入力' });
+  fireEvent.click(screen.getByRole('button', { name: 'TOPに戻る' }));
+  expect(await screen.findByRole('button', { name: '対局入力を続ける（第1半荘）' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: '対局入力を続ける（第1半荘）' }));
+  expect(await screen.findByRole('heading', { name: '半荘成績入力' })).toBeInTheDocument();
+});

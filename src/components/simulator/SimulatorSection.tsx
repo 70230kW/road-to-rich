@@ -85,7 +85,7 @@ export function SimulatorSection() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="text-slate-500 text-[10px] uppercase tracking-widest">
+            <thead className="text-slate-500 text-xs uppercase tracking-widest">
               <tr>
                 <th className="pb-3 pr-3 font-black">雀士</th>
                 <th className="pb-3 pr-3 font-black text-right">現在収支</th>
@@ -122,7 +122,7 @@ export function SimulatorSection() {
             </tbody>
           </table>
         </div>
-        <p className="text-[10px] text-slate-600 mt-4">
+        <p className="text-xs text-slate-600 mt-4">
           ※ 各雀士のこれまでの平均収支ペースがそのまま続くと仮定した単純な試算です。実際の結果を保証するものではありません。
         </p>
       </div>

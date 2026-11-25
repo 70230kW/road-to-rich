@@ -33,7 +33,7 @@ export function StatCard({
 
   const content = (
     <>
-      <div className="stat-label flex items-center gap-1.5 text-[10px] sm:text-[11px] md:text-xs font-medium text-slate-400 mb-2 tracking-[0.05em]">
+      <div className="stat-label flex items-center gap-1.5 text-xs sm:text-xs md:text-xs font-medium text-slate-400 mb-2 tracking-[0.05em]">
         <span aria-hidden="true" className="shrink-0 hidden sm:block">{cloneElement(icon, { className: 'w-3.5 h-3.5' })}</span>
         {title}
       </div>

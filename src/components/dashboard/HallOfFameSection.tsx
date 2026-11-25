@@ -21,7 +21,7 @@ function RecordCard({
 }) {
   return (
     <div className="editorial-row bg-abyss/80 p-5 rounded-2xl border border-slate-800/80 min-w-0">
-      <div className={`flex items-center text-[10px] font-black tracking-widest uppercase mb-2 ${accent}`}>
+      <div className={`flex items-center text-xs font-black tracking-widest uppercase mb-2 ${accent}`}>
         <Icon className="w-3.5 h-3.5 mr-1.5 shrink-0" /> {label}
       </div>
       {record === null ? (
@@ -30,7 +30,7 @@ function RecordCard({
         <>
           <div className="font-black text-lg text-slate-100 truncate">{record.playerName}</div>
           <div className={`font-mono font-black mt-1 ${accent}`}>{formatValue(record)}</div>
-          <div className="text-[10px] text-slate-500 font-mono mt-1.5 flex items-center justify-between gap-2">
+          <div className="text-xs text-slate-500 font-mono mt-1.5 flex items-center justify-between gap-2">
             <span className="truncate">{formatDetail?.(record) ?? ''}</span>
             <span className="shrink-0">{formatDateShort(record.date)}</span>
           </div>

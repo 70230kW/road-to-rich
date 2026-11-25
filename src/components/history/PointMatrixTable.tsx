@@ -14,12 +14,12 @@ export function PointMatrixTable({
 
   return (
     <div className="editorial-table rounded-2xl border border-slate-700/50 shadow-inner relative z-10">
-      <table className="w-full table-fixed text-[11px] sm:text-sm text-left">
+      <table className="w-full table-fixed text-xs sm:text-sm text-left">
         <thead className="text-slate-400 bg-abyss uppercase tracking-widest">
           <tr>
-            <th className="w-10 sm:w-auto px-1 sm:px-5 py-2 sm:py-4 border-r border-slate-700/50 font-black text-[10px] sm:text-xs">半荘</th>
+            <th className="w-10 sm:w-auto px-1 sm:px-5 py-2 sm:py-4 border-r border-slate-700/50 font-black text-xs sm:text-xs">半荘</th>
             {participantIds.map((pid) => (
-              <th key={pid} className="px-1 sm:px-5 py-2 sm:py-4 text-center font-black text-[10px] sm:text-xs truncate">
+              <th key={pid} className="px-1 sm:px-5 py-2 sm:py-4 text-center font-black text-xs sm:text-xs truncate">
                 {name(pid)}
               </th>
             ))}
@@ -28,7 +28,7 @@ export function PointMatrixTable({
         <tbody className="font-mono">
           {day.games.map((g, idx) => (
             <tr key={g.id} className="border-b border-slate-700/50 bg-panel-2/40 hover:bg-slate-800/60 transition-colors">
-              <td className="px-1 sm:px-5 py-2 sm:py-4 border-r border-slate-700/50 text-emerald-500 font-black text-[10px] sm:text-base">
+              <td className="px-1 sm:px-5 py-2 sm:py-4 border-r border-slate-700/50 text-emerald-500 font-black text-xs sm:text-base">
                 #{String(idx + 1).padStart(2, '0')}
               </td>
               {participantIds.map((pid) => {
@@ -37,7 +37,7 @@ export function PointMatrixTable({
                   <td key={pid} className="px-1 sm:px-5 py-2 sm:py-4 text-center">
                     {scoreData ? (
                       <span
-                        className={`font-bold text-[11px] sm:text-base ${
+                        className={`font-bold text-xs sm:text-base ${
                           scoreData.point >= 0 ? 'text-emerald-400' : 'text-rose-400'
                         }`}
                       >

@@ -33,7 +33,7 @@ import { TableRankingSection } from './TableRankingSection';
 import { PlayerDetailModal } from '../ranking/PlayerDetailModal';
 import { ScrambleText } from '../common/ScrambleText';
 
-export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
+export function LeagueAnalysis({ season, onShowAll }: { season: SeasonFilter; onShowAll?: () => void }) {
   const fullHistory = useAppStore((s) => s.history);
   const players = useAppStore((s) => s.players);
   const settings = useAppStore((s) => s.settings);
@@ -78,7 +78,10 @@ export function LeagueAnalysis({ season }: { season: SeasonFilter }) {
       <div className="space-y-8">
         <SectionHeader icon={BarChart3} title="リーグ全体の分析" accent="cyan" description="全雀士の戦績を、多角的な指標と推移で読み解きます。" trailing={fullHistory.length > 0 ? seasonSelect : undefined} />
         {careerInsights}
-        <EmptyState icon={BarChart3} message="分析データがありません" hint="対局を記録して精算を保存すると、ここに統計が表示されます。" />
+        <section className="period-empty">
+          <EmptyState icon={BarChart3} message={season === 'all' ? '分析データがありません' : 'この期間の対局はありません'} hint={season === 'all' ? '対局を記録して精算を保存すると、ここに統計が表示されます。' : '期間を切り替えると、ほかの対局の分析を確認できます。'} />
+          {season !== 'all' && onShowAll && <button type="button" className="action-primary" onClick={onShowAll}>通算を見る</button>}
+        </section>
         {showReport && (
           <SeasonReportModal seasonLabel={seasonLabel} data={seasonReportData} players={players} onClose={() => setShowReport(false)} />
         )}
