@@ -121,7 +121,7 @@ describe('clear performance scopes and history', () => {
     render(<HistorySection />);
     const morning = screen.getByRole('button', { name: /朝対局会/ });
     expect(morning).toHaveAttribute('aria-expanded', 'false');
-    expect(morning).toHaveTextContent('雀士a、雀士b、雀士c ほか1人');
+    expect(morning).toHaveTextContent('雀士a、雀士b、雀士c、雀士d');
     expect(morning).toHaveTextContent('精算済み');
     expect(screen.getByRole('button', { name: /夜対局会/ })).toHaveTextContent('雀士b、雀士c、雀士d');
     expect(screen.getByText('進行中の卓')).toBeInTheDocument();
