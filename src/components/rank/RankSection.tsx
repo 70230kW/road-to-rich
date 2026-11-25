@@ -71,7 +71,7 @@ export function RankSection() {
             <p className="eyebrow mt-2 mb-7">LIFETIME PROFIT · 場代抜き（円）</p>
             <div className="rank-next"><span>{status.levelName}</span><span>{status.nextLevelName ?? '最高段位'}</span></div>
             <progress className="rank-progress" value={status.progressRatio} max={1} aria-label="次の段位への進捗" />
-            <p className="rank-remaining">{status.nextLevelName ? <>昇段まであと <strong><ScrambleText text={`¥${status.profitToNextLevel!.toLocaleString()}`} /></strong></> : '最高段位に到達しました！'}</p>
+            <p className="rank-remaining">{status.nextLevelName ? <>昇段まであと <strong><ScrambleText text={`${status.profitToNextLevel!.toLocaleString()}円`} /></strong></> : '最高段位に到達しました！'}</p>
           </section>
           <section className="premium-panel"><div className="section-kicker"><h3>直近の段位対象収支</h3><span>場代抜き（円）</span></div>
             {recentDays.map(day => <div key={day.id} className="rank-day"><span>{new Date(day.date).toLocaleDateString('ja-JP')}</span><strong className={day.settlement[activeId].totalWithoutFee >= 0 ? 'profit-positive' : 'profit-negative'}><ScrambleText text={formatSignedYen(day.settlement[activeId].totalWithoutFee)} /></strong></div>)}
@@ -121,7 +121,7 @@ export function RankSection() {
       >
         <div className="rank-ladder-heading"><div><span className="eyebrow">RANK LADDER</span><h3>段位一覧</h3></div><div className="rank-ladder-direction"><TrendingUp size={15} /><span>上ほど高段位</span></div></div>
         <p className="text-xs text-slate-500 mb-6">魂天を頂点に、現在の累計収支から段位を判定します。タップすると各段位の条件を確認できます。</p>
-        {currentStatus && <div className="rank-ladder-current"><strong>現在 {currentStatus.levelName}（通算）</strong><span>{currentStatus.nextLevelName ? `${currentStatus.nextLevelName}まであと ¥${currentStatus.profitToNextLevel!.toLocaleString()}` : '最高段位に到達'}</span></div>}
+        {currentStatus && <div className="rank-ladder-current"><strong>現在 {currentStatus.levelName}（通算）</strong><span>{currentStatus.nextLevelName ? `${currentStatus.nextLevelName}まであと ${currentStatus.profitToNextLevel!.toLocaleString()}円` : '最高段位に到達'}</span></div>}
         <div className="rank-ladder">
           {groups.map((g, idx) => {
             const theme = RANK_GROUP_THEME[g.group];
@@ -158,7 +158,7 @@ export function RankSection() {
                         <span className={`font-bold text-xs shrink-0 ${theme.text}`}>{tier.name}{tier.name === currentStatus?.levelName && <small> 現在</small>}</span>
                         <span className="font-mono text-xs text-slate-400 text-right">
                           収支 {formatSignedYen(tier.minProfit)} 以上
-                          {tier.name === currentStatus?.nextLevelName && <small className="block text-gold">あと ¥{currentStatus.profitToNextLevel!.toLocaleString()}</small>}
+                          {tier.name === currentStatus?.nextLevelName && <small className="block text-gold">あと {currentStatus.profitToNextLevel!.toLocaleString()}円</small>}
                         </span>
                       </div>
                     ))}

@@ -115,3 +115,7 @@ body.glass-theme .hanchan-form .score-save-bar .solid-action:disabled { opacity:
 .trend-reference dt { font-size: var(--text-meta); color: var(--premium-muted); }
 .trend-reference dd { margin-top: 5px; font: 16px var(--font-mono); }
 @media (max-width: 767px) { .trend-reference { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+
+body.glass-theme .app-header-inline .header-player-select { position: relative; }
+body.glass-theme .app-header-inline .header-player-select > span { display: block; position: absolute; top: 2px; left: 10px; width: auto; height: auto; clip-path: none; overflow: visible; color: var(--premium-muted); font-size: var(--text-label); line-height: 12px; pointer-events: none; }
+body.glass-theme .app-header-inline .header-player-select select { padding-top: 15px; padding-bottom: 2px; line-height: 24px; }

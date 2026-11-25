@@ -138,7 +138,7 @@ describe('ranking priority and rank ladder', () => {
     expect(screen.getByRole('button', { name: '3D表彰台を見る（上位3人）' })).toHaveAttribute('aria-expanded', 'false');
     expect(container.querySelector('#ranking-podium')).not.toBeInTheDocument();
     expect(container.querySelector('.leaderboard-list')!.compareDocumentPosition(container.querySelector('.ranking-target')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: '差額' }));
+    fireEvent.click(screen.getByRole('button', { name: '順位差額' }));
     expect(screen.getAllByText(/位との差/).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole('button', { name: '詳細' }));
     expect(container.querySelector('.leaderboard-list')).toHaveClass('is-detail');
@@ -149,7 +149,7 @@ describe('ranking priority and rank ladder', () => {
     const { container } = render(<RankSection />);
     expect(screen.getByRole('button', { name: '雀傑の内訳を閉じる' })).toHaveAttribute('aria-expanded', 'true');
     const ladder = within(container.querySelector('#rank-tier-list') as HTMLElement);
-    expect(ladder.getByText('雀傑2まであと ¥20,000')).toBeInTheDocument();
+    expect(ladder.getByText('雀傑2まであと 20,000円')).toBeInTheDocument();
     expect(ladder.getByText('収支 +300,000 以上')).toBeInTheDocument();
     expect(ladder.queryByRole('button', { name: /魂天の内訳/ })).not.toBeInTheDocument();
     expect(container.querySelector('.rank-tier-row[aria-current="true"]')).toHaveTextContent('雀傑1');
