@@ -1,3 +1,4 @@
+import { useUnsavedNavigation } from '../../store/useNavigation';
 import { SaveReceipt } from './SaveReceipt';
 import { SectionHeader } from '../common/SectionHeader';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -81,6 +82,9 @@ export function HanchanForm({
   const [rankPointsOverride, setRankPointsOverride] = useState<number[] | null>(null);
   const [savedGameId, setSavedGameId] = useState<string | null>(null);
   const previousPlayerCount = useRef(playerCount);
+  const selectionBaseline = useRef(initialDraft?.selectedIds ?? Array(playerCount).fill(null));
+  const selectionChanged = selectedIds.some((id, index) => id !== selectionBaseline.current[index]);
+  useUnsavedNavigation(!savedScores && (manualInputs.some(value => value !== '') || selectionChanged || yakumanEvents.length > 0 || rankPointsOverride !== null), '未保存の半荘があります。雀士と素点は下書きに残りますが、役満・順位点の編集は失われます。移動しますか？');
 
   useEffect(() => {
     if (previousPlayerCount.current === playerCount) return;
@@ -211,6 +215,7 @@ export function HanchanForm({
         ...(isRankPointsChanged ? { rankPointsUsed: [...activeRankPoints] } : {}),
       });
 
+      selectionBaseline.current = [...selectedIds];
       setManualInputs(Array(lastIndex).fill(''));
       setAttemptedSubmit(false);
       setTieOrderOverrides({});

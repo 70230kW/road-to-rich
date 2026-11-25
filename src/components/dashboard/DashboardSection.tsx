@@ -1,6 +1,7 @@
+import { updateRouteQuery, useAppRoute } from '../../store/useNavigation';
 import { useViewContext } from '../../store/useViewPreferences';
 import { RankEmblem } from '../common/RankEmblem';
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import { BarChart3 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { computeRanking, computePlayerRateStats } from '../../lib/stats';
@@ -20,7 +21,9 @@ export function DashboardSection() {
   const history = useAppStore(s => s.history);
   const players = useAppStore(s => s.players);
   const { season, activeId, setPeriod } = useViewContext();
-  const [scope, setScope] = useState<'personal' | 'league'>('personal');
+  const route = useAppRoute();
+  const scope = route.params.get('tab') === 'league' ? 'league' : 'personal';
+  const setScope = (tab: string) => updateRouteQuery({ tab });
   const filtered = useMemo(() => filterHistoryBySeason(history, season), [history, season]);
   const rows = useMemo(() => computeRanking(filtered, players), [filtered, players]);
   const rates = useMemo(() => computePlayerRateStats(filtered, players), [filtered, players]);

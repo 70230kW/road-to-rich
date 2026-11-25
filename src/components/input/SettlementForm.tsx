@@ -1,3 +1,4 @@
+import { useUnsavedNavigation } from '../../store/useNavigation';
 import { SectionHeader } from '../common/SectionHeader';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Activity, ChevronsRight, DollarSign, Save } from 'lucide-react';
@@ -44,6 +45,7 @@ export function SettlementForm({
   const [attemptedSave, setAttemptedSave] = useState(false);
   const [confirmingSave, setConfirmingSave] = useState(false);
   const tableFeeInputRef = useRef<HTMLInputElement>(null);
+  useUnsavedNavigation(tableFeeInput !== (initialTableFee === undefined ? '' : String(initialTableFee)) || chipRateInput !== String(initialChipRate ?? 200) || participantIds.some(id => (chipInputs[id] ?? '') !== (initialChips?.[id] === undefined ? '' : String(initialChips[id]))), '未保存の精算内容があります。移動すると場代・チップの入力は失われます。移動しますか？');
 
   // 半荘の記録が終わってこの画面に遷移したとき、場代の入力欄まで自動でスクロールする。
   useEffect(() => {

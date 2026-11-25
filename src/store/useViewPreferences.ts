@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { create } from 'zustand';
 import { useAppStore } from './useAppStore';
 import type { SeasonFilter } from '../lib/season';
+import { parsePeriod, periodQuery } from '../lib/appRoute';
+import { updateRouteQuery, useAppRoute } from './useNavigation';
 
 export type PeriodChoice = 'month' | 'previousMonth' | 'year' | 'all' | 'custom';
 interface ViewPreference { playerId: string; period: PeriodChoice; customSeason: SeasonFilter; seenRanks: Record<string, number>; }
@@ -51,13 +53,25 @@ export function useViewContext() {
   const players = useAppStore(s => s.players);
   const preference = useViewPreferences(s => s.rooms[room] ?? DEFAULT);
   const update = useViewPreferences(s => s.update);
+  const route = useAppRoute();
+  const urlPeriod = route.tab === 'ranking' || route.tab === 'dashboard';
+  const choice = urlPeriod ? parsePeriod(route.params.get('period')) : preference;
+  const customYear = choice.customSeason === 'all' ? null : choice.customSeason.year;
+  const customMonth = choice.customSeason === 'all' ? null : choice.customSeason.month;
   const now = new Date();
   const year = now.getFullYear(), month = now.getMonth();
-  const season = useMemo(() => resolvePeriod(preference.period, preference.customSeason, new Date(year, month, 1)), [preference.period, preference.customSeason, year, month]);
+  const season = useMemo(() => resolvePeriod(choice.period, customYear === null ? 'all' : { year: customYear, month: customMonth! }, new Date(year, month, 1)), [choice.period, customYear, customMonth, year, month]);
   const activeId = players.some(p => p.id === preference.playerId) ? preference.playerId : players[0]?.id ?? '';
-  return { room, activeId, season, period: preference.period,
+  return { room, activeId, season, period: choice.period,
     setPlayerId: (playerId: string) => update(room, { playerId }),
-    setSeason: (customSeason: SeasonFilter) => update(room, { customSeason, period: customSeason === 'all' ? 'all' : 'custom' }),
-    setPeriod: (period: PeriodChoice) => update(room, { period }),
+    setSeason: (customSeason: SeasonFilter) => {
+      const period = customSeason === 'all' ? 'all' : 'custom';
+      if (urlPeriod && !updateRouteQuery({ period: periodQuery(period, customSeason) })) return;
+      update(room, { customSeason, period });
+    },
+    setPeriod: (period: PeriodChoice) => {
+      if (urlPeriod && !updateRouteQuery({ period: periodQuery(period, preference.customSeason) })) return;
+      update(room, { period });
+    },
   };
 }

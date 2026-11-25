@@ -1,0 +1,3 @@
+{
+  "rewrites": [{ "source": "/((?:league|ranking|record|history|dashboard|rank|forecast|achievements|season|updates|rules|players|settings)/?)", "destination": "/index.html" }]
+}

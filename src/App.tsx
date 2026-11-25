@@ -1,7 +1,7 @@
 import { DesktopNav } from './components/layout/DesktopNav';
 import { PlayerContext } from './components/layout/PlayerContext';
 import { RankPromotion } from './components/layout/RankPromotion';
-import { lazy, Suspense, useCallback, useState, type CSSProperties } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState, type CSSProperties } from 'react';
 import { BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, House, Plus, ScrollText, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { RecordSheet } from './components/layout/RecordSheet';
@@ -17,6 +17,7 @@ import { OnlineStatusBar } from './components/layout/OnlineStatusBar';
 import { PullToRefresh } from './components/layout/PullToRefresh';
 import { useScoreWorkspace } from './components/input/useScoreWorkspace';
 import type { InputMode } from './lib/inputMode';
+import { mountNavigation, navigate, updateRouteQuery, useAppRoute } from './store/useNavigation';
 
 
 // Secondary screens are loaded on demand.
@@ -84,12 +85,13 @@ function App() {
 }
 
 export function AppShell() {
-  const [activeTab, setActiveTab] = useState<string>('top');
+  const route = useAppRoute();
+  const activeTab = route.tab;
+  useEffect(mountNavigation, []);
   const scoreWorkspace = useScoreWorkspace(activeTab === 'input' || activeTab === 'history');
   const [homeMenuIndex, setHomeMenuIndex] = useState(0);
   const [isRecordOpen, setIsRecordOpen] = useState(false);
-  const [inputMode, setInputMode] = useState<InputMode>('single');
-  const [inputKey, setInputKey] = useState(0);
+  const inputMode = route.inputMode;
   const gameCount = useAppStore(s => s.currentDayGames.length);
   const session = useAppStore(s => s.currentSession);
   const refreshRoom = useAppStore(s => s.refreshRoom);
@@ -100,17 +102,18 @@ export function AppShell() {
   const isMoreActive = !BOTTOM_TABS.some((t) => t.id === activeTab);
 
   const selectTab = useCallback((id: string) => {
-    setActiveTab(id);
+    if (!navigate(id)) return;
     setIsMoreOpen(false);
     setIsRecordOpen(false);
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
   const closeMenu = useCallback(() => setIsMoreOpen(false), []);
   const openInput = useCallback((mode: InputMode) => {
-    setInputMode(mode);
-    setInputKey(key => key + 1);
-    selectTab('input');
-  }, [selectTab]);
+    if (!navigate('input', { mode })) return;
+    setIsMoreOpen(false);
+    setIsRecordOpen(false);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, []);
   const selectMenuTab = useCallback((id: string) => {
     if (id === 'input') {
       setIsMoreOpen(false);
@@ -144,7 +147,7 @@ export function AppShell() {
             <main className="league-main min-h-[500px]">
               <div key={activeTab} className="relative z-10 screen-transition">
                 <Suspense fallback={<TabSkeleton tab={activeTab} />}>
-                  {activeTab === 'input' && <InputSection key={inputKey} initialMode={inputMode} onNavigateToPlayers={() => selectTab('players')} onResultComplete={() => selectTab('top')} />}
+                  {activeTab === 'input' && <InputSection initialMode={inputMode} onModeChange={mode => updateRouteQuery({ mode })} onNavigateToPlayers={() => selectTab('players')} onResultComplete={() => selectTab('top')} />}
                   {activeTab === 'home' && <LeagueHomeSection onOpenRecord={() => session || gameCount ? setIsRecordOpen(true) : openInput('single')} onOpenMatch={() => openInput(session || gameCount ? 'single' : 'session')} onNavigate={selectTab} />}
                   {activeTab === 'dashboard' && <DashboardSection />}
                   {activeTab === 'history' && <HistorySection />}

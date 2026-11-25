@@ -8,7 +8,7 @@ import { haptic } from '../../lib/haptics';
 import { MatchResultSequence } from './MatchResultSequence';
 import type { InputMode } from '../../lib/inputMode';
 
-export function InputSection({ onNavigateToPlayers, onResultComplete, initialMode = 'single' }: { onNavigateToPlayers: () => void; onResultComplete: () => void; initialMode?: InputMode }) {
+export function InputSection({ onNavigateToPlayers, onResultComplete, initialMode = 'single', onModeChange }: { onNavigateToPlayers: () => void; onResultComplete: () => void; initialMode?: InputMode; onModeChange?: (mode: InputMode) => void }) {
   const players = useAppStore((s) => s.players);
   const settings = useAppStore((s) => s.settings);
   const currentDayGames = useAppStore((s) => s.currentDayGames);
@@ -21,7 +21,9 @@ export function InputSection({ onNavigateToPlayers, onResultComplete, initialMod
   const roomCode = useAppStore((s) => s.roomCode);
 
   const [savedDay, setSavedDay] = useState<{ day: DayRecord; title: string; historyBefore: DayRecord[] } | null>(null);
-  const [requestedMode, setMode] = useState<InputMode>(initialMode);
+  const [localMode, setLocalMode] = useState<InputMode>(initialMode);
+  const requestedMode = onModeChange ? initialMode : localMode;
+  const setMode = (value: InputMode) => onModeChange ? onModeChange(value) : setLocalMode(value);
   const mode = requestedMode === 'settle' && currentDayGames.length === 0 ? 'single' : requestedMode;
 
   if (savedDay) {
@@ -41,7 +43,6 @@ export function InputSection({ onNavigateToPlayers, onResultComplete, initialMod
           await finalizeDay(day);
           haptic('success');
           setSavedDay({ day: completedDay, title, historyBefore });
-          setMode('single');
         }}
       />
     );
