@@ -99,3 +99,10 @@ body.glass-theme .hanchan-form .score-save-bar .solid-action:disabled { opacity:
   .history-filters { grid-template-columns: minmax(0,1fr) minmax(0,1fr); padding-inline: 0; }
   .history-filters label:last-child { grid-column: 1 / -1; }
 }
+
+.chart-axis { font: 14px var(--font-mono); }
+.chart-readout { flex-wrap: wrap; gap: 8px 18px; }
+.chart-readout > span { flex-basis: 100%; overflow-wrap: anywhere; font-size: var(--text-meta); }
+.chart-readout > strong > small { display: block; color: var(--premium-muted); font: var(--text-meta) var(--font-sans); margin-bottom: 4px; }
+.profit-chart svg { cursor: crosshair; touch-action: pan-y; }
+@media (max-width: 767px) { .chart-axis { font-size: 23px; } }

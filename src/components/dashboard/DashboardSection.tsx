@@ -40,12 +40,16 @@ export function DashboardSection() {
   return <div className="space-y-7 animate-fade-in">
     <SectionHeader icon={BarChart3} title="ダッシュボード" />
     <div className="scope-switch" role="group" aria-label="ダッシュボードの表示対象"><button type="button" aria-pressed={scope === 'personal'} onClick={() => setScope('personal')}>個人成績</button><button type="button" aria-pressed={scope === 'league'} onClick={() => setScope('league')}>リーグ全体</button></div>
+      {scope === 'personal' && status && <section className="rank-progress-card"><div><span className="eyebrow">通算段位</span><strong className="text-gold">{status.levelName}</strong></div><small>期間フィルターの対象外</small>
+        <progress className="rank-progress" value={status.progressRatio} max={1} aria-label="次の段位への進捗" />
+        <small>{status.nextLevelName ? <>{status.nextLevelName}まであと <ScrambleText text={`${status.profitToNextLevel!.toLocaleString()}円`} /></> : '最高段位に到達'}</small>
+      </section>}
     <PeriodFilter />
     <p className="scope-caption">{scope === 'personal' ? players.find(p => p.id === activeId)?.name ?? '個人' : 'リーグ全員'}の成績 · {formatSeasonLabel(season)}</p>
     {scope === 'league' ? <Suspense fallback={<TabSkeleton tab="dashboard" compact label="リーグ分析を読み込み中" />}><LeagueAnalysis season={season} /></Suspense> : players.length === 0 ? <EmptyState icon={BarChart3} message="最初の一戦から、キャリアが始まる。" hint="雀士を登録し、対局を記録すると個人成績が表示されます。" /> : games.length === 0 ? <section className="period-empty">
       <EmptyState icon={BarChart3} message="この期間の成績はありません" hint="選択中の雀士が参加した半荘は0件です。期間を切り替えてご確認ください。" />
       {season !== 'all' && <button type="button" className="action-primary" onClick={() => setPeriod('all')}>通算を見る</button>}
-      {status && <p className="scope-caption">通算段位：{status.levelName}（期間フィルターの対象外）</p>}
+
     </section> : <>
       <section className="performance-hero player-career-card">
         <div className="career-card-heading">{status && <RankEmblem status={status} compact />}<div><p className="eyebrow">PLAYER PROFILE</p><h3>{players.find(p => p.id === activeId)?.name}</h3></div><span className="text-gold">通算 {status?.levelName}</span></div>
@@ -58,15 +62,11 @@ export function DashboardSection() {
       <div className="kpi-grid">
         {[['平均順位', row?.avgRank?.toFixed(2) ?? '—'], ['トップ率', formatRatePercentage(rate?.topRate)], ['ラス率', formatRatePercentage(rate?.lastRate)], ['半荘数', String(row?.hanchanCount ?? 0)]].map(([label, value]) => <div key={label} className="kpi"><span>{label}</span><strong><ScrambleText text={value} /></strong></div>)}
       </div>
-      {status && <section className="rank-progress-card"><div><span className="eyebrow">通算段位</span><strong className="text-gold">{status.levelName}</strong></div><small>期間フィルターの対象外</small>
-        <progress className="rank-progress" value={status.progressRatio} max={1} aria-label="次の段位への進捗" />
-        <small>{status.nextLevelName ? <>{status.nextLevelName}まであと <ScrambleText text={`¥${status.profitToNextLevel!.toLocaleString()}`} /></> : '最高段位に到達'}</small>
-      </section>}
       {row ? <div className="dashboard-columns">
         <div className="dashboard-main"><PersonalProfitChart history={filtered} playerId={activeId} /></div>
         <aside className="dashboard-side">
-        <section className="premium-panel"><div className="section-kicker"><h3>直近の対局</h3><span>最新5半荘 · チップ・場代除く（円）</span></div>
-          {games.slice(-5).reverse().map(game => <div key={game.id} className="recent-row"><span className={`placement placement-${game.rank}`}>{game.rank}<small>位</small></span><div><strong>第{game.number}半荘</strong><small>{new Date(game.date).toLocaleDateString('ja-JP')}</small></div><strong className={`ml-auto font-mono ${game.point >= 0 ? 'profit-positive' : 'profit-negative'}`}>{formatSignedYen(game.point)}</strong></div>)}
+        <section className="premium-panel"><div className="section-kicker"><h3>直近の対局</h3><span>半荘収支 · 最新5件 · チップ・場代除く</span></div>
+          {games.slice(-5).reverse().map(game => <div key={game.id} className="recent-row"><span className={`placement placement-${game.rank}`}>{game.rank}<small>位</small></span><div><strong>第{game.number}半荘</strong><small>{new Date(game.date).toLocaleDateString('ja-JP')}</small></div><strong className={`ml-auto font-mono ${game.point >= 0 ? 'profit-positive' : 'profit-negative'}`}>{formatSignedYen(game.point)}円</strong></div>)}
           {games.length === 0 && <p className="muted text-sm py-5">この期間の半荘記録はありません。</p>}
         </section>
         </aside>
