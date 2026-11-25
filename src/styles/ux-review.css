@@ -106,3 +106,12 @@ body.glass-theme .hanchan-form .score-save-bar .solid-action:disabled { opacity:
 .chart-readout > strong > small { display: block; color: var(--premium-muted); font: var(--text-meta) var(--font-sans); margin-bottom: 4px; }
 .profit-chart svg { cursor: crosshair; touch-action: pan-y; }
 @media (max-width: 767px) { .chart-axis { font-size: 23px; } }
+
+.trend-progress { padding-block: 20px; border-block: 1px solid var(--premium-line); }
+.trend-progress h4 { font-weight: 700; font-size: 16px; color: var(--glass-text); }
+.trend-progress > p { margin-block: 10px; color: var(--premium-muted); font-size: var(--text-body); }
+.trend-progress progress { width: 100%; height: 5px; accent-color: var(--glass-signal); }
+.trend-reference { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; margin-top: 20px; }
+.trend-reference dt { font-size: var(--text-meta); color: var(--premium-muted); }
+.trend-reference dd { margin-top: 5px; font: 16px var(--font-mono); }
+@media (max-width: 767px) { .trend-reference { grid-template-columns: repeat(2,minmax(0,1fr)); } }

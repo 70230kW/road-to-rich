@@ -24,7 +24,7 @@ const PodiumSpotlight = lazy(() => import('./PodiumSpotlight').then(m => ({ defa
 export function RankingSection() {
   const fullHistory = useAppStore((s) => s.history);
   const players = useAppStore((s) => s.players);
-  const { season, activeId } = useViewContext();
+  const { season, activeId, setPeriod } = useViewContext();
   const history = useMemo(() => filterHistoryBySeason(fullHistory, season), [fullHistory, season]);
 
   const rows = useMemo(() => computeRanking(history, players), [history, players]);
@@ -56,11 +56,12 @@ export function RankingSection() {
 
   const seasonSelect = <PeriodFilter />;
 
-  if (rows.length === 0) {
+  if (history.length === 0 || rows.length === 0) {
     return (
       <div className="space-y-8">
-        <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" trailing={seasonSelect} />
-        <EmptyState icon={Crown} message="ランキングデータがありません" hint="精算を保存すると、雀士ごとの累計成績が表示されます。" />
+        <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" />
+        {seasonSelect}
+        <div className="period-empty"><EmptyState icon={Crown} message={season === 'all' ? 'ランキングデータがありません' : 'この期間の対局はありません'} hint="期間を変更してください。精算を保存すると順位表に反映されます。" />{season !== 'all' && <button type="button" className="action-primary" onClick={() => setPeriod('all')}>通算を見る</button>}</div>
       </div>
     );
   }

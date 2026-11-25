@@ -23,7 +23,12 @@ export function RecentTrends({ history, playerId, periodLabel }: { history: DayR
     <header className="review-heading"><div><p className="eyebrow">RECENT FORM</p><h3 id={id}>数字で見る、最近の変化</h3></div><span>{periodLabel} · {count}人麻雀</span></header>
     {counts.length > 1 && <div className="review-format" aria-label="比較する対局形式">{counts.map(value => <button type="button" key={value} aria-pressed={count === value} onClick={() => setPreferredCount(value)}>{value}人麻雀</button>)}</div>}
     <p className="review-caption">選択期間内の同じ対局形式で比較します。収支はチップ・場代を除く保存済みの金額です。</p>
-    {!recent.count ? <p className="review-empty">この期間には、比較できる半荘がありません。</p> : <>
+    {!recent.count ? <p className="review-empty">この期間には、比較できる半荘がありません。期間を変えるとほかの記録を確認できます。</p> : !ready ? <div className="trend-progress" role="status">
+      <h4>比較にはあと{trend.missing}半荘必要です</h4><p>現在 {trend.total} / 40半荘 · {count}人麻雀</p>
+      <progress value={trend.total} max={40} aria-label="成績比較に必要な半荘数" />
+      <p className="review-caption">同じ対局形式の直近20半荘と、その前の20半荘を比較します。</p>
+      <dl className="trend-reference"><div><dt>直近のトップ率</dt><dd>{formatRatePercentage(recent.topRate)}</dd></div><div><dt>ラス回避率</dt><dd>{formatRatePercentage(recent.avoidLastRate)}</dd></div><div><dt>平均順位</dt><dd>{recent.avgRank?.toFixed(2)}位</dd></div><div><dt>{recent.count}半荘の収支</dt><dd>{formatSignedYen(recent.profit ?? 0)}円</dd></div></dl>
+    </div> : <>
       <div className="trend-windows"><div><span>直近{recent.count}半荘</span><small>{range(recent)}</small></div><div><span>その前の{previous.count}半荘</span><small>{range(previous)}</small></div></div>
       <p className="trend-summary" role="status">{ready
         ? `直近20半荘は、その前の20半荘に比べてトップ率が${((recent.topRate! - previous.topRate!) * 100).toFixed(1)}ポイント、ラス回避率が${((recent.avoidLastRate! - previous.avoidLastRate!) * 100).toFixed(1)}ポイント変化しています。`
