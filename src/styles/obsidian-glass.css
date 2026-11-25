@@ -101,7 +101,7 @@ body.glass-theme .app-content > .app-header { border-radius: 14px; border-top-co
 body.glass-theme .room-gate .app-header { padding: 16px; border-radius: 14px; margin-bottom: 28px; }
 body.glass-theme .desktop-nav { border-radius: 16px; padding: 18px 12px; }
 body.glass-theme .navigation-menu-footer { background: #080d11a8; }
-body.glass-theme .period-filter { background: transparent; }
+body.glass-theme .period-filter { background: var(--glass-base); }
 body.glass-theme .bottom-nav {
   background: var(--glass-chrome); border-top: 1px solid #78edda2e;
   box-shadow: 0 -12px 36px #0005, inset 0 1px 0 #e0ffff05;

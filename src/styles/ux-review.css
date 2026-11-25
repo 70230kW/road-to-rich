@@ -13,3 +13,20 @@ body.glass-theme :is(.updates-table td, .updates-table th) { font-size: var(--te
   body.glass-theme :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { font-size: 16px; }
   .league-main { min-width: 0; }
 }
+
+/* One compact, opaque strip under the measured header. */
+body.glass-theme .app-content > .app-header-inline { top: env(safe-area-inset-top, 0px); padding-block: 5px; border-radius: 0; background: #0b0d10; }
+body.glass-theme .app-content .period-filter { display: flex; align-items: center; justify-content: space-between; gap: 8px; position: sticky; top: calc(var(--league-header-height, 56px) + env(safe-area-inset-top, 0px)); z-index: 25; min-height: 44px; padding: 0; margin-inline: 0; border-radius: 0; border-bottom: 1px solid var(--glass-edge); background: #0b0d10; backdrop-filter: none; }
+.period-filter .period-buttons { gap: 3px; min-width: 0; }
+body.glass-theme .period-buttons button { padding: 8px 12px; min-width: 0; }
+.period-filter .period-detail { margin: 0; font-size: var(--text-meta); white-space: nowrap; }
+.period-mobile-choice { display: none; }
+.period-custom { display: flex; gap: 8px; position: absolute; right: 0; top: 100%; padding: 10px; background: #10161b; border: 1px solid var(--glass-edge); box-shadow: 0 12px 24px #0009; }
+.period-custom button { padding-inline: 12px; }
+.ranking-toolbar { display: block; }
+.ranking-toolbar .ranking-view-controls { padding: 0; }
+@media (max-width: 767px) {
+  .period-filter .period-buttons { display: none; }
+  .period-mobile-choice { display: block; flex: 1; min-width: 0; }
+  .period-mobile-choice select { width: 100%; border: 0; border-radius: 0; padding-inline: 10px; color: var(--glass-signal); background: #0b0d10; }
+}

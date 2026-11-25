@@ -72,8 +72,8 @@ export function RankingSection() {
   return (
     <div className="ranking-screen animate-fade-in">
       <SectionHeader icon={Crown} title="総合ランキング" accent="yellow" />
+      {seasonSelect}
       <div className="ranking-toolbar">
-        {seasonSelect}
         <div className="ranking-view-controls"><div><span>情報量</span><div className="density-switch" role="group" aria-label="順位表の表示密度"><button type="button" aria-pressed={density === 'simple'} onClick={() => setDensity('simple')}>シンプル</button><button type="button" aria-pressed={density === 'detail'} onClick={() => setDensity('detail')}>詳細</button></div></div><div><span>金額表示</span><div className="density-switch" role="group" aria-label="順位表の金額表示"><button type="button" aria-pressed={amountMode === 'actual'} onClick={() => setAmountMode('actual')}>収支額</button><button type="button" aria-pressed={amountMode === 'gap'} onClick={() => setAmountMode('gap')}>差額</button></div></div></div>
       </div>
       <button type="button" className="podium-disclosure" aria-expanded={showPodium} aria-controls="ranking-podium" onClick={() => setShowPodium(!showPodium)}><Crown size={17} />{showPodium ? '3D表彰台を閉じる' : '3D表彰台を見る（上位3人）'}<ChevronRight size={16} className={showPodium ? 'rotate-90' : ''} /></button>
