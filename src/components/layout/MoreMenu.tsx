@@ -3,12 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Check, RefreshCw, Search, X } from 'lucide-react';
 import type { PrimaryTabDef } from './BottomNav';
 
-const MENU_GROUPS = [
-  { label: 'メイン', ids: ['top', 'home', 'ranking', 'dashboard', 'input', 'history'] },
-  { label: 'キャリア', ids: ['rank', 'simulator', 'trophies'] },
-  { label: 'リーグ管理', ids: ['seasons', 'players', 'rules', 'settings'] },
-  { label: 'アプリ情報', ids: ['updates'] },
-] as const;
+import { NAV_GROUPS } from './navGroups';
+const MENU_GROUPS = [{ label: '牌メニュー', ids: ['top'], collapsible: false }, ...NAV_GROUPS];
 
 type RefreshState = 'idle' | 'refreshing' | 'success' | 'error';
 
@@ -42,7 +38,7 @@ export function MoreMenu({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
       if (event.key === 'Tab') {
-        const items = panelRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input');
+        const items = panelRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input, summary');
         if (!items?.length) return;
         const first = items[0], last = items[items.length - 1];
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
@@ -96,9 +92,10 @@ export function MoreMenu({
         <label className="menu-search"><Search size={18} aria-hidden="true" /><input aria-label="メニューを検索" placeholder="機能を探す" value={query} onChange={event => setQuery(event.target.value)} /></label>
         <nav className="navigation-menu-scroll" aria-label="全画面ナビゲーション">
           {visibleTabs.length === 0 && <p role="status" className="hub-caption">一致する機能がありません。別の言葉で検索してください。</p>}
-          {MENU_GROUPS.filter(group => visibleTabs.some(tab => group.ids.some(id => id === tab.id))).map((group) => (
-            <section className="navigation-menu-group" key={group.label}>
-              <p className="more-menu-group-label">{group.label}</p>
+          {MENU_GROUPS.filter(group => visibleTabs.some(tab => group.ids.some(id => id === tab.id))).map((group) => {
+            const Container = group.collapsible ? 'details' : 'section';
+            return <Container className="navigation-menu-group" key={`${group.label}-${query}-${activeTab}`} {...(group.collapsible ? { open: Boolean(query.trim()) || group.ids.includes(activeTab) } : {})}>
+              {group.collapsible ? <summary className="more-menu-group-label">{group.label}</summary> : <p className="more-menu-group-label">{group.label}</p>}
               <div className="navigation-menu-grid">
                 {visibleTabs.filter((tab) => group.ids.some((id) => id === tab.id)).map((tab) => {
                   const Icon = tab.icon;
@@ -111,14 +108,14 @@ export function MoreMenu({
                       onClick={() => onSelect(tab.id)}
                     >
                       <Icon className="navigation-menu-icon" />
-                      <span>{tab.name}</span>
+                      <span>{tab.name}{tab.id === 'top' && <small className="menu-purpose">牌メニュー</small>}{tab.id === 'home' && <small className="menu-purpose">リーグの概要</small>}</span>
                       {isActive && <i>表示中</i>}
                     </button>
                   );
                 })}
               </div>
-            </section>
-          ))}
+            </Container>;
+          })}
         </nav>
 
         <footer className="navigation-menu-footer">

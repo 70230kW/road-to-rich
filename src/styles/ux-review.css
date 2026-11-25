@@ -73,3 +73,13 @@ body.glass-theme .hanchan-form .score-save-bar .solid-action:disabled { opacity:
   .hanchan-form .live-standings-bar.is-expanded .live-standings-list em { grid-column: 3; }
   .live-standings-bar.is-expanded .live-standings-toggle svg { transform: rotate(180deg); }
 }
+
+.desktop-wordmark { text-align: left; width: 100%; }
+.desktop-wordmark small, .menu-purpose { display: block; color: var(--premium-muted); font-size: var(--text-meta); margin-top: 4px; font-weight: 400; }
+.desktop-nav .nav-group-label, .desktop-nav-group summary { font-size: var(--text-meta); color: var(--premium-muted); padding: 10px 8px; }
+.desktop-nav .desktop-nav-group { margin-top: 12px; padding-top: 8px; }
+.desktop-nav-group summary, .navigation-menu-group summary { cursor: pointer; min-height: 44px; }
+.desktop-nav nav button { padding-block: 8px; }
+@media (min-width: 1100px) {
+  body.glass-theme .app-header-inline .top-return-button { display: none; }
+}
