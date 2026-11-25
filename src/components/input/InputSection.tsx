@@ -70,6 +70,7 @@ export function InputSection({ onNavigateToPlayers, onResultComplete, initialMod
       onStartSettling={() => setMode('settle')}
       onNavigateToPlayers={onNavigateToPlayers}
       onSetPlayerCount={setPlayerCount}
+      sessionTitle={currentSession?.title}
       eligiblePlayerIds={currentSession?.participantIds}
       draftKey={roomCode ? `road-to-rich-hanchan-draft:${roomCode}` : undefined}
     />

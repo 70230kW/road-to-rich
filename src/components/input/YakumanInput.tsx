@@ -58,7 +58,7 @@ export function YakumanInput({
   };
 
   return (
-    <div className="bg-purple-950/20 border border-purple-500/30 rounded-2xl p-5 space-y-4">
+    <div className="yakuman-input space-y-4" data-has-events={events.length > 0}>
       <div className="flex items-center justify-between">
         <p className="text-xs font-black text-purple-300 tracking-wide flex items-center gap-2">
           <Sparkles className="w-4 h-4 shrink-0" /> 役満（あれば記録）
@@ -66,6 +66,7 @@ export function YakumanInput({
         {!isAdding && (
           <button
             type="button"
+            aria-expanded={isAdding}
             onClick={() => setIsAdding(true)}
             className="flex items-center gap-1 text-xs font-bold text-purple-300 hover:text-purple-100 bg-purple-500/10 hover:bg-purple-500/20 px-3 py-1.5 rounded-lg border border-purple-500/30 transition-colors"
           >

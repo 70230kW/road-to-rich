@@ -29,7 +29,7 @@ function readDraft(key: string | undefined, playerCount: number): HanchanDraft |
   if (!key) return null;
   try {
     const parsed = JSON.parse(localStorage.getItem(key) ?? 'null') as HanchanDraft | null;
-    return parsed?.playerCount === playerCount ? parsed : null;
+    return parsed?.playerCount === playerCount && Array.isArray(parsed.selectedIds) && parsed.selectedIds.length === playerCount && parsed.selectedIds.every(id => id === null || typeof id === 'string') && Array.isArray(parsed.manualInputs) && parsed.manualInputs.length === playerCount - 1 && parsed.manualInputs.every(value => typeof value === 'string') ? parsed : null;
   } catch { return null; }
 }
 
@@ -46,6 +46,7 @@ export function HanchanForm({
   receiptTitle = '半荘を保存しました',
   eligiblePlayerIds,
   draftKey,
+  sessionTitle,
 }: {
   players: Player[];
   settings: Settings;
@@ -59,6 +60,7 @@ export function HanchanForm({
   onSetPlayerCount: (count: PlayerCount) => void;
   eligiblePlayerIds?: string[];
   draftKey?: string;
+  sessionTitle?: string;
 }) {
   const [saving, setSaving] = useState(false);
   const savingRef = useRef(false);
@@ -81,6 +83,8 @@ export function HanchanForm({
   // null = 通常の設定通り。値を編集した半荘だけ、この配列を使う。
   const [rankPointsOverride, setRankPointsOverride] = useState<number[] | null>(null);
   const [savedGameId, setSavedGameId] = useState<string | null>(null);
+  const [savedContext, setSavedContext] = useState('');
+  const [showDraftNotice, setShowDraftNotice] = useState(Boolean(initialDraft && (initialDraft.selectedIds.some(Boolean) || initialDraft.manualInputs.some(Boolean))));
   const previousPlayerCount = useRef(playerCount);
   const selectionBaseline = useRef(initialDraft?.selectedIds ?? Array(playerCount).fill(null));
   const selectionChanged = selectedIds.some((id, index) => id !== selectionBaseline.current[index]);
@@ -209,6 +213,7 @@ export function HanchanForm({
     try {
       const entries = selectedIds.map((id, i) => ({ playerId: id as string, rawScore: rawScores[i] as number }));
       const settled = calcGameSettlement(entries, settings, tieBreakOrder, isRankPointsChanged ? activeRankPoints : undefined);
+      const context = `${sessionTitle ? `「${sessionTitle}」` : '本日の対局'} · 第${currentDayGames.length + 1}半荘`;
       const id = await onAddGame({
         scores: settled,
         ...(yakumanEvents.length > 0 ? { yakumanEvents } : {}),
@@ -223,6 +228,8 @@ export function HanchanForm({
       setIsRankPointsOpen(false);
       setRankPointsOverride(null);
       setSavedScores(settled);
+      setSavedContext(context);
+      setShowDraftNotice(false);
       setSavedGameId(typeof id === 'string' ? id : null);
       haptic('success');
       // selectedIds intentionally preserved for the next hanchan.
@@ -254,7 +261,7 @@ export function HanchanForm({
     setSavedScores(null);
     requestAnimationFrame(() => scoreRefs.current[0]?.focus());
   };
-  if (savedScores) return <SaveReceipt title={receiptTitle} detail="この半荘の結果 · チップ・場代を除く" rows={savedScores.map(score => ({ id: score.playerId, name: players.find(p => p.id === score.playerId)?.name ?? '不明', rank: score.rank, profit: score.point }))} onNext={nextGame} onSettle={onStartSettling} onUndo={savedGameId ? async () => { await onRemoveGame(savedGameId); haptic('warning'); setSavedScores(null); setSavedGameId(null); } : undefined} />;
+  if (savedScores) return <SaveReceipt title={receiptTitle} detail={`${savedContext} · 半荘収支（チップ・場代を除く）`} rows={savedScores.map(score => ({ id: score.playerId, name: players.find(p => p.id === score.playerId)?.name ?? '不明', rank: score.rank, profit: score.point }))} onNext={nextGame} onSettle={onStartSettling} onUndo={savedGameId ? async () => { await onRemoveGame(savedGameId); haptic('warning'); setSavedScores(null); setSavedGameId(null); } : undefined} />;
 
   return (
     <fieldset disabled={saving} data-score-entry className="hanchan-form space-y-8 animate-fade-in min-w-0 border-0 p-0">
@@ -274,6 +281,12 @@ export function HanchanForm({
         </button>
       } />
 
+      {showDraftNotice && <div className="draft-notice" role="status"><span>前回の入力を復元しました</span><button type="button" onClick={() => {
+        if (!window.confirm('下書きの雀士・素点をクリアしますか？記録済みの半荘は残ります。')) return;
+        setSelectedIds(Array(playerCount).fill(null)); selectionBaseline.current = Array(playerCount).fill(null);
+        setManualInputs(Array(lastIndex).fill('')); setAttemptedSubmit(false); setTieOrderOverrides({});
+        setYakumanEvents([]); setRankPointsOverride(null); setShowDraftNotice(false);
+      }}>下書きをクリア</button></div>}
       <ol className="input-progress" aria-label="対局入力の進行状況">
         {['雀士選択', '点数入力', '内容確認', '保存準備OK'].map((label, index) => <li key={label} className={index < inputStep ? 'is-complete' : index === inputStep ? 'is-current' : ''} aria-current={index === inputStep ? 'step' : undefined}><span>{index + 1}</span><small>{label}</small></li>)}
       </ol>
@@ -517,7 +530,7 @@ export function HanchanForm({
           )}
 
           <div className="score-save-bar">
-            <div ref={summaryRef} tabIndex={-1} role="group" className="score-save-totals" aria-label="入力内容の確認" aria-live="polite"><span>{autoRaw === null ? '入力済み' : '合計'} <strong>{(validation.scoreTotal ?? enteredTotal).toLocaleString()}</strong> / {expectedTotal.toLocaleString()}点</span><small>{autoRaw === null ? `未入力 ${otherRaw.filter(v => v === null).length}人 · 自動計算分を含む残り ${(expectedTotal - enteredTotal).toLocaleString()}点` : `最後の1人 ${autoRaw.toLocaleString()}点 · ${validation.totalMismatch ? '合計を確認' : '合計一致'}`}</small><small className="score-save-state">{saving ? 'リーグへ保存中…' : saveError ? '保存に失敗しました。再試行できます。' : validation.isValid ? '未保存 · 内容を確認して記録してください' : `未保存 · ${validation.missingPlayerIndices.size ? '雀士を選択してください' : '点数を入力してください'}`}</small></div>
+            <div ref={summaryRef} tabIndex={-1} role="group" className="score-save-totals" aria-label="入力内容の確認" aria-live="polite"><span>{autoRaw === null ? '入力済み' : '合計'} <strong>{(validation.scoreTotal ?? enteredTotal).toLocaleString()}</strong> / {expectedTotal.toLocaleString()}点</span><small>{autoRaw === null ? `未入力 ${otherRaw.filter(v => v === null).length}人 · 自動計算分を含む残り ${(expectedTotal - enteredTotal).toLocaleString()}点` : `最後の1人 ${autoRaw.toLocaleString()}点 · ${validation.totalMismatch ? '合計を確認' : '合計一致'}`}</small><small className="score-save-state">{saving ? 'リーグへ保存中…' : saveError ? '保存に失敗しました。再試行できます。' : validation.isValid ? '未保存 · 内容を確認して記録してください' : `未保存 · ${validation.message}`}</small></div>
             <button type="button" className="solid-action" onClick={handleRecord} disabled={saving}><Plus size={18}/>{saving ? '保存中…' : 'この半荘を記録する'}</button>
           </div>
 
