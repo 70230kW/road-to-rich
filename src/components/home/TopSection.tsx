@@ -1,3 +1,4 @@
+import { useAppStore } from '../../store/useAppStore';
 import { useLayoutEffect } from 'react';
 import { MahjongTileMenu } from './tiles/MahjongTileMenu';
 
@@ -8,6 +9,9 @@ export function TopSection({ menuIndex, onMenuChange, onOpenMatch, onNavigate }:
   onOpenMatch: () => void;
   onNavigate: (id: string) => void;
 }) {
+  const games = useAppStore(state => state.currentDayGames.length);
+  const session = useAppStore(state => state.currentSession);
+  const canResume = games > 0 || Boolean(session && new Date(session.startedAt).toDateString() === new Date().toDateString());
   useLayoutEffect(() => {
     const elements = [document.documentElement, document.body];
     const previous = elements.map(element => element.classList.contains('top-scroll-locked'));
@@ -17,6 +21,6 @@ export function TopSection({ menuIndex, onMenuChange, onOpenMatch, onNavigate }:
     });
   }, []);
   return <div className="top-screen" aria-label="TOP画面">
-    <MahjongTileMenu initialIndex={menuIndex} onSelectionChange={onMenuChange} onOpen={id => id === 'input' ? onOpenMatch() : onNavigate(id)} />
+    <MahjongTileMenu resumeLabel={canResume ? `対局入力を続ける（第${games + 1}半荘）` : undefined} initialIndex={menuIndex} onSelectionChange={onMenuChange} onOpen={id => id === 'input' ? onOpenMatch() : onNavigate(id)} />
   </div>;
 }

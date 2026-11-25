@@ -151,3 +151,13 @@
   }
 }
 
+
+/* Direct destinations look actionable without surrounding the scene in cards. */
+.mahjong-home-menu .jk-menu { padding-inline: 6px; border-bottom: 1px solid #cdb78044; transition: background .15s, color .15s; }
+.mahjong-home-menu .jk-menu:hover, .mahjong-home-menu .jk-menu:focus-visible { background: #cdb78013; color: var(--jk-ink); }
+.mahjong-home-menu .jk-menu:active { background: #cdb78025; }
+.mahjong-home-menu .jk-menu-number { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+.mahjong-home-menu .jk-menu > .jk-menu-title { font-size: 14px; overflow-wrap: anywhere; }
+.mahjong-home-menu .jk-footer { justify-content: flex-end; }
+@media (max-height: 640px) { .top-screen .jk-menu-number { display: none; } }
+@media (prefers-reduced-motion: reduce) { .mahjong-home-menu .jk-menu { transition: none; } }

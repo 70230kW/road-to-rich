@@ -89,7 +89,10 @@ export function AppShell() {
   const activeTab = route.tab;
   useEffect(mountNavigation, []);
   const scoreWorkspace = useScoreWorkspace(activeTab === 'input' || activeTab === 'history');
-  const [homeMenuIndex, setHomeMenuIndex] = useState(0);
+  const [homeMenuIndex, setHomeMenuIndex] = useState(() => {
+    const state = useAppStore.getState();
+    return state.currentDayGames.length || (state.currentSession && new Date(state.currentSession.startedAt).toDateString() === new Date().toDateString()) ? 1 : 0;
+  });
   const [isRecordOpen, setIsRecordOpen] = useState(false);
   const inputMode = route.inputMode;
   const gameCount = useAppStore(s => s.currentDayGames.length);
