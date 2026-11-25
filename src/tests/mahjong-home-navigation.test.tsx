@@ -89,12 +89,12 @@ describe('home integration with the real app shell', () => {
     const open = screen.getByRole('button', { name: '対局入力を開く' });
     open.focus(); await userEvent.keyboard('{Enter}');
     expect(await screen.findByRole('heading', { name: '半荘成績入力' })).toBeInTheDocument();
-    expect(screen.getByLabelText('席1の素点 (百点単位)')).toHaveValue(400);
+    expect(screen.getByLabelText('入力1の素点 (百点単位)')).toHaveValue(400);
     expect(screen.getByLabelText('入力中の暫定順位')).toHaveTextContent('雀士a');
-    fireEvent.change(screen.getByLabelText('席1の素点 (百点単位)'), { target: { value: '450' } });
+    fireEvent.change(screen.getByLabelText('入力1の素点 (百点単位)'), { target: { value: '450' } });
     home();
     fireEvent.click(await screen.findByRole('button', { name: '対局入力を開く' }));
-    expect(await screen.findByLabelText('席1の素点 (百点単位)')).toHaveValue(450);
+    expect(await screen.findByLabelText('入力1の素点 (百点単位)')).toHaveValue(450);
     fireEvent.click(screen.getByRole('button', { name: 'この半荘を記録する' }));
     expect(await screen.findByText('半荘を保存しました')).toBeInTheDocument();
     expect(addGame).toHaveBeenCalledOnce();

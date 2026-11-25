@@ -312,7 +312,7 @@ export function HanchanForm({
 
           <CurrentProfitsBar games={currentDayGames} players={players} previewScores={previewScores} participantIds={eligiblePlayerIds} />
 
-          <p className="muted text-xs">素点は100点単位で入力（250 → 25,000点）。最後の1人は自動計算します。席番号は入力順で、起家順ではありません。</p>
+          <p className="muted text-xs">素点は100点単位で入力（250 → 25,000点）。最後の1人は自動計算します。</p>
           <div className={`score-table score-table-${playerCount}`}>
             <div className="score-table-center" aria-hidden="true"><span>第{currentDayGames.length + 1}半荘</span><strong>{playerCount}人麻雀</strong><small>{expectedTotal.toLocaleString()}点</small></div>
             {Array.from({ length: playerCount }).map((_, i) => {
@@ -339,11 +339,11 @@ export function HanchanForm({
                       : 'bg-panel-2/60 border-slate-700/50 hover:border-slate-500/50'
                   }`}
                 >
-                  <div className="score-seat-label"><span>席 {i + 1}</span><span>{isAuto ? '自動計算' : focusedSeat === i ? '入力中' : '素点入力'}</span></div>
-                  <div className="relative flex-1 min-w-0">
+                  <div className="score-seat-label"><span>入力 {i + 1}</span><span>{isAuto ? '自動計算' : focusedSeat === i ? '入力中' : '素点入力'}</span></div>
+                  <div className="score-player-field relative flex-1 min-w-0">
                     <select
                       ref={node => { playerRefs.current[i] = node; }}
-                      aria-label={`席${i + 1}の雀士`}
+                      aria-label={`入力${i + 1}の雀士`}
                       aria-invalid={selectInvalid}
                       aria-describedby={selectInvalid ? `seat-${i}-player-error` : undefined}
                       value={selectedIds[i] ?? ''}
@@ -374,7 +374,7 @@ export function HanchanForm({
                       <input
                         ref={node => { scoreRefs.current[i] = node; }}
                         type="number"
-                        inputMode="decimal"
+                        inputMode="numeric"
                         enterKeyHint={i < lastIndex - 1 ? 'next' : 'done'}
                         onKeyDown={event => { if (event.key === 'Enter' && !event.nativeEvent.isComposing) { event.preventDefault(); advanceSeat(i); } }}
                         step="any"
@@ -384,7 +384,7 @@ export function HanchanForm({
                         onChange={(e) => handleScoreChange(i, e.target.value)}
                         disabled={isAuto}
                         placeholder="0"
-                        aria-label={isAuto ? '自動計算される素点' : `席${i + 1}の素点 (百点単位)`}
+                        aria-label={isAuto ? '自動計算される素点' : `入力${i + 1}の素点 (百点単位)`}
                         className={`w-full bg-abyss border rounded-xl px-2 sm:px-4 py-2.5 sm:py-3.5 focus:outline-none font-mono text-base sm:text-xl md:text-2xl text-right transition-all shadow-inner ${
                           isAuto
                             ? 'border-cyan-800/80 text-cyan-300 bg-cyan-950/30'
@@ -401,9 +401,10 @@ export function HanchanForm({
                     >
                       00
                     </span>
+                    {!isAuto && <button type="button" className="negative-score" aria-label={`入力${i + 1}の素点の符号を切り替える`} onMouseDown={event => event.preventDefault()} onClick={() => handleScoreChange(i, manualInputs[i].startsWith('-') ? manualInputs[i].slice(1) : `-${manualInputs[i]}`)}>±</button>}
                   </div>
-                  <div className="score-hint-row"><p id={`seat-${i}-score-help`} className={scoreInvalid ? 'field-error' : 'score-hint'}>{scoreInvalid ? '素点を入力してください' : rawScores[i] === null ? '入力待ち' : `${rawScores[i]!.toLocaleString()}点`}</p>
-                    {!isAuto && <button type="button" className="negative-score" aria-label={`席${i + 1}の素点の符号を切り替える`} onMouseDown={event => event.preventDefault()} onClick={() => handleScoreChange(i, manualInputs[i].startsWith('-') ? manualInputs[i].slice(1) : `-${manualInputs[i]}`)}>± 切替</button>}
+                  <div className="score-hint-row" data-invalid={scoreInvalid}><p id={`seat-${i}-score-help`} className={scoreInvalid ? 'field-error' : 'score-hint'}>{scoreInvalid ? '素点を入力してください' : rawScores[i] === null ? '入力待ち' : `${rawScores[i]!.toLocaleString()}点`}</p>
+
                   </div>
                   {!isAuto && <button type="button" className="score-next-seat" onMouseDown={event => event.preventDefault()} onClick={() => advanceSeat(i)}>{i < lastIndex - 1 ? '次の雀士へ' : '入力を確認'}<ArrowRight size={16} aria-hidden="true" /></button>}
                 </div>

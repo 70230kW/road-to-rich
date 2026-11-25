@@ -45,13 +45,13 @@ describe('separate input destinations', () => {
     expect(screen.getByRole('heading', { name: '半荘成績入力' })).toBeInTheDocument();
     expect(screen.queryByRole('textbox', { name: '対局会名' })).not.toBeInTheDocument();
     expect(container.querySelector('.hanchan-form .score-save-bar')).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('席1の素点 (百点単位)'), { target: { value: '425' } });
+    fireEvent.change(screen.getByLabelText('入力1の素点 (百点単位)'), { target: { value: '425' } });
     fireEvent.click(screen.getByRole('button', { name: '対局会を開始' }));
     expect(screen.getByRole('textbox', { name: '対局会名' })).toBeInTheDocument();
     expect(container.querySelector('.score-save-bar')).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: '半荘成績入力' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '1半荘だけ記録' }));
-    expect(screen.getByLabelText('席1の素点 (百点単位)')).toHaveValue(425);
+    expect(screen.getByLabelText('入力1の素点 (百点単位)')).toHaveValue(425);
     expect(useAppStore.getState().currentSession).toBeNull();
   });
   it('starts a session through the existing action, then shows scores and live ranks', async () => {

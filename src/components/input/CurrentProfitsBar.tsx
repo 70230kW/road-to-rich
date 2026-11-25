@@ -1,5 +1,5 @@
-import { Activity } from 'lucide-react';
-import { useMemo } from 'react';
+import { Activity, ChevronDown } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import type { Game, GameScore, Player } from '../../types';
 import { formatSignedYen } from '../../lib/format';
 
@@ -14,6 +14,7 @@ export function CurrentProfitsBar({
   previewScores?: GameScore[] | null;
   participantIds?: string[];
 }) {
+  const [expanded, setExpanded] = useState(false);
   const standings = useMemo(() => {
     const baseIds = participantIds ?? Array.from(new Set(games.flatMap((game) => game.scores.map((score) => score.playerId))));
     const map = new Map(baseIds.map((id) => [id, 0]));
@@ -35,7 +36,10 @@ export function CurrentProfitsBar({
   if (standings.length === 0) return null;
 
   return (
-    <section className="live-standings-bar animate-fade-in" aria-label="入力中の暫定順位" aria-live="polite">
+    <section className={`live-standings-bar animate-fade-in ${expanded ? 'is-expanded' : ''}`} aria-label="入力中の暫定順位" aria-live="polite">
+      <button type="button" className="live-standings-toggle" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
+        <span>暫定順位</span><strong>{standings.map(row => `${standings.findIndex(other => other.profit === row.profit) + 1}位 ${row.name}`).join(' / ')}</strong><ChevronDown size={16} aria-hidden="true" />
+      </button>
       <div className="live-standings-heading">
         <h3><Activity aria-hidden="true" />ライブ暫定順位</h3>
         <span>{previewScores ? '入力中の半荘を反映' : `${games.length}半荘終了時点`}</span>
@@ -46,7 +50,7 @@ export function CurrentProfitsBar({
             <span className="live-standing-rank">{standings.findIndex(other => other.profit === row.profit) + 1}</span>
             <i style={{ backgroundColor: row.color }} />
             <strong title={row.name}>{row.name}</strong>
-            <em className={row.profit >= 0 ? 'profit-positive' : 'profit-negative'}>{formatSignedYen(row.profit)}</em>
+            <em className={row.profit >= 0 ? 'profit-positive' : 'profit-negative'}>{formatSignedYen(row.profit)}円</em>
           </div>
         ))}
       </div>
