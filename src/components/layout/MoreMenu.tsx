@@ -104,6 +104,7 @@ export function MoreMenu({
                     <button
                       key={tab.id}
                       type="button"
+                      aria-label={tab.name}
                       aria-current={isActive ? 'page' : undefined}
                       onClick={() => onSelect(tab.id)}
                     >

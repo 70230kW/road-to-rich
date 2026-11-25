@@ -20,6 +20,6 @@ export function PeriodFilter() {
       {choices.map(([id,label]) => <button key={id} type="button" aria-pressed={period === id} onClick={() => choose(id)}>{label}</button>)}
       <button type="button" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>年月指定</button>
     </div>
-    <div className="period-detail"><span>表示期間：{formatSeasonLabel(season)}</span>{expanded && <div className="period-custom"><SeasonSelect season={season} onChange={value => { setSeason(value); setExpanded(false); }} seasons={years} /><button type="button" onClick={() => setExpanded(false)}>閉じる</button></div>}</div>
+    <div className="period-detail">{period === 'custom' ? <button className="period-edit-custom" type="button" aria-label={`年月を変更（${formatSeasonLabel(season)}）`} aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>{formatSeasonLabel(season)} <span aria-hidden="true">▾</span></button> : <span>表示期間：{formatSeasonLabel(season)}</span>}{expanded && <div className="period-custom"><SeasonSelect season={season} onChange={value => { setSeason(value); setExpanded(false); }} seasons={years} /><button type="button" onClick={() => setExpanded(false)}>閉じる</button></div>}</div>
   </div>;
 }

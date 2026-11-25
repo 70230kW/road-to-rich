@@ -1,7 +1,7 @@
 import { DesktopNav } from './components/layout/DesktopNav';
 import { PlayerContext } from './components/layout/PlayerContext';
 import { RankPromotion } from './components/layout/RankPromotion';
-import { lazy, Suspense, useCallback, useEffect, useState, type CSSProperties } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { BarChart3, BookOpen, CalendarRange, Crown, Gauge, History, House, Plus, ScrollText, Settings as SettingsIcon, Telescope, Trophy, Users } from 'lucide-react';
 import { Background } from './components/layout/Background';
 import { RecordSheet } from './components/layout/RecordSheet';
@@ -97,6 +97,12 @@ export function AppShell() {
   const inputMode = route.inputMode;
   const gameCount = useAppStore(s => s.currentDayGames.length);
   const session = useAppStore(s => s.currentSession);
+  const hasActiveMatch = gameCount > 0 || Boolean(session && new Date(session.startedAt).toDateString() === new Date().toDateString());
+  const hadActiveMatch = useRef(hasActiveMatch);
+  useEffect(() => {
+    if (hasActiveMatch && !hadActiveMatch.current) setHomeMenuIndex(1);
+    hadActiveMatch.current = hasActiveMatch;
+  }, [hasActiveMatch]);
   const refreshRoom = useAppStore(s => s.refreshRoom);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [showGuide, setShowGuide] = useState(() => {

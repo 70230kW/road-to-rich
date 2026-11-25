@@ -46,7 +46,7 @@ export function DashboardSection() {
       </section>}
     <PeriodFilter />
     <p className="scope-caption">{scope === 'personal' ? players.find(p => p.id === activeId)?.name ?? '個人' : 'リーグ全員'}の成績 · {formatSeasonLabel(season)}</p>
-    {scope === 'league' ? <Suspense fallback={<TabSkeleton tab="dashboard" compact label="リーグ分析を読み込み中" />}><LeagueAnalysis season={season} /></Suspense> : players.length === 0 ? <EmptyState icon={BarChart3} message="最初の一戦から、キャリアが始まる。" hint="雀士を登録し、対局を記録すると個人成績が表示されます。" /> : games.length === 0 ? <section className="period-empty">
+    {scope === 'league' ? <Suspense fallback={<TabSkeleton tab="dashboard" compact label="リーグ分析を読み込み中" />}><LeagueAnalysis season={season} onShowAll={() => setPeriod('all')} /></Suspense> : players.length === 0 ? <EmptyState icon={BarChart3} message="最初の一戦から、キャリアが始まる。" hint="雀士を登録し、対局を記録すると個人成績が表示されます。" /> : games.length === 0 ? <section className="period-empty">
       <EmptyState icon={BarChart3} message="この期間の成績はありません" hint="選択中の雀士が参加した半荘は0件です。期間を切り替えてご確認ください。" />
       {season !== 'all' && <button type="button" className="action-primary" onClick={() => setPeriod('all')}>通算を見る</button>}
 

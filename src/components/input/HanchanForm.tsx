@@ -532,7 +532,8 @@ export function HanchanForm({
 
           <div className="score-save-bar">
             <div ref={summaryRef} tabIndex={-1} role="group" className="score-save-totals" aria-label="入力内容の確認" aria-live="polite"><span>{autoRaw === null ? '入力済み' : '合計'} <strong>{(validation.scoreTotal ?? enteredTotal).toLocaleString()}</strong> / {expectedTotal.toLocaleString()}点</span><small>{autoRaw === null ? `未入力 ${otherRaw.filter(v => v === null).length}人 · 自動計算分を含む残り ${(expectedTotal - enteredTotal).toLocaleString()}点` : `最後の1人 ${autoRaw.toLocaleString()}点 · ${validation.totalMismatch ? '合計を確認' : '合計一致'}`}</small><small className="score-save-state">{saving ? 'リーグへ保存中…' : saveError ? '保存に失敗しました。再試行できます。' : validation.isValid ? '未保存 · 内容を確認して記録してください' : `未保存 · ${validation.message}`}</small></div>
-            <button type="button" className="solid-action" onClick={handleRecord} disabled={saving}><Plus size={18}/>{saving ? '保存中…' : 'この半荘を記録する'}</button>
+            {!validation.isValid && <button type="button" className="score-fix-input" onClick={() => { setAttemptedSubmit(true); focusInvalid(); }}>修正が必要な項目へ</button>}
+            <button type="button" className="solid-action" onClick={handleRecord} disabled={saving || !validation.isValid}><Plus size={18}/>{saving ? '保存中…' : 'この半荘を記録する'}</button>
           </div>
 
           {currentDayGames.length > 0 && (

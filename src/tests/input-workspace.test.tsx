@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { HanchanForm } from '../components/input/HanchanForm';
 import { useScoreWorkspace } from '../components/input/useScoreWorkspace';
+import { navigate } from '../store/useNavigation';
 import { defaultSettings } from '../lib/defaults';
 import type { PlayerCount } from '../types';
 
@@ -30,7 +31,8 @@ describe('one-handed score entry', () => {
   });
   it('focuses the missing player, then the missing score with its inline explanation', () => {
     form();
-    fireEvent.click(screen.getByRole('button', { name: 'この半荘を記録する' }));
+    expect(screen.getByRole('button', { name: 'この半荘を記録する' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: '修正が必要な項目へ' }));
     expect(screen.getByRole('combobox', { name: '入力1の雀士' })).toHaveFocus();
     expect(screen.getByRole('combobox', { name: '入力1の雀士' })).toHaveAttribute('aria-invalid', 'true');
     selectPlayers();
@@ -58,9 +60,28 @@ describe('one-handed score entry', () => {
     expect(JSON.parse(localStorage.getItem(key)!).manualInputs).toEqual(['-50', '350']);
     cleanup(); form(3, key);
     expect(score(1)).toHaveValue(-50);
+    expect(screen.getByText('前回の入力を復元しました')).toBeInTheDocument();
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    expect(navigate('home')).toBe(false);
+    expect(confirm).toHaveBeenCalledOnce();
     fireEvent.click(screen.getByRole('button', { name: 'この半荘を記録する' }));
     await screen.findByRole('heading', { name: '半荘を保存しました' });
     expect(save).toHaveBeenCalledOnce();
+    expect(navigate('home')).toBe(true);
+    expect(confirm).toHaveBeenCalledOnce();
+  });
+  it('clears a restored draft only after confirmation without submitting it', () => {
+    const key = 'clear-draft';
+    localStorage.setItem(key, JSON.stringify({ playerCount: 4, selectedIds: ['a', 'b', 'c', 'd'], manualInputs: ['300', '', ''] }));
+    form(4, key);
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    fireEvent.click(screen.getByRole('button', { name: '下書きをクリア' }));
+    expect(score(1)).toHaveValue(300);
+    confirm.mockReturnValue(true);
+    fireEvent.click(screen.getByRole('button', { name: '下書きをクリア' }));
+    expect(score(1)).toHaveValue(null);
+    expect(screen.queryByText('前回の入力を復元しました')).not.toBeInTheDocument();
+    expect(save).not.toHaveBeenCalled();
   });
 });
 

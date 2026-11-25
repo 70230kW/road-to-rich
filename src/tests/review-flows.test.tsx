@@ -1,5 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PersonalProfitChart } from '../components/dashboard/PersonalProfitChart';
+import { navigate } from '../store/useNavigation';
 import { InputSection } from '../components/input/InputSection';
 import { DashboardSection } from '../components/dashboard/DashboardSection';
 import { LeagueHomeSection } from '../components/home/LeagueHomeSection';
@@ -87,8 +89,9 @@ describe('clear performance scopes and history', () => {
     useViewPreferences.getState().update('review', { period: 'custom', customSeason: { year: 2025, month: 'all' } });
     const { container } = render(<DashboardSection />);
     expect(screen.getByText('この期間の成績はありません')).toBeInTheDocument();
-    expect(container.querySelector('.rank-progress-card')).not.toBeInTheDocument();
-    expect(screen.getByText(/通算段位：/)).toBeInTheDocument();
+    const lifetime = container.querySelector('.rank-progress-card')!;
+    expect(lifetime).toHaveTextContent('通算段位');
+    expect(lifetime.compareDocumentPosition(container.querySelector('.period-filter')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: '通算を見る' }));
     expect(container.querySelector('.rank-progress-card')).toHaveTextContent('通算段位');
     expect(container.querySelector('.rank-progress-card')).toHaveTextContent('期間フィルターの対象外');
@@ -159,5 +162,52 @@ describe('ranking priority and rank ladder', () => {
     expect(screen.getByRole('button', { name: '雀傑の内訳を開く' })).toHaveAttribute('aria-expanded', 'false');
     act(() => useViewPreferences.getState().update('review', { playerId: 'a' }));
     expect(screen.getByRole('button', { name: '雀傑の内訳を閉じる' })).toHaveAttribute('aria-expanded', 'true');
+  });
+});
+
+
+describe('reviewed history and analysis details', () => {
+  it('groups and pages history without dropping session names or personal results', () => {
+    const records = Array.from({ length: 21 }, (_, index) => day(`卓${index + 1}`, `2026-09-${String(index + 1).padStart(2, '0')}T12:00:00+09:00`));
+    useAppStore.setState({ history: records });
+    navigate('history');
+    render(<HistorySection />);
+    expect(screen.getByRole('region', { name: '2026年9月' })).toHaveTextContent('21回');
+    expect(screen.getAllByRole('button', { name: /卓\d+対局会/ })).toHaveLength(20);
+    expect(screen.queryByRole('button', { name: /卓1対局会/ })).not.toBeInTheDocument();
+    const latest = screen.getByRole('button', { name: /卓21対局会/ });
+    expect(latest).toHaveTextContent('雀士a、雀士b、雀士c、雀士d');
+    expect(latest).toHaveTextContent('場代込み');
+    expect(latest).toHaveTextContent('1位 1回');
+    fireEvent.click(screen.getByRole('button', { name: /さらに20件表示/ }));
+    expect(screen.getAllByRole('button', { name: /卓\d+対局会/ })).toHaveLength(21);
+    fireEvent.change(screen.getByRole('combobox', { name: '参加雀士' }), { target: { value: 'e' } });
+    expect(screen.getByText('該当する履歴がありません')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'すべての履歴を見る' }));
+    expect(screen.getAllByRole('button', { name: /卓\d+対局会/ })).toHaveLength(21);
+    expect(useAppStore.getState().history).toEqual(records);
+  });
+  it('offers period recovery in league analysis as well as personal results', async () => {
+    navigate('dashboard', { period: '2025-01', tab: 'league' });
+    render(<DashboardSection />);
+    expect(await screen.findByText('この期間の対局はありません', {}, { timeout: 5000 })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '通算を見る' }));
+    expect(screen.getByText('リーグトップ指標')).toBeInTheDocument();
+    expect(new URLSearchParams(location.search).get('period')).toBe('all');
+    expect(useAppStore.getState().history).toEqual([firstDay]);
+  });
+  it('distinguishes a session result from period cumulative profit on the same day', () => {
+    const morning = day('朝', '2026-09-10T09:00:00+09:00');
+    const evening = day('夜', '2026-09-10T20:00:00+09:00');
+    morning.settlement.a.totalWithoutFee = 5000;
+    evening.settlement.a.totalWithoutFee = -2000;
+    render(<PersonalProfitChart history={[evening, morning]} playerId="a" />);
+    expect(screen.getByText('この対局の収支 -2,000円')).toBeInTheDocument();
+    expect(screen.getByText(/夜対局会/)).toBeInTheDocument();
+    expect(screen.getByRole('slider')).toHaveAttribute('aria-valuetext', expect.stringContaining('累計+3,000円'));
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '0' } });
+    expect(screen.getByText('この対局の収支 +5,000円')).toBeInTheDocument();
+    expect(screen.getByText(/朝対局会/)).toBeInTheDocument();
+    expect(screen.getByRole('slider')).toHaveAttribute('aria-valuetext', expect.stringContaining('累計+5,000円'));
   });
 });

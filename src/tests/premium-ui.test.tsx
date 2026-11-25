@@ -34,10 +34,10 @@ describe('premium league screens', () => {
     fireEvent.click(screen.getByRole('button', {name:'次の雀士'}));
     expect(screen.getByRole('button',{name:'2位 直人の成績詳細'})).toBeInTheDocument();
     expect(screen.queryByRole('button',{name:/3位 .*の成績詳細/})).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', {name:'差額'}));
+    fireEvent.click(screen.getByRole('button', {name:'順位差額'}));
     expect(screen.getAllByText('2位との差').length).toBeGreaterThan(0);
     expect(screen.getAllByText('1位との差').length).toBeGreaterThan(0);
-    fireEvent.click(screen.getByRole('button', {name:'収支額'}));
+    fireEvent.click(screen.getByRole('button', {name:'収支'}));
     fireEvent.click(screen.getByRole('button', {name:'前の雀士'}));
     fireEvent.click(screen.getByRole('button',{name:'1位 春樹の成績詳細'}));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe('premium league screens', () => {
     expect(screen.getByText('最高段位に到達しました！')).toBeInTheDocument();
     act(() => useViewPreferences.getState().update('__local__', {playerId:'b'}));
     cleanup(); render(<RankSection />);
-    expect(screen.getByText('¥120,000')).toBeInTheDocument();
+    expect(screen.getByText('120,000円')).toBeInTheDocument();
     expect(screen.getByRole('progressbar').getAttribute('value')).toBe('0');
   });
 });

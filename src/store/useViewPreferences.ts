@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { create } from 'zustand';
 import { useAppStore } from './useAppStore';
 import type { SeasonFilter } from '../lib/season';
@@ -55,12 +55,27 @@ export function useViewContext() {
   const update = useViewPreferences(s => s.update);
   const route = useAppRoute();
   const urlPeriod = route.tab === 'ranking' || route.tab === 'dashboard';
-  const choice = urlPeriod ? parsePeriod(route.params.get('period')) : preference;
+  const explicitPeriod = urlPeriod ? route.params.get('period') : null;
+  const choice = explicitPeriod === null ? preference : parsePeriod(explicitPeriod);
   const customYear = choice.customSeason === 'all' ? null : choice.customSeason.year;
   const customMonth = choice.customSeason === 'all' ? null : choice.customSeason.month;
   const now = new Date();
   const year = now.getFullYear(), month = now.getMonth();
   const season = useMemo(() => resolvePeriod(choice.period, customYear === null ? 'all' : { year: customYear, month: customMonth! }, new Date(year, month, 1)), [choice.period, customYear, customMonth, year, month]);
+  // A new screen inherits its room preference. Explicit URLs, including browser
+  // Back, take priority and become the preference for the next screen.
+  useEffect(() => {
+    if (!urlPeriod) return;
+    if (explicitPeriod === null) {
+      updateRouteQuery({ period: periodQuery(preference.period, preference.customSeason) }, true);
+      return;
+    }
+    const parsed = parsePeriod(explicitPeriod);
+    const customSeason = parsed.period === 'custom' ? parsed.customSeason : preference.customSeason;
+    if (parsed.period !== preference.period || JSON.stringify(customSeason) !== JSON.stringify(preference.customSeason)) {
+      update(room, { period: parsed.period, customSeason });
+    }
+  }, [urlPeriod, explicitPeriod, preference.period, preference.customSeason, room, update]);
   const activeId = players.some(p => p.id === preference.playerId) ? preference.playerId : players[0]?.id ?? '';
   return { room, activeId, season, period: choice.period,
     setPlayerId: (playerId: string) => update(room, { playerId }),

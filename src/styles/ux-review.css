@@ -20,6 +20,7 @@ body.glass-theme .app-content .period-filter { display: flex; align-items: cente
 .period-filter .period-buttons { gap: 3px; min-width: 0; }
 body.glass-theme .period-buttons button { padding: 8px 12px; min-width: 0; }
 .period-filter .period-detail { margin: 0; font-size: var(--text-meta); white-space: nowrap; }
+.period-edit-custom { padding-inline: 8px; color: var(--glass-signal); text-decoration: underline; text-underline-offset: 4px; }
 .period-mobile-choice { display: none; }
 .period-custom { display: flex; gap: 8px; position: absolute; right: 0; top: 100%; padding: 10px; background: #10161b; border: 1px solid var(--glass-edge); box-shadow: 0 12px 24px #0009; }
 .period-custom button { padding-inline: 12px; }
@@ -31,10 +32,11 @@ body.glass-theme .period-buttons button { padding: 8px 12px; min-width: 0; }
   .period-mobile-choice select { width: 100%; border: 0; border-radius: 0; padding-inline: 10px; color: var(--glass-signal); background: #0b0d10; }
 }
 
-/* Reserve the gold fill for saving the hand. Invalid submit keeps error-focus recovery. */
+/* Reserve the gold fill for a valid hand; correction remains keyboard accessible. */
 body.glass-theme .hanchan-form .score-save-bar .solid-action { min-height: 52px; background: var(--glass-gold, #d9bd82); color: #131610; border: 1px solid #d9bd82; font-size: 16px; font-weight: 800; box-shadow: 0 0 18px #d9bd8218; }
-body.glass-theme .hanchan-form .score-save-bar .solid-action:hover { background: #ead4a2; }
-body.glass-theme .hanchan-form .score-save-bar .solid-action:disabled { opacity: .6; cursor: wait; }
+body.glass-theme .hanchan-form .score-save-bar .solid-action:not(:disabled):hover { background: #ead4a2; }
+body.glass-theme .hanchan-form .score-save-bar .solid-action:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+.score-fix-input { color: var(--glass-signal); text-align: left; text-decoration: underline; text-underline-offset: 4px; }
 .hanchan-form .yakuman-input { border-block: 1px solid var(--premium-line); padding: 8px 0; }
 .hanchan-form .yakuman-input:not([data-has-events="true"]) > div:first-child :is(p, button) { color: var(--premium-muted); background: transparent; border-color: var(--premium-line); }
 .hanchan-form .yakuman-input[data-has-events="true"] { border-color: #b597d766; }
