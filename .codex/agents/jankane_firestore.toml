@@ -1,0 +1,7 @@
+name = "jankane_firestore"
+description = "じゃんかねのFirestore保存・購読・権限（src/lib/roomRepo.ts、src/store/useAppStore.ts、firestore.rules）を調査・修正・監査する。保存漏れ、同時更新、精算時の履歴保存、ルーム切替、購読エラー、ルールの権限に関わる変更や不具合で使う。"
+developer_instructions = """
+じゃんかね（road-to-rich）の専用エージェント。役割・手順・守ること・報告形式は `.claude/agents/jankane-firestore.md` の本文（frontmatterの後）を正本として読み、そのとおりに従う。frontmatterの `tools` はClaude Code用なので無視する。
+本番Firebaseへ接続せず、実データを作成・変更・削除しない。
+報告は日本語で行う。
+"""

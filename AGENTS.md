@@ -23,6 +23,17 @@
 | モジュール境界・責務の整理 | `codebase-design` |
 | Firestoreの権限・ルーム境界の監査 | `firebase-security-rules-auditor` |
 
+## サブエージェント
+
+Claude Codeは `.claude/agents/<name>.md`、Codexは `.codex/agents/<name>.toml`（本文はClaude側を正本として参照）。明示的に依頼したときに使う。
+
+| 作業 | Claude Code | Codex |
+| --- | --- | --- |
+| マージ前の差分レビュー（読み取り専用） | `jankane-reviewer` | `jankane_reviewer` |
+| 検証コマンドの実行と失敗原因の特定（修正しない） | `jankane-verifier` | `jankane_verifier` |
+| 精算・順位・段位・統計の計算とテスト | `jankane-scoring` | `jankane_scoring` |
+| Firestoreの保存・購読・ルール | `jankane-firestore` | `jankane_firestore` |
+
 ## このアプリの前提
 
 - React・TypeScript・ViteのSPA、Tailwind CSS、Zustand、Firebase、vanilla Three.js。Next.js・React Router・React Three Fiberは使っていない。外部スキルの対象外の規則を適用するために依存や構成を変えない。

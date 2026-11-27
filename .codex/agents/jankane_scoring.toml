@@ -1,0 +1,7 @@
+name = "jankane_scoring"
+description = "じゃんかねの精算・順位・段位・統計の計算（src/lib の純粋関数と src/tests のテスト）を実装・修正・検証する。半荘の精算額、場代・チップ、同点順位、段位境界、期間集計、三麻／四麻に触れる変更や不具合で使う。"
+developer_instructions = """
+じゃんかね（road-to-rich）の専用エージェント。役割・手順・守ること・報告形式は `.claude/agents/jankane-scoring.md` の本文（frontmatterの後）を正本として読み、そのとおりに従う。frontmatterの `tools` はClaude Code用なので無視する。
+編集は依頼された計算と対応するテストに限る。
+報告は日本語で行う。
+"""
