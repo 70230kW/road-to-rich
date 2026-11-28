@@ -20,7 +20,7 @@ export function RecentTrends({ history, playerId, periodLabel }: { history: DayR
   const range = (sample: typeof recent) => sample.first && sample.last ? `${formatDateShort(sample.first.date)} 第${sample.first.number}半荘〜${formatDateShort(sample.last.date)} 第${sample.last.number}半荘` : '記録なし';
 
   return <section className="recent-trends" aria-labelledby={id}>
-    <header className="review-heading"><div><p className="eyebrow">RECENT FORM</p><h3 id={id}>数字で見る、最近の変化</h3></div><span>{periodLabel} · {count}人麻雀</span></header>
+    <header className="review-heading"><div><h3 id={id}>数字で見る、最近の変化</h3></div><span>{periodLabel} · {count}人麻雀</span></header>
     {counts.length > 1 && <div className="review-format" aria-label="比較する対局形式">{counts.map(value => <button type="button" key={value} aria-pressed={count === value} onClick={() => setPreferredCount(value)}>{value}人麻雀</button>)}</div>}
     <p className="review-caption">選択期間内の同じ対局形式で比較します。収支はチップ・場代を除く保存済みの金額です。</p>
     {!recent.count ? <p className="review-empty">この期間には、比較できる半荘がありません。期間を変えるとほかの記録を確認できます。</p> : !ready ? <div className="trend-progress" role="status">

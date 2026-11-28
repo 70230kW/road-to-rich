@@ -66,7 +66,7 @@ export function ResultShareButton({ title, date, rows, hanchanCount }: {
         <div className="share-result-overlay" role="dialog" aria-modal="true" aria-label="リザルトカードを作成">
           <button type="button" className="share-result-backdrop" aria-label="閉じる" onClick={() => setOpen(false)} />
           <div className="share-result-dialog">
-            <header><div><span className="eyebrow">SHARE RESULT</span><h3>リザルトカード</h3></div><button type="button" aria-label="閉じる" onClick={() => setOpen(false)}><X size={20} /></button></header>
+            <header><div><h3>リザルトカード</h3></div><button type="button" aria-label="閉じる" onClick={() => setOpen(false)}><X size={20} /></button></header>
             <div className="share-format-switch" role="group" aria-label="画像の比率">{FORMATS.map((item) => <button key={item.id} type="button" aria-pressed={format === item.id} onClick={() => setFormat(item.id)}>{item.label}</button>)}</div>
             <div ref={cardRef} className={`result-share-card result-share-card-${format}`}>
               <div className="share-card-aura" />

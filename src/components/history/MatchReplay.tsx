@@ -16,7 +16,7 @@ export function MatchReplay({ day, players, historyBefore = [] }: { day: DayReco
   if (!day.games.length) return <p className="review-empty">振り返る半荘記録がありません。</p>;
 
   return <section className="match-replay" aria-labelledby={labelId}>
-    <header className="review-heading"><div><p className="eyebrow">MATCH REPLAY</p><h3 id={labelId}>対局会を振り返る</h3></div><span>{day.session?.title ?? '半荘の記録'}</span></header>
+    <header className="review-heading"><div><h3 id={labelId}>対局会を振り返る</h3></div><span>{day.session?.title ?? '半荘の記録'}</span></header>
     <p className="review-caption">保存された半荘収支の累計 · チップ・場代を除く。左右にスワイプして進めます。</p>
     <div className="replay-stage" tabIndex={0} role="group" aria-label="半荘の振り返り。左右キーで移動" data-pull-ignore
       onKeyDown={event => { if (event.target !== event.currentTarget) return; if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); go(step + (event.key === 'ArrowLeft' ? -1 : 1)); } }}

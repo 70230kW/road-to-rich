@@ -44,12 +44,6 @@ export function SimulatorSection() {
     <div className="space-y-8 animate-fade-in">
       <SectionHeader icon={Telescope} title="成績予想" accent="fuchsia" description="現在の平均ペースから、未来の収支と首位までの距離を試算します。" trailing={seasonSelect} />
 
-      <div className="page-overview page-overview-fuchsia">
-        <div><span>現在の首位</span><strong>{leaderName ?? '-'}</strong></div>
-        <div><span>予測期間</span><strong><ScrambleText text={`${futureHanchans}半荘`} /></strong></div>
-        <div><span>分析対象</span><strong><ScrambleText text={`${rows.length}人`} /></strong></div>
-      </div>
-
       <div className="unified-panel unified-panel-fuchsia">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <h3 className="text-sm font-black text-fuchsia-400 flex items-center tracking-[0.2em] uppercase">

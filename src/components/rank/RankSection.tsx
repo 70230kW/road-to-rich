@@ -63,12 +63,11 @@ export function RankSection() {
         const recentDays = [...history].filter(d => d.settlement[activeId]).sort((a,b) => Date.parse(b.date)-Date.parse(a.date)).slice(0,4);
         return <>
           <section className="rank-hero">
-            <p className="eyebrow">YOUR MAHJONG CAREER</p>
             <RankEmblem status={status} />
             <p className="rank-title">{status.levelName}</p>
             <p className="muted text-xs mb-5">通算の累計収支で決まる、あなたの段位</p>
             <strong className="rank-total"><ScrambleText text={formatSignedYen(status.cumulativeProfit)} /></strong>
-            <p className="eyebrow mt-2 mb-7">LIFETIME PROFIT · 場代抜き（円）</p>
+            <p className="eyebrow mt-2 mb-7">通算収支（場代抜き・円）</p>
             <div className="rank-next"><span>{status.levelName}</span><span>{status.nextLevelName ?? '最高段位'}</span></div>
             <progress className="rank-progress" value={status.progressRatio} max={1} aria-label="次の段位への進捗" />
             <p className="rank-remaining">{status.nextLevelName ? <>昇段まであと <strong><ScrambleText text={`${status.profitToNextLevel!.toLocaleString()}円`} /></strong></> : '最高段位に到達しました！'}</p>
@@ -119,7 +118,7 @@ export function RankSection() {
         id="rank-tier-list"
         className="editorial-section bg-panel-2/80 p-6 md:p-8 rounded-[2rem] border border-slate-700/50 relative overflow-hidden backdrop-blur-md scroll-mt-4"
       >
-        <div className="rank-ladder-heading"><div><span className="eyebrow">RANK LADDER</span><h3>段位一覧</h3></div><div className="rank-ladder-direction"><TrendingUp size={15} /><span>上ほど高段位</span></div></div>
+        <div className="rank-ladder-heading"><div><h3>段位一覧</h3></div><div className="rank-ladder-direction"><TrendingUp size={15} /><span>上ほど高段位</span></div></div>
         <p className="text-xs text-slate-500 mb-6">魂天を頂点に、現在の累計収支から段位を判定します。タップすると各段位の条件を確認できます。</p>
         {currentStatus && <div className="rank-ladder-current"><strong>現在 {currentStatus.levelName}（通算）</strong><span>{currentStatus.nextLevelName ? `${currentStatus.nextLevelName}まであと ${currentStatus.profitToNextLevel!.toLocaleString()}円` : '最高段位に到達'}</span></div>}
         <div className="rank-ladder">

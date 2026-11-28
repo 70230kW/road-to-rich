@@ -9,11 +9,11 @@ export function UpdateHistorySection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={ScrollText} title="アプデ" accent="yellow" description="じゃんかねに追加・変更された内容を、バージョンごとに確認できます。" />
+      <SectionHeader icon={ScrollText} title="アプデ" accent="yellow" />
 
       <div className="updates-shell">
         <aside className="updates-sidebar" aria-label="アップデートバージョン">
-          <div className="updates-sidebar-heading"><Clock3 size={14} /><span>UPDATE LOG</span></div>
+          <div className="updates-sidebar-heading"><Clock3 size={14} /><span>バージョン</span></div>
           <nav>
             {APP_UPDATES.map((update) => {
               const selectedItem = update.version === selected.version;

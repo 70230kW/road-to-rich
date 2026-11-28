@@ -112,7 +112,7 @@ export function TrophySection() {
   if (players.length === 0) {
     return (
       <div className="space-y-8">
-        <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" description="対局で達成した記録を、コレクションとして振り返ります。" />
+        <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" />
         <EmptyState icon={Users} message="雀士が登録されていません" hint="「雀士登録」タブで雀士を登録すると、トロフィーの獲得状況を確認できます。" />
       </div>
     );
@@ -120,11 +120,11 @@ export function TrophySection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" description="対局で達成した記録を、コレクションとして振り返ります。" trailing={seasonSelect} />
+      <SectionHeader icon={Trophy} title="トロフィー" accent="yellow" trailing={seasonSelect} />
 
       <>
           <div className="trophy-overview">
-            <div><span className="eyebrow">COLLECTION PROGRESS</span><strong>{players.find((p) => p.id === activeId)?.name}</strong><small>この期間に獲得したトロフィー</small></div>
+            <div><strong>{players.find((p) => p.id === activeId)?.name}</strong><small>この期間に獲得したトロフィー</small></div>
             <div className="trophy-overview-score"><strong><ScrambleText text={String(earned.size)} /></strong><span>/ {TROPHY_LIST.length}</span></div>
             <progress value={earnedRatio} max={1} aria-label="トロフィー獲得率" />
           </div>

@@ -30,10 +30,8 @@
 .app-content :is(.player-roster-card, .rule-card, .setting-card):hover { transform: none; box-shadow: none; border-color: var(--premium-line); }
 
 /* Metrics read as a single typographic strip; no colored cells or boxed icons. */
-.app-content :is(.page-overview, .season-overview-grid) { gap: 18px 26px; border: 0; border-block: 1px solid var(--premium-line); border-radius: 0; background: none; box-shadow: none; padding: 18px 0; }
-.app-content :is(.page-overview, .season-overview-grid) > div { padding: 4px 0; background: none; }
-.app-content .page-overview > p { padding: 0; background: none; }
-.app-content .page-overview strong .scramble-text { color: #e9e5db; text-shadow: none; }
+.app-content .season-overview-grid { gap: 18px 26px; border: 0; border-block: 1px solid var(--premium-line); border-radius: 0; background: none; box-shadow: none; padding: 18px 0; }
+.app-content .season-overview-grid > div { padding: 4px 0; background: none; }
 .editorial-stat { padding: 18px 0; border-top: 1px solid var(--premium-line); transition: color .15s; }
 .editorial-stat:hover { transform: none; }
 .editorial-stat > div { filter: none; }
@@ -85,7 +83,7 @@ button.editorial-stat::after { content: '↗'; position: absolute; right: 0; top
 .app-content .updates-intro, .app-content .updates-footer { padding-inline: 0; }
 @media (max-width: 600px) {
   .app-content .section-heading { gap: 20px; }
-  .app-content :is(.page-overview, .season-overview-grid) { gap: 20px 16px; }
+  .app-content .season-overview-grid { gap: 20px 16px; }
   .app-content :is(.hub-primary-grid, .hub-secondary-grid) { gap: 16px; }
   .app-content .podium-info { padding-right: 6px; }
 }

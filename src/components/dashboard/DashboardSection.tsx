@@ -52,8 +52,8 @@ export function DashboardSection() {
 
     </section> : <>
       <section className="performance-hero player-career-card">
-        <div className="career-card-heading">{status && <RankEmblem status={status} compact />}<div><p className="eyebrow">PLAYER PROFILE</p><h3>{players.find(p => p.id === activeId)?.name}</h3></div><span className="text-gold">通算 {status?.levelName}</span></div>
-        <div className="section-kicker"><span className="eyebrow">YOUR PERFORMANCE</span><span>{formatSeasonLabel(season)}</span></div>
+        <div className="career-card-heading">{status && <RankEmblem status={status} compact />}<div><h3>{players.find(p => p.id === activeId)?.name}</h3></div><span className="text-gold">通算 {status?.levelName}</span></div>
+        <div className="section-kicker"><span>{formatSeasonLabel(season)}</span></div>
         <p className="hero-label">{season === 'all' ? '累計収支' : '期間収支'} <span>場代抜き・円</span></p>
         <p className={`hero-number ${(row?.totalProfitWithoutFee ?? 0) >= 0 ? 'profit-positive' : 'profit-negative'}`}><ScrambleText text={row ? formatSignedYen(row.totalProfitWithoutFee) : '—'} /></p>
         <p className="muted text-xs">場代込み <ScrambleText text={row ? formatSignedYen(row.totalProfitWithFee) : '—'} /> · <ScrambleText text={String(row?.dayCount ?? 0)} />日間の記録</p>
