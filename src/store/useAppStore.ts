@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { CustomTrophyDef, DayRecord, Game, LeagueSeason, MatchSession, Player, PlayerCount, PlayerGoal, Settings, YakumanEvent } from '../types';
+import type { CustomTrophyDef, DayRecord, Game, LeagueSeason, MatchSession, Player, PlayerCount, PlayerGoal, Repayment, Settings, YakumanEvent } from '../types';
 import { defaultSettings } from '../lib/defaults';
 import { ensureAnonymousAuth } from '../lib/firebase';
 import { ensurePlayerColors, pickPlayerColor } from '../lib/playerColors';
@@ -8,6 +8,7 @@ import {
   ensureRoomInitialized,
   fetchRoomSnapshot,
   finalizeDay as finalizeDayRepo,
+  recordRepayment as recordRepaymentRepo,
   saveCurrentDay,
   saveCustomTrophies,
   saveCurrentSession,
@@ -72,9 +73,10 @@ interface AppState {
   removeGame: (gameId: string) => Promise<void>;
   updateGameYakuman: (gameId: string, yakumanEvents: YakumanEvent[]) => Promise<void>;
 
-  finalizeDay: (day: Omit<DayRecord, 'id' | 'date'>) => Promise<void>;
+  finalizeDay: (day: Omit<DayRecord, 'id' | 'date'>, requestId?: string) => Promise<void>;
   updateDay: (dayId: string, patch: Omit<DayRecord, 'id' | 'date'>) => Promise<void>;
   deleteDay: (dayId: string) => Promise<void>;
+  recordRepayment: (dayId: string, repayment: Repayment) => Promise<void>;
 
   setPlayerGoal: (playerId: string, goal: PlayerGoal | null) => Promise<void>;
   addCustomTrophy: (trophy: Omit<CustomTrophyDef, 'id'>) => Promise<void>;
@@ -314,20 +316,22 @@ export const useAppStore = create<AppState>()((set, get) => ({
     );
   },
 
-  finalizeDay: async (day) => {
+  finalizeDay: async (day, requestId) => {
     const { roomCode, currentSession, activeSeasonId } = get();
-    if (!roomCode) return;
-    await finalizeDayRepo(roomCode, {
+    if (!roomCode) throw new Error('ルームに接続してから再試行してください。');
+    const payload = {
       ...day,
       date: new Date().toISOString(),
       ...(currentSession ? { session: currentSession } : {}),
       ...(activeSeasonId ? { seasonId: activeSeasonId } : {}),
-    });
+    };
+    if (requestId) await finalizeDayRepo(roomCode, payload, requestId);
+    else await finalizeDayRepo(roomCode, payload);
   },
 
   updateDay: async (dayId, patch) => {
     const { roomCode } = get();
-    if (!roomCode) return;
+    if (!roomCode) throw new Error('ルームに接続してから再試行してください。');
     await updateDayRepo(roomCode, dayId, patch);
   },
 
@@ -335,6 +339,12 @@ export const useAppStore = create<AppState>()((set, get) => ({
     const { roomCode } = get();
     if (!roomCode) return;
     await deleteDayRepo(roomCode, dayId);
+  },
+
+  recordRepayment: async (dayId, repayment) => {
+    const { roomCode } = get();
+    if (!roomCode) throw new Error('ルームに接続してから再試行してください。');
+    await recordRepaymentRepo(roomCode, dayId, repayment);
   },
 
   setPlayerGoal: async (playerId, goal) => {

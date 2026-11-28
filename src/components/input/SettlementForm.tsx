@@ -1,13 +1,15 @@
-import { useUnsavedNavigation } from '../../store/useNavigation';
+import { confirmNavigation, useUnsavedNavigation } from '../../store/useNavigation';
 import { SectionHeader } from '../common/SectionHeader';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Activity, ChevronsRight, DollarSign, Save } from 'lucide-react';
-import type { DaySettlementEntry, DayRecord, Game, Player } from '../../types';
+import { Activity, ChevronsRight, DollarSign, HandCoins, Save } from 'lucide-react';
+import type { DayPayment, DaySettlementEntry, DayRecord, Game, Player } from '../../types';
 import { calcDaySettlement, isChipTotalBalanced } from '../../lib/calc';
 import { formatSignedYen, formatYen } from '../../lib/format';
 import { ErrorBanner } from '../common/ErrorBanner';
 import { NeonButton } from '../common/NeonButton';
 import { ConfirmDialog } from '../common/ConfirmDialog';
+import { PaymentAdjustment } from './PaymentAdjustment';
+import { calculatePaymentPlan, defaultCashInputs, paymentFromInputs, paymentParticipantNames, type CashInputs } from '../../lib/payments';
 
 export function SettlementForm({
   players,
@@ -15,6 +17,7 @@ export function SettlementForm({
   initialTableFee,
   initialChipRate,
   initialChips,
+  initialPayment,
   saveLabel = '結果を保存する',
   onCancel,
   onSave,
@@ -24,6 +27,7 @@ export function SettlementForm({
   initialTableFee?: number;
   initialChipRate?: number;
   initialChips?: Record<string, number>;
+  initialPayment?: DayPayment | null;
   saveLabel?: string;
   onCancel: () => void;
   onSave: (day: Omit<DayRecord, 'id' | 'date'>) => void | Promise<void>;
@@ -45,7 +49,13 @@ export function SettlementForm({
   const [attemptedSave, setAttemptedSave] = useState(false);
   const [confirmingSave, setConfirmingSave] = useState(false);
   const tableFeeInputRef = useRef<HTMLInputElement>(null);
-  useUnsavedNavigation(tableFeeInput !== (initialTableFee === undefined ? '' : String(initialTableFee)) || chipRateInput !== String(initialChipRate ?? 200) || participantIds.some(id => (chipInputs[id] ?? '') !== (initialChips?.[id] === undefined ? '' : String(initialChips[id]))), '未保存の精算内容があります。移動すると場代・チップの入力は失われます。移動しますか？');
+  const paymentEntryRef = useRef<HTMLButtonElement>(null);
+  const [paymentSnapshot] = useState(initialPayment ?? null);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [paymentInputs, setPaymentInputs] = useState<CashInputs | null>(() => initialPayment ? Object.fromEntries(Object.entries(initialPayment.cash).map(([id, cash]) => [id, { paid: String(cash.paid), received: String(cash.received) }])) : null);
+  const [initialPaymentInputs] = useState(paymentInputs);
+
+  const clearNavigationGuard = useUnsavedNavigation(tableFeeInput !== (initialTableFee === undefined ? '' : String(initialTableFee)) || chipRateInput !== String(initialChipRate ?? 200) || participantIds.some(id => (chipInputs[id] ?? '') !== (initialChips?.[id] === undefined ? '' : String(initialChips[id]))) || JSON.stringify(paymentInputs) !== JSON.stringify(initialPaymentInputs), '未保存の精算内容があります。移動すると場代・チップ・支払いの入力は失われます。移動しますか？');
 
   // 半荘の記録が終わってこの画面に遷移したとき、場代の入力欄まで自動でスクロールする。
   useEffect(() => {
@@ -87,6 +97,10 @@ export function SettlementForm({
     [currentDayGames, chips, tableFee, chipRate],
   );
 
+  const paymentNames = paymentParticipantNames(Object.keys(settlement), players, paymentSnapshot);
+  const payment = paymentInputs ? paymentFromInputs(paymentInputs, paymentNames, paymentSnapshot?.repayments ?? []) : null;
+  const paymentPlan = payment ? calculatePaymentPlan(settlement, payment) : null;
+  const paymentError = paymentInputs && (!paymentPlan || !paymentPlan.ok) ? (paymentPlan && !paymentPlan.ok ? paymentPlan.error : '全員の支払額・受取額を0円以上の整数で入力してください。') : null;
   const name = (id: string) => players.find((p) => p.id === id)?.name ?? '不明';
 
   const errorMessage =
@@ -99,7 +113,7 @@ export function SettlementForm({
   const handleSave = async () => {
     if (savingRef.current) return;
     setAttemptedSave(true);
-    if (!chipsBalanced || chipRateMissing) return;
+    if (!chipsBalanced || chipRateMissing || paymentError) return;
     savingRef.current = true;
     setSaving(true);
     setSaveError(null);
@@ -110,23 +124,31 @@ export function SettlementForm({
       chips,
       chipRate,
       settlement,
+      ...(payment ? { payment } : paymentSnapshot ? { payment: null } : {}),
     });
+    clearNavigationGuard();
     setConfirmingSave(false);
-    } catch { setSaveError('保存できませんでした。入力内容を確認し、接続が戻ってから再試行してください。'); }
+    } catch (error) { setConfirmingSave(false); setSaveError(error instanceof Error ? `保存できませんでした。${error.message}` : '保存できませんでした。接続が戻ってから再試行してください。'); }
     finally { savingRef.current = false; setSaving(false); }
   };
 
   const requestSave = () => {
     setAttemptedSave(true);
-    if (!chipsBalanced || chipRateMissing) return;
+    if (!chipsBalanced || chipRateMissing || paymentError) return;
     setConfirmingSave(true);
   };
+
+  const confirmation = <ConfirmDialog danger={false} busy={saving} open={confirmingSave} title="対局会を精算" message={payment ? `対局結果と支払い内容を保存します。返済待ちの合計は${paymentPlan?.ok ? formatYen(paymentPlan.outstanding) : '—'}円です。返済元・返済先を確認しましたか？` : '表示中の場代・チップ・最終収支で対局会を確定し、履歴へ保存します。よろしいですか？'} confirmLabel="精算を保存" onCancel={() => setConfirmingSave(false)} onConfirm={handleSave} />;
+  if (paymentOpen && paymentInputs) return <>
+    <PaymentAdjustment settlement={settlement} tableFee={tableFee} inputs={paymentInputs} names={paymentNames} payment={payment} onChange={setPaymentInputs} onBack={() => { setPaymentOpen(false); requestAnimationFrame(() => paymentEntryRef.current?.focus()); }} onSave={requestSave} saving={saving} saveError={saveError ?? errorMessage} />
+    {confirmation}
+  </>;
 
   return (
     <fieldset disabled={saving} className="space-y-8 animate-fade-in border-0 p-0 min-w-0">
       <SectionHeader icon={DollarSign} title="本日の精算" />
 
-      <ErrorBanner message={saveError ?? errorMessage} />
+      <ErrorBanner message={saveError ?? errorMessage ?? (attemptedSave ? paymentError : null)} />
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-6">
@@ -278,8 +300,12 @@ export function SettlementForm({
         </div>
       </div>
 
+      <section className="payment-entry">
+        <button ref={paymentEntryRef} type="button" className="payment-entry-button" onClick={() => { setAttemptedSave(true); if (!chipsBalanced || chipRateMissing) return; if (!paymentInputs) setPaymentInputs(defaultCashInputs(settlement)); setPaymentOpen(true); }}><HandCoins size={19} aria-hidden="true" />払えない人がいた場合</button>
+        {paymentInputs && <><p className="payment-note">{paymentPlan?.ok ? `支払い内容を設定済み · 返済待ち ${formatYen(paymentPlan.outstanding)}円` : '支払い内容が未確定です。上のボタンから入力を確認してください。'}</p>{!paymentSnapshot?.repayments.length && <button type="button" className="payment-back" onClick={() => { if (window.confirm('入力した支払い内容を取り消し、通常の精算に戻しますか？')) setPaymentInputs(null); }}>通常の精算に戻す</button>}</>}
+      </section>
       <div className="flex flex-col sm:flex-row gap-4 pt-4">
-        <NeonButton variant="ghost" onClick={onCancel} className="sm:w-1/3 text-lg">
+        <NeonButton variant="ghost" onClick={() => { if (confirmNavigation()) { clearNavigationGuard(); onCancel(); } }} className="sm:w-1/3 text-lg">
           戻る
         </NeonButton>
         <NeonButton variant="success" onClick={requestSave} className="flex-1">
@@ -287,7 +313,7 @@ export function SettlementForm({
           {saving ? '保存中…' : saveLabel}
         </NeonButton>
       </div>
-      <ConfirmDialog open={confirmingSave} title="対局会を精算" message="表示中の場代・チップ・最終収支で対局会を確定し、履歴へ保存します。よろしいですか？" confirmLabel="精算を保存" onCancel={() => setConfirmingSave(false)} onConfirm={handleSave} />
+      {confirmation}
     </fieldset>
   );
 }

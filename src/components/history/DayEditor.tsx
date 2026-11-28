@@ -46,6 +46,7 @@ export function DayEditor({
         initialTableFee={day.tableFee}
         initialChipRate={day.chipRate}
         initialChips={day.chips}
+        initialPayment={day.payment}
         saveLabel="変更を保存する"
         onCancel={() => setStep('games')}
         onSave={onSave}

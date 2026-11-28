@@ -1,5 +1,4 @@
 import {
-  addDoc,
   collection,
   deleteDoc,
   doc,
@@ -8,13 +7,15 @@ import {
   onSnapshot,
   orderBy,
   query,
+  runTransaction,
   setDoc,
-  updateDoc,
   type Unsubscribe,
 } from 'firebase/firestore';
 import { getFirebaseDb } from './firebase';
 import { defaultSettings } from './defaults';
-import type { CustomTrophyDef, DayRecord, Game, LeagueSeason, MatchSession, Player, PlayerGoal, Settings } from '../types';
+import type { CustomTrophyDef, DayRecord, Game, LeagueSeason, MatchSession, Player, PlayerGoal, Repayment, Settings } from '../types';
+import { appendRepayment, calculatePaymentPlan, validatePaymentEdit } from './payments';
+import { sameStoredValue } from './storedValue';
 
 const PLAYERS_PATH = ['state', 'players'] as const;
 const SETTINGS_PATH = ['state', 'settings'] as const;
@@ -185,13 +186,49 @@ export async function saveCustomTrophies(roomCode: string, trophies: CustomTroph
   await setDoc(roomDoc(roomCode, CUSTOM_TROPHIES_PATH), { list: trophies });
 }
 
-export async function finalizeDay(roomCode: string, day: Omit<DayRecord, 'id'>): Promise<void> {
-  await addDoc(historyCollection(roomCode), day);
-  await setDoc(roomDoc(roomCode, CURRENT_DAY_PATH), { games: [], session: null }, { merge: true });
+export async function finalizeDay(roomCode: string, day: Omit<DayRecord, 'id'>, requestId?: string): Promise<void> {
+  if (day.payment) {
+    const plan = calculatePaymentPlan(day.settlement, day.payment);
+    if (!plan.ok) throw new Error(plan.error);
+    if (day.payment.repayments.length) throw new Error('新しい精算には過去の返済記録を含められません。');
+  }
+  const ref = requestId ? historyDoc(roomCode, requestId) : doc(historyCollection(roomCode));
+  const currentRef = roomDoc(roomCode, CURRENT_DAY_PATH);
+  await runTransaction(getFirebaseDb(), async transaction => {
+    const saved = await transaction.get(ref);
+    if (saved.exists()) {
+      const previous = saved.data() as Omit<DayRecord, 'id'>;
+      const content = (record: Omit<DayRecord, 'id'>) => ({ games: record.games, tableFee: record.tableFee, chips: record.chips, chipRate: record.chipRate, settlement: record.settlement, cash: record.payment?.cash ?? null, session: record.session?.id ?? null });
+      if (!sameStoredValue(content(previous), content(day))) throw new Error('この精算は保存済みです。履歴を開いて内容を確認してください。');
+      return;
+    }
+    const current = await transaction.get(currentRef);
+    const data = current.data() as CurrentDayState | undefined;
+    if (!data || !sameStoredValue(data.games, day.games) || (data.session?.id ?? null) !== (day.session?.id ?? null)) throw new Error('進行中の対局が更新されています。最新の内容で精算し直してください。');
+    transaction.set(ref, day);
+    transaction.set(currentRef, { games: [], session: null }, { merge: true });
+  });
 }
 
 export async function updateDay(roomCode: string, dayId: string, patch: Omit<DayRecord, 'id' | 'date'>): Promise<void> {
-  await updateDoc(historyDoc(roomCode, dayId), patch);
+  const ref = historyDoc(roomCode, dayId);
+  await runTransaction(getFirebaseDb(), async transaction => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) throw new Error('対局履歴が見つかりません。画面を更新してください。');
+    validatePaymentEdit({ id: dayId, ...snapshot.data() } as DayRecord, patch);
+    transaction.update(ref, patch);
+  });
+}
+
+export async function recordRepayment(roomCode: string, dayId: string, repayment: Repayment): Promise<void> {
+  const ref = historyDoc(roomCode, dayId);
+  await runTransaction(getFirebaseDb(), async transaction => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) throw new Error('対局履歴が見つかりません。画面を更新してください。');
+    const day = { id: dayId, ...snapshot.data() } as DayRecord;
+    const payment = appendRepayment(day, repayment);
+    transaction.update(ref, { payment });
+  });
 }
 
 export async function deleteDay(roomCode: string, dayId: string): Promise<void> {

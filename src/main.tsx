@@ -7,6 +7,7 @@ import './styles/quality.css'
 import './styles/obsidian-glass.css'
 import './styles/flow-review.css'
 import './styles/ux-review.css'
+import './styles/payments.css'
 import App from './App.tsx'
 import { applySeasonalTheme } from './lib/seasonalTheme'
 

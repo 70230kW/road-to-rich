@@ -1,5 +1,5 @@
 import type { DayRecord } from '../../types';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { HanchanForm } from './HanchanForm';
 import { SettlementForm } from './SettlementForm';
@@ -21,6 +21,7 @@ export function InputSection({ onNavigateToPlayers, onResultComplete, initialMod
   const roomCode = useAppStore((s) => s.roomCode);
 
   const [savedDay, setSavedDay] = useState<{ day: DayRecord; title: string; historyBefore: DayRecord[] } | null>(null);
+  const finalizationId = useRef(crypto.randomUUID());
   const [localMode, setLocalMode] = useState<InputMode>(initialMode);
   const requestedMode = onModeChange ? initialMode : localMode;
   const setMode = (value: InputMode) => onModeChange ? onModeChange(value) : setLocalMode(value);
@@ -40,7 +41,7 @@ export function InputSection({ onNavigateToPlayers, onResultComplete, initialMod
           const title = currentSession?.title ?? '本日の対局';
           const historyBefore = useAppStore.getState().history;
           const completedDay: DayRecord = { ...day, id: `result-${Date.now()}`, date: new Date().toISOString(), ...(currentSession ? { session: currentSession } : {}) };
-          await finalizeDay(day);
+          await finalizeDay(day, finalizationId.current);
           haptic('success');
           setSavedDay({ day: completedDay, title, historyBefore });
         }}

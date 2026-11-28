@@ -96,6 +96,25 @@ export interface DayVotes {
   hanzai: Record<string, number>;
 }
 
+/** 実際の現金移動。対局収支・段位の計算には使わない。 */
+export interface PlayerCash {
+  paid: number;
+  received: number;
+}
+export interface Repayment {
+  id: string;
+  from: string;
+  to: string;
+  amount: number;
+  recordedAt: string;
+}
+export interface DayPayment {
+  version: 1;
+  cash: Record<string, PlayerCash>;
+  names: Record<string, string>;
+  repayments: Repayment[];
+}
+
 /** 今月の個人目標。target は type が 'profit' なら円、'topRate' なら 0〜100 のパーセント値。 */
 export interface PlayerGoal {
   type: 'profit' | 'topRate';
@@ -134,4 +153,6 @@ export interface DayRecord {
   session?: MatchSession;
   /** この記録が属する公式シーズン。旧データでは未指定。 */
   seasonId?: string;
+  /** 立替精算を使った場合のみ。nullは立替記録を明示的に解除した状態。 */
+  payment?: DayPayment | null;
 }

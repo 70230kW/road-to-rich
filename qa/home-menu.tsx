@@ -1,3 +1,4 @@
+import { appendRepayment, validatePaymentEdit } from '../src/lib/payments';
 // Dev-only, isolated UI fixture. Not an entry in the production build.
 // Every store action is replaced before mounting: no Firebase reads or writes.
 import { StrictMode } from 'react';
@@ -11,6 +12,7 @@ import '../src/styles/quality.css';
 import '../src/styles/obsidian-glass.css';
 import '../src/styles/flow-review.css';
 import '../src/styles/ux-review.css';
+import '../src/styles/payments.css';
 import { calcDaySettlement, calcGameSettlement } from '../src/lib/calc';
 import type { DayRecord } from '../src/types';
 
@@ -30,6 +32,8 @@ store.setState({ ...disabled, roomCode: 'UI-PREVIEW-NO-SAVE', connectionStatus: 
   clearSession: async () => { store.setState({ currentSession: null }); },
   startSession: async (title, participantIds) => { store.setState({ currentSession: { id: crypto.randomUUID(), title, participantIds, startedAt: new Date().toISOString() } }); },
   finalizeDay: async day => { store.setState(s => ({ history: [...s.history, { ...day, id: crypto.randomUUID(), date: new Date().toISOString(), ...(s.currentSession ? { session: s.currentSession } : {}) }], currentDayGames: [], currentSession: null })); },
+  updateDay: async (id, patch) => { store.setState(s => ({ history: s.history.map(day => { if (day.id !== id) return day; validatePaymentEdit(day, patch); return { ...day, ...patch }; }) })); },
+  recordRepayment: async (id, repayment) => { store.setState(s => ({ history: s.history.map(day => day.id === id ? { ...day, payment: appendRepayment(day, repayment) } : day) })); },
   refreshRoom: async () => {},
 });
 localStorage.setItem('road-to-rich-welcome-v1', 'seen');

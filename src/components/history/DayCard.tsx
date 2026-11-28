@@ -3,6 +3,8 @@ import { ChevronDown, DollarSign, Pencil, StickyNote, Trash2, Vote } from 'lucid
 import type { DayRecord, Player, Settings } from '../../types';
 import { formatDate, formatSignedYen, formatYen } from '../../lib/format';
 import { ConfirmDialog } from '../common/ConfirmDialog';
+import { PaymentHistory } from './PaymentHistory';
+import { calculatePaymentPlan } from '../../lib/payments';
 import { DayEditor } from './DayEditor';
 import { MatrixTable } from './MatrixTable';
 import { PointMatrixTable } from './PointMatrixTable';
@@ -42,6 +44,7 @@ export function DayCard({
     return players.filter((p) => seen.has(p.id)).map((p) => p.id);
   }, [day, players]);
 
+  const paymentPlan = day.payment ? calculatePaymentPlan(day.settlement, day.payment) : null;
   const ownResult = activePlayerId ? day.settlement[activePlayerId] : undefined;
   const ownScores = day.games.flatMap(game => game.scores.filter(score => score.playerId === activePlayerId));
   const rankCount = Math.max(3, ...day.games.map(game => game.scores.length));
@@ -100,7 +103,7 @@ export function DayCard({
       >
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
         <div className="relative z-10 history-summary">
-          <div className="history-summary-title"><strong>{day.session?.title ?? '通常対局'}</strong><span className="settlement-status">精算済み</span></div>
+          <div className="history-summary-title"><strong>{day.session?.title ?? '通常対局'}</strong><span className="settlement-status">精算済み</span>{paymentPlan?.ok && paymentPlan.outstanding > 0 && <span className="settlement-status is-pending">返済待ち {formatYen(paymentPlan.outstanding)}円</span>}</div>
           <p className="history-summary-date">{formatDate(day.date)} · {new Date(day.date).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</p>
           <p className="history-summary-players" title={participantIds.map(name).join('、')}>{participantIds.slice(0, participantIds.length <= 4 ? 4 : 3).map(name).join('、')}{participantIds.length > 4 ? ` ほか${participantIds.length - 3}人` : ''}</p>
           <div className="text-xs text-slate-400 mt-2 flex flex-wrap items-center gap-3 md:gap-4 font-bold tracking-wider">
@@ -131,6 +134,7 @@ export function DayCard({
 
       {isExpanded && (
         <div className="p-5 md:p-8 border-t border-slate-700/50 bg-panel-3/80 relative animate-fade-in">
+          {day.payment && <PaymentHistory day={day} players={players} />}
           <div className="history-actions flex flex-wrap justify-end gap-2 mb-6 relative z-10">
             {day.games.length > 0 && <button type="button" className="replay-toggle" aria-expanded={replayOpen} aria-controls={replayId} onClick={() => setReplayOpen(!replayOpen)}>{replayOpen ? '振り返りを閉じる' : '対局会を振り返る'}</button>}
             <ResultShareButton title={day.session?.title ?? `${formatDate(day.date)}の対局`} date={formatDate(day.date)} hanchanCount={day.games.length} rows={participantIds.map((id) => ({ id, name: name(id), profit: day.settlement[id]?.totalWithFee ?? 0, color: players.find((player) => player.id === id)?.color }))} />
