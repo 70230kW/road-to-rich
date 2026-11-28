@@ -1,6 +1,6 @@
 {
-  "currentVersion": "2.13.2",
-  "lastProcessedPr": 104,
+  "currentVersion": "2.13.3",
+  "lastProcessedPr": 106,
   "processedPrs": [
     79,
     80,
@@ -27,9 +27,22 @@
     101,
     102,
     103,
-    104
+    104,
+    106
   ],
   "updates": [
+    {
+      "version": "2.13.3",
+      "date": "2026.11.28",
+      "title": "style: 型どおりのヒーロー帯と英字ラベルを削除",
+      "summary": "PR #106「style: 型どおりのヒーロー帯と英字ラベルを削除」の内容を反映しました。",
+      "items": [
+        {
+          "target": "アプリ",
+          "change": "「style: 型どおりのヒーロー帯と英字ラベルを削除」を反映しました。"
+        }
+      ]
+    },
     {
       "version": "2.13.2",
       "date": "2026.11.25",
