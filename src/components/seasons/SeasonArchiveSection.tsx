@@ -44,7 +44,7 @@ export function SeasonArchiveSection() {
         </section>
       ) : (
         <section className="season-create-card">
-          <div><span className="eyebrow">NEW SEASON</span><h3>新しいシーズンを開始</h3><p>開始後に精算した対局会は、自動的にこのシーズンへ記録されます。</p></div>
+          <div><h3>新しいシーズンを開始</h3><p>開始後に精算した対局会は、自動的にこのシーズンへ記録されます。</p></div>
           <label><span>シーズン名</span><input value={name} onChange={(event) => setName(event.target.value)} /></label>
           <label><span>開始日</span><input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label>
           <NeonButton variant="primary" disabled={!name.trim() || !startDate || saving} onClick={async () => { setSaving(true); await createSeason(name, startDate); setSaving(false); }}><Plus size={17} className="mr-2" />{saving ? '開始中…' : 'シーズンを開始'}</NeonButton>
@@ -52,7 +52,7 @@ export function SeasonArchiveSection() {
       )}
 
       <section className="unified-section">
-        <div className="content-section-header"><div><span className="eyebrow">HALL OF SEASONS</span><h3>シーズンアーカイブ</h3></div><small>{archived.length}シーズン</small></div>
+        <div className="content-section-header"><div><h3>シーズンアーカイブ</h3></div><small>{archived.length}シーズン</small></div>
         {archived.length === 0 ? <p className="season-empty">終了したシーズンはまだありません。</p> : <div className="season-archive-grid">{archived.map((season) => {
           const snapshot = computeSeasonSnapshot(history, players, season);
           return <article key={season.id}><div className="season-archive-title"><Trophy size={18} /><div><strong>{season.name}</strong><small>{season.startDate.replaceAll('-', '.')} — {season.endDate?.replaceAll('-', '.') ?? '-'}</small></div></div><div className="season-champion"><span>CHAMPION</span><strong>{snapshot.champion?.name ?? '記録なし'}</strong><em>{snapshot.champion ? formatSignedYen(snapshot.champion.totalProfitWithoutFee) : '-'}</em></div><footer><span><Flag size={12} />{snapshot.hanchanCount}半荘</span><span>{snapshot.days.length}日間</span></footer></article>;

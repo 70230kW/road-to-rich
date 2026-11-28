@@ -29,13 +29,7 @@ export function SettingsSection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={SettingsIcon} title="計算設定" accent="cyan" description="対局形式・配給原点・順位点をリーグ運用に合わせて調整します。" />
-
-      <div className="page-overview page-overview-cyan">
-        <div><span>対局形式</span><strong>{settings.playerCount}人麻雀</strong></div>
-        <div><span>配給原点</span><strong>{settings.initialScore.toLocaleString()}点</strong></div>
-        <div><span>レート</span><strong>÷ {settings.divider.toLocaleString()}</strong></div>
-      </div>
+      <SectionHeader icon={SettingsIcon} title="計算設定" accent="cyan" />
 
       {hasUnsavedDay && (
         <ErrorBanner message="本日、未精算の半荘記録があるため「対局形式」は変更できません。先に精算を保存するか、記録を削除してください。" />

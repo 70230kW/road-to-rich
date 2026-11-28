@@ -33,10 +33,10 @@ export function LeagueHomeSection({ onOpenRecord, onOpenMatch, onNavigate }: {
   const inProgress = Boolean(session || games.length);
 
   return <div className="league-hub">
-    <header className="hub-heading"><div><p className="eyebrow">YOUR LEAGUE, YOUR STORY</p><h2>今日も、一局ずつ。</h2><p>仲間との記録を、あなたのキャリアに。</p></div><span className="hub-season">通算成績 ／ {players.length}人のリーグ</span></header>
+    <header className="hub-heading"><div><h2>今日も、一局ずつ。</h2><p>仲間との記録を、あなたのキャリアに。</p></div><span className="hub-season">通算成績 ／ {players.length}人のリーグ</span></header>
     <div className="hub-primary-grid">
       <section className="hub-career" aria-label="あなたの通算成績">
-        <div className="hub-card-top"><span className="eyebrow">MY CAREER</span>{status && <RankBadge status={status} />}</div>
+        <div className="hub-card-top">{status && <RankBadge status={status} />}</div>
         <h3>{player ? player.name + 'さんの現在地' : '最初の一局から、始めよう。'}</h3>
         <p className="hub-profit-label">通算収支 <span>場代抜き</span></p>
         <p className={'hub-profit ' + ((row?.totalProfitWithoutFee ?? 0) < 0 ? 'profit-negative' : 'profit-positive')}><ScrambleText text={row ? formatSignedYen(row.totalProfitWithoutFee) : '—'} /><small>円</small></p>
@@ -45,7 +45,7 @@ export function LeagueHomeSection({ onOpenRecord, onOpenMatch, onNavigate }: {
         <button className="hub-text-link" type="button" onClick={() => onNavigate(player ? 'dashboard' : 'players')}>{player ? '個人成績を詳しく見る' : '雀士を登録する'}<ArrowUpRight size={18} /></button>
       </section>
       <section className={'hub-match ' + (inProgress ? 'is-live' : '')}>
-        <div className="hub-card-top"><span className="eyebrow">{inProgress ? 'MATCH IN PROGRESS' : 'NEXT MATCH'}</span><Gamepad2 size={22} /></div>
+        <div className="hub-card-top"><Gamepad2 size={22} /></div>
         <div className="hub-match-copy"><span className="hub-status"><i />{inProgress ? '対局進行中' : '次の対局へ'}</span><h3>{session?.title ?? (games.length ? '精算前の対局があります' : '卓を囲む準備は、できた？')}</h3><p>{inProgress ? games.length + '半荘を記録済み。続きから入力できます。' : '参加する雀士を選んで、対局を始めましょう。'}</p></div>
         {inProgress ? <div aria-label="対局会の暫定順位"><CurrentProfitsBar games={games} players={players} participantIds={session?.participantIds} /></div> : <div className="hub-match-steps"><span><b>01</b>メンバーを選ぶ</span><span><b>02</b>素点を記録</span><span><b>03</b>まとめて精算</span></div>}
         <button type="button" className="hub-primary-button" onClick={onOpenMatch}><Plus size={19} />{inProgress ? '次の半荘を記録' : '対局会を始める'}<ArrowRight size={18} /></button>

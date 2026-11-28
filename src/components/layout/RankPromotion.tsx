@@ -21,7 +21,7 @@ export function RankPromotion() {
   }, [synced, status, room, activeId]);
   if (!promotion || promotion.room !== room || promotion.id !== activeId || promotion.status.levelIndex !== status?.levelIndex) return null;
   return <div className="promotion-banner" role="status"><RankEmblem status={promotion.status} compact />
-    <div><p className="eyebrow">RANK UP</p><strong>{players.find(p => p.id === activeId)?.name}、{promotion.status.levelName}に昇段！</strong><small>通算の場代抜き収支で新しい段位に到達しました。</small></div>
+    <div><strong>{players.find(p => p.id === activeId)?.name}、{promotion.status.levelName}に昇段！</strong><small>通算の場代抜き収支で新しい段位に到達しました。</small></div>
     <button type="button" aria-label="昇段のお知らせを閉じる" onClick={() => setPromotion(null)}><X size={18} /></button>
   </div>;
 }

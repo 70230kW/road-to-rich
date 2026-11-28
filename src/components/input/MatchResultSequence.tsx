@@ -97,14 +97,14 @@ export function MatchResultSequence({
 
       <div key={step} id="result-panel" role="tabpanel" aria-labelledby={`result-tab-${step}`} className="match-result-stage">
         {step === 0 && <>
-          <div className="match-result-title"><Crown aria-hidden="true" /><p className="eyebrow">MATCH COMPLETE</p><h2 ref={headingRef} tabIndex={-1}>{title}</h2><span>{resultDay.games.length}半荘の最終結果</span></div>
+          <div className="match-result-title"><Crown aria-hidden="true" /><h2 ref={headingRef} tabIndex={-1}>{title}</h2><span>{resultDay.games.length}半荘の最終結果</span></div>
           <ol className="match-result-ranking">
             {finalRows.map((row, index) => <li key={row.id} className={index === 0 ? 'is-winner' : ''}><span>{index + 1}</span><i style={{ backgroundColor: row.color }} /><strong>{row.name}</strong><em className={row.profit >= 0 ? 'profit-positive' : 'profit-negative'}><ScrambleText text={formatSignedYen(row.profit)} />円</em></li>)}
           </ol>
         </>}
 
         {step === 1 && <>
-          <div className="match-result-title"><Target aria-hidden="true" /><p className="eyebrow">LEAGUE IMPACT</p><h2 ref={headingRef} tabIndex={-1}>順位・段位の変化</h2><span>今回の精算をリーグ全体へ反映しました</span></div>
+          <div className="match-result-title"><Target aria-hidden="true" /><h2 ref={headingRef} tabIndex={-1}>順位・段位の変化</h2><span>今回の精算をリーグ全体へ反映しました</span></div>
           <div className="match-result-changes">
             {leagueChanges.map((row) => {
               const positionDelta = row.beforePosition === null || row.afterPosition === null ? null : row.beforePosition - row.afterPosition;
@@ -115,7 +115,7 @@ export function MatchResultSequence({
         </>}
 
         {step === 2 && <>
-          <div className="match-result-title"><Sparkles aria-hidden="true" /><p className="eyebrow">NEW HIGHLIGHTS</p><h2 ref={headingRef} tabIndex={-1}>記録と実績</h2><span>今日生まれたハイライトをまとめました</span></div>
+          <div className="match-result-title"><Sparkles aria-hidden="true" /><h2 ref={headingRef} tabIndex={-1}>記録と実績</h2><span>今日生まれたハイライトをまとめました</span></div>
           <div className="match-result-highlights">
             {highlights.bestScore && <div><Medal aria-hidden="true" /><span>本日の最高素点</span><strong>{players.find((player) => player.id === highlights.bestScore?.playerId)?.name ?? '不明'}</strong><em>{highlights.bestScore.rawScore.toLocaleString()}点</em></div>}
             {highlights.records.map((record) => <div key={record.id}><Sparkles aria-hidden="true" /><span>自己最高素点を更新</span><strong>{record.name}</strong><em>{record.score.toLocaleString()}点</em></div>)}

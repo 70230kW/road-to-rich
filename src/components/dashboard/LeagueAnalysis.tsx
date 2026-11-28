@@ -31,7 +31,6 @@ import { SeasonReportModal } from './SeasonReportModal';
 import { GoalProgressSection } from './GoalProgressSection';
 import { TableRankingSection } from './TableRankingSection';
 import { PlayerDetailModal } from '../ranking/PlayerDetailModal';
-import { ScrambleText } from '../common/ScrambleText';
 
 export function LeagueAnalysis({ season, onShowAll }: { season: SeasonFilter; onShowAll?: () => void }) {
   const fullHistory = useAppStore((s) => s.history);
@@ -76,7 +75,7 @@ export function LeagueAnalysis({ season, onShowAll }: { season: SeasonFilter; on
   if (history.length === 0) {
     return (
       <div className="space-y-8">
-        <SectionHeader icon={BarChart3} title="リーグ全体の分析" accent="cyan" description="全雀士の戦績を、多角的な指標と推移で読み解きます。" trailing={fullHistory.length > 0 ? seasonSelect : undefined} />
+        <SectionHeader icon={BarChart3} title="リーグ全体の分析" accent="cyan" trailing={fullHistory.length > 0 ? seasonSelect : undefined} />
         {careerInsights}
         <section className="period-empty">
           <EmptyState icon={BarChart3} message={season === 'all' ? '分析データがありません' : 'この期間の対局はありません'} hint={season === 'all' ? '対局を記録して精算を保存すると、ここに統計が表示されます。' : '期間を切り替えると、ほかの対局の分析を確認できます。'} />
@@ -91,18 +90,11 @@ export function LeagueAnalysis({ season, onShowAll }: { season: SeasonFilter; on
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={BarChart3} title="リーグ全体の分析" accent="cyan" description="全雀士の戦績を、多角的な指標と推移で読み解きます。" trailing={seasonSelect} />
-
-      <div className="page-overview page-overview-cyan">
-        <div><span>対象期間</span><strong>{seasonLabel}</strong></div>
-        <div><span>対局日数</span><strong><ScrambleText text={`${history.length}日`} /></strong></div>
-        <div><span>総半荘数</span><strong><ScrambleText text={`${totalHanchans}半荘`} /></strong></div>
-        <div><span>登録雀士</span><strong><ScrambleText text={`${players.length}人`} /></strong></div>
-      </div>
+      <SectionHeader icon={BarChart3} title="リーグ全体の分析" accent="cyan" description={`${seasonLabel}・${history.length}日・${totalHanchans}半荘・雀士${players.length}人`} trailing={seasonSelect} />
 
       {careerInsights}
 
-      <section className="unified-section"><div className="content-section-header"><div><span className="eyebrow">LEAGUE LEADERS</span><h3>リーグトップ指標</h3></div><small>カードをタップして詳細を表示</small></div><div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
+      <section className="unified-section"><div className="content-section-header"><div><h3>リーグトップ指標</h3></div><small>カードをタップして詳細を表示</small></div><div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
         <StatCard
           title="参加半荘数1位"
           value={stats.mostHanchansPlayed ? `${stats.mostHanchansPlayed.value} GAMES` : '-'}

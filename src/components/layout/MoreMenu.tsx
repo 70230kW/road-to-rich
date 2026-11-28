@@ -81,7 +81,6 @@ export function MoreMenu({
       <aside ref={panelRef} className="navigation-menu-panel" role="dialog" aria-modal="true" aria-labelledby="navigation-menu-title">
         <header className="navigation-menu-header">
           <div>
-            <p className="eyebrow">ROAD TO RICH</p>
             <h2 id="navigation-menu-title">メニュー</h2>
           </div>
           <button ref={closeButtonRef} type="button" className="icon-button" onClick={onClose} aria-label="メニューを閉じる">

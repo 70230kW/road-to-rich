@@ -15,13 +15,7 @@ export function RulesSection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={BookOpen} title="ルール" accent="emerald" description="対局前でも迷わず確認できる、リーグ共通のルールブックです。" />
-
-      <div className="page-overview page-overview-emerald">
-        <div><span>収録ルール</span><strong>{RULES.length}項目</strong></div>
-        <div><span>準拠</span><strong>Mリーグ</strong></div>
-        <p>Mリーグの対局ルールを掲載しています。点数計算は、このアプリ独自の「計算設定」で管理します。</p>
-      </div>
+      <SectionHeader icon={BookOpen} title="ルール" accent="emerald" description={`Mリーグ準拠の${RULES.length}項目。点数計算は「計算設定」で管理します。`} />
 
       <div className="rule-search">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
@@ -38,7 +32,7 @@ export function RulesSection() {
         <EmptyState icon={Search} message="該当するルールがありません" hint="別のキーワードで検索してみてください。" />
       ) : (
         <section className="unified-section">
-          <div className="content-section-header"><div><span className="eyebrow">RULE BOOK</span><h3>ルール一覧</h3></div><small>{filtered.length}件を表示</small></div>
+          <div className="content-section-header"><div><h3>ルール一覧</h3></div><small>{filtered.length}件を表示</small></div>
           <div className="rules-grid">
           {filtered.map((rule, index) => (
             <div

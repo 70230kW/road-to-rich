@@ -84,16 +84,10 @@ export function PlayerSection() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <SectionHeader icon={Users} title="雀士登録" accent="cyan" description="メンバーのプロフィールカラー・段位・目標を管理します。" />
-
-      <div className="page-overview page-overview-cyan">
-        <div><span>登録雀士</span><strong>{players.length}人</strong></div>
-        <div><span>対局形式</span><strong>{settings.playerCount}人麻雀</strong></div>
-        <div><span>必要人数</span><strong>{players.length >= minRequired ? '準備完了' : `あと${minRequired - players.length}人`}</strong></div>
-      </div>
+      <SectionHeader icon={Users} title="雀士登録" accent="cyan" description={`${players.length}人登録・${settings.playerCount}人麻雀${players.length >= minRequired ? '' : `（対局にはあと${minRequired - players.length}人）`}`} />
 
       <div className="player-add-panel">
-        <div className="content-section-header"><div><span className="eyebrow">NEW PLAYER</span><h3>雀士を追加</h3></div><small>あとから名前・カラー・目標を変更できます</small></div>
+        <div className="content-section-header"><div><h3>雀士を追加</h3></div><small>あとから名前・カラー・目標を変更できます</small></div>
         <div className="flex flex-col sm:flex-row gap-3">
         <input
           type="text"
@@ -112,7 +106,7 @@ export function PlayerSection() {
       {players.length === 0 ? (
         <EmptyState icon={Users} message="雀士が登録されていません" hint="まずは雀士を登録しましょう。" />
       ) : (
-        <section className="unified-section"><div className="content-section-header"><div><span className="eyebrow">ROSTER</span><h3>登録メンバー</h3></div><small>{players.length}人のプロフィール</small></div><div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <section className="unified-section"><div className="content-section-header"><div><h3>登録メンバー</h3></div><small>{players.length}人のプロフィール</small></div><div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {players.map((p) => {
             const isPickingColor = colorPickerId === p.id;
             return (

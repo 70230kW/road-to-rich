@@ -68,11 +68,11 @@ body.glass-theme .app-content :is(.unified-panel, .unified-section, .editorial-s
   border: 0; border-top: 1px solid var(--glass-edge); border-radius: 0;
   padding: 22px 0; background: transparent; box-shadow: none;
 }
-body.glass-theme .app-content :is(.page-overview, .season-overview-grid, .kpi-grid) {
+body.glass-theme .app-content :is(.season-overview-grid, .kpi-grid) {
   padding: 18px 0; gap: 18px; border: 0; border-block: 1px solid var(--glass-edge);
   border-radius: 0; background: transparent; box-shadow: none;
 }
-body.glass-theme .app-content :is(.page-overview, .season-overview-grid) > div { background: transparent; }
+body.glass-theme .app-content .season-overview-grid > div { background: transparent; }
 body.glass-theme .app-content :is(.rule-card, .player-roster-card, .season-archive-grid article) {
   padding: 20px; border: 1px solid var(--glass-edge); border-radius: 12px;
   background: linear-gradient(120deg, #b9e4ef05, transparent), #10171acc;

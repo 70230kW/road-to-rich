@@ -107,7 +107,7 @@ export function RankingSection() {
         })}
       </div>
 
-      {activeRow && <section className="ranking-target"><div><span className="eyebrow">YOUR NEXT TARGET</span><h3>{activeRow.name} · <ScrambleText text={String(positions[activeId])} />位</h3></div><p>{gap === null ? '現在トップの収支です' : <>上位の収支まで <strong><ScrambleText text={`${Math.ceil(gap).toLocaleString()}円`} /></strong></>}</p></section>}
+      {activeRow && <section className="ranking-target"><div><h3>{activeRow.name} · <ScrambleText text={String(positions[activeId])} />位</h3></div><p>{gap === null ? '現在トップの収支です' : <>上位の収支まで <strong><ScrambleText text={`${Math.ceil(gap).toLocaleString()}円`} /></strong></>}</p></section>}
 
       {selectedRow && (
         <PlayerDetailModal
