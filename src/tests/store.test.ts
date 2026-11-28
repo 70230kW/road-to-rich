@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   saveCurrentSession: vi.fn(),
   saveSeasons: vi.fn(),
   finalizeDay: vi.fn(),
+  recordRepayment: vi.fn(),
   updateDay: vi.fn(),
   deleteDay: vi.fn(),
   saveGoals: vi.fn(),
@@ -80,6 +81,7 @@ vi.mock('../lib/roomRepo', () => ({
   saveCurrentSession: mocks.saveCurrentSession,
   saveSeasons: mocks.saveSeasons,
   finalizeDay: mocks.finalizeDay,
+  recordRepayment: mocks.recordRepayment,
   updateDay: mocks.updateDay,
   deleteDay: mocks.deleteDay,
   saveGoals: mocks.saveGoals,
@@ -359,6 +361,18 @@ describe('game actions', () => {
     const patch = { games: [{ id: 'g1', scores }], tableFee: 5000, chips: { a: 1 }, chipRate: 200, settlement: {} };
     await useAppStore.getState().updateDay('day-1', patch);
     expect(mocks.updateDay).toHaveBeenCalledWith('room-g', 'day-1', patch);
+  });
+
+  it('rejects settlement and repayment saves after the room disconnects', async () => {
+    useAppStore.setState({ roomCode: null });
+    const patch = { games: [{ id: 'g1', scores }], tableFee: 0, chips: {}, chipRate: 200, settlement: {} };
+    const repayment = { id: 'repay-1', from: 'a', to: 'b', amount: 1000, recordedAt: '2026-11-28T00:00:00Z' };
+    await expect(useAppStore.getState().finalizeDay(patch, 'save-1')).rejects.toThrow('ルームに接続');
+    await expect(useAppStore.getState().updateDay('day-1', patch)).rejects.toThrow('ルームに接続');
+    await expect(useAppStore.getState().recordRepayment('day-1', repayment)).rejects.toThrow('ルームに接続');
+    expect(mocks.finalizeDay).not.toHaveBeenCalled();
+    expect(mocks.updateDay).not.toHaveBeenCalled();
+    expect(mocks.recordRepayment).not.toHaveBeenCalled();
   });
 
   it('deleteDay delegates to the repo', async () => {
