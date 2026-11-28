@@ -33,7 +33,7 @@ export function LeagueHomeSection({ onOpenRecord, onOpenMatch, onNavigate }: {
   const inProgress = Boolean(session || games.length);
 
   return <div className="league-hub">
-    <header className="hub-heading"><div><h2>今日も、一局ずつ。</h2><p>仲間との記録を、あなたのキャリアに。</p></div><span className="hub-season">通算成績 ／ {players.length}人のリーグ</span></header>
+    <h2 className="sr-only">リーグホーム</h2>
     <div className="hub-primary-grid">
       <section className="hub-career" aria-label="あなたの通算成績">
         <div className="hub-card-top">{status && <RankBadge status={status} />}</div>

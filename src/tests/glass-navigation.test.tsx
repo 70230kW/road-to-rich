@@ -24,7 +24,7 @@ it('reaches all 14 destinations with the shared theme and preserves TOP selectio
   expect(await screen.findByRole('button', { name: '対局入力を続ける（第2半荘）' })).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: '01 順位表' }));
   expect(await screen.findByRole('heading', { name: '総合ランキング' }, { timeout: 5000 })).toBeInTheDocument();
-  for (const [menu, heading] of [['リーグホーム', '今日も、一局ずつ。'], ['ダッシュボード', 'ダッシュボード'], ['対戦履歴', '対戦履歴'], ['段位', '段位'], ['成績予想', '成績予想'], ['実績', 'トロフィー'], ['シーズン', 'シーズン'], ['アプデ', 'アプデ'], ['ルール', 'ルール'], ['雀士登録', '雀士登録'], ['計算設定', '計算設定']]) {
+  for (const [menu, heading] of [['リーグホーム', 'リーグホーム'], ['ダッシュボード', 'ダッシュボード'], ['対戦履歴', '対戦履歴'], ['段位', '段位'], ['成績予想', '成績予想'], ['実績', 'トロフィー'], ['シーズン', 'シーズン'], ['アプデ', 'アプデ'], ['ルール', 'ルール'], ['雀士登録', '雀士登録'], ['計算設定', '計算設定']]) {
     fireEvent.click(screen.getByRole('button', { name: 'メニューを開く' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'メニューを検索' }), { target: { value: menu } });
     fireEvent.click(within(screen.getByRole('dialog', { name: 'メニュー' })).getByRole('button', { name: menu }));
@@ -54,7 +54,7 @@ it('promotes resume on TOP after starting a match during the same visit', async 
   }) });
   navigate('home');
   render(<AppShell />);
-  await screen.findByRole('heading', { name: '今日も、一局ずつ。' });
+  await screen.findByRole('heading', { name: 'リーグホーム' });
   act(() => { navigate('input', { mode: 'session' }); });
   await screen.findByRole('textbox', { name: '対局会名' });
   for (const player of useAppStore.getState().players) fireEvent.click(screen.getByRole('checkbox', { name: player.name }));
