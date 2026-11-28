@@ -37,11 +37,6 @@ main { scroll-margin-top: 90px; }
 .record-sheet { max-height: 85dvh; overflow-y: auto; }
 
 .league-hub { display: grid; gap: 26px; padding-top: 4px; }
-.hub-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 18px; padding: 8px 0; }
-.hub-heading .eyebrow { color: #c4ab7b; font-size: var(--text-meta); letter-spacing: .2em; }
-.hub-heading h2 { margin: 9px 0; font-size: clamp(27px,3.4vw,40px); letter-spacing: -.055em; font-weight: 750; line-height: 1.4; }
-.hub-heading p:last-child { color: var(--premium-muted); font-size: var(--text-body); }
-.hub-season { color: var(--premium-muted); font-size: 12px; white-space: nowrap; }
 .hub-primary-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; }
 .hub-career, .hub-match, .hub-panel { min-width: 0; border: 1px solid var(--premium-line); border-radius: 20px; background: #14181e; padding: clamp(20px,3vw,30px); }
 .hub-career { position: relative; background: radial-gradient(ellipse at 95% 0,#dec59412,transparent 65%),#15191f; border-color: #dec59440; }
@@ -104,8 +99,6 @@ main { scroll-margin-top: 90px; }
 .hub-empty svg { color: #82765f; }
 .hub-empty button { display: flex; align-items: center; gap: 9px; color: var(--premium-gold); }
 @media (max-width: 760px) {
-  .hub-heading { display: block; }
-  .hub-season { display: block; margin-top: 16px; }
   .hub-primary-grid, .hub-secondary-grid { grid-template-columns: minmax(0,1fr); gap: 16px; }
   .hub-primary-grid:has(.is-live) .hub-match { order: -1; }
   .hub-match-copy { margin: 18px 0; }
