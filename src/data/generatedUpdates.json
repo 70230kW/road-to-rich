@@ -1,6 +1,6 @@
 {
-  "currentVersion": "2.13.3",
-  "lastProcessedPr": 106,
+  "currentVersion": "2.13.4",
+  "lastProcessedPr": 107,
   "processedPrs": [
     79,
     80,
@@ -28,9 +28,34 @@
     102,
     103,
     104,
-    106
+    106,
+    107
   ],
   "updates": [
+    {
+      "version": "2.13.4",
+      "date": "2026.11.28",
+      "title": "リーグホームのヒーロー見出しを削除",
+      "summary": "PR #107「リーグホームのヒーロー見出しを削除」の内容を反映しました。",
+      "items": [
+        {
+          "target": "アプリ",
+          "change": "「リーグホームの「今日も、一局ずつ。」見出し、サブコピー、「通算成績 ／ N人のリーグ」ラベルを削除」を反映しました。"
+        },
+        {
+          "target": "アプリ",
+          "change": "「スクリーンリーダー用に sr-only の h2「リーグホーム」を残した」を反映しました。"
+        },
+        {
+          "target": "アプリ",
+          "change": "「未使用になった .hub-heading / .hub-season のCSSを削除」を反映しました。"
+        },
+        {
+          "target": "アプリ",
+          "change": "「削除した文言を探していた glass-navigation.test.tsx の2箇所を更新」を反映しました。"
+        }
+      ]
+    },
     {
       "version": "2.13.3",
       "date": "2026.11.28",
